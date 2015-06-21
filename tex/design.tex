@@ -1,0 +1,26 @@
+\section{Design}
+\label{sec:design}
+
+\begin{itemize}
+    \item Linux Kernel Module => soft / compatible / No simulation
+    \item No arch specific code
+    \item Track page faults
+        \begin{itemize}
+            \item Simple
+            \item Efficient
+            \item False pagefaults mechanisms
+            \item Hashmap more compatible than hack
+        \end{itemize}
+    \item Hashmaps for fast stuff
+        \begin{itemize}
+            \item No allocation during runtime
+        \end{itemize}
+    \item Access bufferised before flush
+        \begin{itemize}
+            \item Kernel memory => might OOM with too big app
+        \end{itemize}
+    \item Notion of Chunk (time unit) => reduce data to store
+    \item rwlocks for most stuffs (task / taskdata : mostly read)
+    \item Good default / highly tunnable
+    \item Simple trace format
+\end{itemize}
