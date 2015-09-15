@@ -1,6 +1,7 @@
 \section{Design}
 \label{sec:design}
 
+\subsection{Mainlines}
 \begin{itemize}
     \item Linux Kernel Module => soft / compatible / No simulation
     \item No arch specific code
@@ -18,9 +19,174 @@
     \item Access bufferised before flush
         \begin{itemize}
             \item Kernel memory => might OOM with too big app
+            \item Limit I/Os
+            \item I/O rate adjustable to improve performances
         \end{itemize}
     \item Notion of Chunk (time unit) => reduce data to store
-    \item rwlocks for most stuffs (task / taskdata : mostly read)
+    \item rwlocks (linux) for most stuffs (task / taskdata : mostly read) + fairness
     \item Good default / highly tunnable
     \item Simple trace format
+\end{itemize}
+\subsection{Algorithms and technical issues}
+\begin{itemize}
+    \item Three component interact together, they are described and discussed
+        here
+        \begin{algorithm}[htb]
+            \caption{Monitoring thread algorithm}
+            \label{algo:monTh}
+            \begin{algorithmic}[1]
+                \While{\Call{NotFinished}{}}
+                \ForAll{t in \Call{MonitoredTasks}{}}
+                \State \Call{EndCurrentChunk}{t}
+                        \ForAll{Addr in \Call{PreviousChunk}{t}}
+                            \State \Call{MarkNotPresent}{Addr}
+                            \Comment{Will take Write lock pagefault}
+                        \EndFor
+                    \EndFor
+                    \State \Call{sleep}{MonitorThreadWakeUpInterval}
+                \EndWhile
+            \end{algorithmic}
+        \end{algorithm}
+        \begin{itemize}
+            \item The monitor thread (kernel thread, algo \ref{algo:monTh}) is
+                responsible to generate false page faults by invalidating
+                recently accessed pages. The more page faults occurs, the more
+                precise the trace is. Still to invalidate the page, it needs
+                to take a write lock on the page faults hashmap. Therefore
+                delay every pending page fault. The
+                \texttt{MonitorThreadWakeUpInterval} parameter allows the user
+                to modify slightly this equilibrium.
+
+                \begin{algorithm}[htb]
+                    \caption{logging process}
+                    \label{algo:flushTh}
+                    \begin{algorithmic}[1]
+                        \While{\Call{NotFinished}{}}
+                        \ForAll{t in \Call{MonitoredTasks}{}}
+                                \State \Comment{no locks: we work on finished chunks}
+                                \ForAll{c in \Call{FinishedChunks}{t}}
+                                \State \Call{WriteTraceToDisk}{c}
+                                \State \Call{ReinitChunk}{c}
+                                \EndFor
+                            \EndFor
+                            \State \Call{sleep}{LoggingDaemonWakeupInterval}
+                        \EndWhile
+                    \end{algorithmic}
+                \end{algorithm}
+            \item The logging daemon (userspace process using callback
+                methods, algo \ref{algo:flushTh}) flush the traces from the
+                memory buffers to the disc. It works on old data therefore
+                does not directly interfere with the normal application
+                execution. As it generate disc I/O, it is preferable to keep
+                it asleep most of the time. Still if it does not wake up often
+                enough, no more chunks will be available to store accesses and
+                a part of the trace will be lost. It's wakeup interval is
+                settable by the user.
+
+                \begin{algorithm}[htb]
+                    \caption{Page fault handler}
+                    \label{algo:PageFault}
+                    \begin{algorithmic}[1]
+                        \State \Comment{current is the task responsible for
+                        the page fault}
+                        \If {\Call{IsNotMonitoredTask}{current}}
+                            \If {!\Call{AddToMonitoredIfNeeded}{current}}
+                                \State \Comment{Only read locks except if
+                                current is Added}
+                                \State \Call{ActualPageFault}{}
+                                \Comment{normal Linux page fault}
+                                \State \Return
+                            \EndIf
+                        \EndIf
+                        \State \Comment{Avoid concurrency with monitor thread}
+                        \State \Call{ReadLockPageFaults}{}
+                        \State \Comment{Trace the memory access}
+                        \State \Call{AddToCurrentChunks}{current,address}
+                        \If {!\Call{TryFixFalsePageFault}{address}}
+                            \State \Call{ActualPageFault}{}
+                            \Comment{normal Linux page fault}
+                        \EndIf
+                        \State \Call{UpdateClock}{}
+                        \State \Call{ReadUnlockPageFaults}{}
+                    \end{algorithmic}
+                \end{algorithm}
+
+            \item Every time a page fault occurs, it traps to MOCA (algo
+                \ref{algo:PageFault}), we first need to determine if the task
+                (thread or process) responsible for the page fault is
+                monitored or if we should monitor it. We only need a read lock
+                to a hashmap containing the monitored tasks to answer these
+                two questions. If the answer is no, Linux will handle the page
+                fault normally. The only case will need to take the write lock
+                is when the second answer is yes (first page fault of a new
+                monitored task) which occurs quite rarely.
+
+                When a monitored task triggers a page fault, we first add the
+                accessed address to it's current chunk (a.k.a store the fact
+                then an access occurred, with it's type (read/write) and cpu).
+                Then we try to ``fix'' the page fault, if it was triggered by
+                Moca, no work will be necessary for the OS, else we will let
+                Linux handle the fault normally.
+            \item Other suff we should have said:
+                \begin{itemize}
+                    \item Few locks as everybody works on different chunks
+                    \item \texttt{TryFixFalsePageFault} does not remove anything from hashmap
+                        only mark the entry old which allow to use read locks and keep
+                        page faults parallel
+                    \item \texttt{MarkNotPresent}(address)
+                        \begin{itemize}
+                            \item Take WriteLock on apgefaults
+                            \item Removed old hashmap entries if needed
+                        \end{itemize}
+                \end{itemize}
+        \end{itemize}
+    \item Linux rwlocks advantages readers, we need fair rwlocks to
+        avoid starvation and keep pagefaults fast enough so we built
+        low cost fair rwlocks on top of linux rwlocks, (algo
+        \ref{algo:rwlocks})
+        \begin{algorithm}[htb]
+            \caption{Fair Rwlocks}
+            \label{algo:rwlocks}
+            \begin{algorithmic}[1]
+            \State \textbf{atomic} {$writersWaiting \gets 0$}
+            \State \textbf{atomic} $readersWaiting \gets 0$
+            \State \textbf{rwlock} $lock$
+            \Comment{Linux rwlock (priority to readers)}
+            \Function{ReadLockPageFaults}{}
+                \State $++readersWaiting$
+                \Comment{Block new writers}
+                \While{$writersWaiting > 0$}
+                    \State \Call{wait}{}
+                    \Comment{Do not overtake older writer}
+                \EndWhile
+                \State \Call{ReadLock}{lock}
+                \State $--readersWaiting$
+            \EndFunction
+            \Function{ReadUnlockPageFaults}{}
+                \State \Call{ReadUnlock}{lock}
+            \EndFunction
+            \Function{WriteLockPageFaults}{}
+                \While{$readersWaiting > 0$}
+                    \State \Call{wait}{}
+                    \Comment{Let their chance to old readers}
+                \EndWhile
+                \State $++writersWaiting$
+                \Comment{Tell next readers to wait}
+                \State \Call{WriteLock}{lock}
+                \State $--writersWaiting$
+            \EndFunction
+            \Function{WriteUnlockPageFaults}{}
+                \State \Call{WriteUnlock}{lock}
+            \EndFunction
+            \end{algorithmic}
+        \end{algorithm}
+\end{itemize}
+
+\subsection{Conclusions}
+
+\begin{itemize}
+    \item Efficient design
+    \item Portable
+    \item Highly tunnable to find optimal trade off between performances and
+        trace accuracy
 \end{itemize}

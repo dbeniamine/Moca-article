@@ -1,4 +1,60 @@
+%!TEX encoding=UTF-8 Unicode
+%!TEX root=../tabarnac.tex
+
 \section{Related Works}
 \label{sec:related}
 
-Get from tabarnac / remove runtime
+\DB{FULL rewrite, consider only data collection}
+\textbf{Keep in mind efficient collection, minize data loss, temporal
+information, portability}
+
+This section presents an overview of related work in the area of memory access
+profiling for parallel applications based on shared memory.
+We also discuss some mechanisms to improve performance on NUMA architectures.
+
+\subsection{Memory Profiling}
+\label{sec:related-profiling}
+
+Generic tools to evaluate parallel application performance, such as Intel's
+VTune~\cite{Reinders05VTune} and Performance Counter
+Monitor~(PCM)~\cite{Intel2012b}, the HPCToolkit~\cite{Adhianto10HPCTOOLKIT},
+and AMD's CodeAnalyst~\cite{Drongowski2008}, provide only indirect information
+about the memory access behavior, more specific tools are therefore required to improve it.
+
+Profiling memory behavior raise two major challenges.
+The first one is the collection of accurate and detailed information: performance counters provide precise and easy access to statistics about the CPU usage, but there are few such mechanisms for the memory.
+For a maximum level of detail, memory access traces need to be created.
+The second challenge is the amount of information that needs to be interpreted and presented to the developer.
+Memory access traces provide huge amounts of information on several
+dimensions: data structure, threads, access type (read/write), sharing, time of access.
+Presenting them to the developer in a readable and meaningful way is therefore not trivial.
+
+\subsubsection{Data Collection}
+
+Several methods have been used to address the problem of data collection. A
+lot of studies deduce information from hardware performance
+counters~\cite{Majo13(Mis)understanding,
+Jiang14Understanding,Bosch00Rivet,Weyers14Visualization,Tao01Visualizing,DeRose01Hardware},
+which are special registers that allow to record events such as cache misses and remote
+memory accesses. However, these counters only provide a partial
+view of the execution, they show events happening on the processor related to
+memory, but not what triggered them. Moreover, most available performance counters
+depend on the architecture, therefore it is hard to reproduce the same
+analysis on different machines with these tools.
+
+\DB{Develop more, this is our main concurrent}
+Another approach used by several
+tools~\cite{Lachaize12MemProf,McCurdy2010,Liu14Tool,Gimenez14Dissecting}
+consists of using sampling mechanisms such as AMD's Instruction Based Sampling
+(IBS)~\cite{Drongowski07Instructionbased} or Intel Precise Event Based
+Sampling (PEBS) to analyze applications. Not only can sampling miss important events, leading to
+inaccurate characterizations, but these technologies are usually not portable and work
+only with a few recent architecture, therefore such tools can only be used in
+special circumstances.
+
+Other studies uses hardware modification (with or without simulation)~\cite{Bao08HMTT,Martonosi92MemSpy}.
+Although they provide more efficient trace collection than tools implemented purely in software, they are even less portable.
+Finally, binary instrumentation can provide information about memory access behavior~\cite{DeRose02SIGMA}, although this method is slower than
+the other previously described, it is more portable and precise. Moreover, as
+we show in Section~\ref{sec:expe-overhead}, an efficient instrumentation can
+provide an acceptable overhead.

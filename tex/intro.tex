@@ -1,12 +1,37 @@
 \section{Introduction}
 \label{sec:intro}
 
+\DB{Write something}
 \begin{itemize}
-    \item HPC => importance of memory hierarchy / cache
-    \item Automated tools can't fix everything => need good code
-    \item Existing profiling tools focus on CPU because memory analysis is
-        hard
-    \item Memory analysis usually without time, or very focused on specific
-        stuff (NUMA / Architectures).
-    \item MOCA => fast, portable, precise memory trace collection
+    \item HPC => importance of memory
+        \begin{itemize}
+            \item NUMA
+            \item Caches
+        \end{itemize}
+    \item Runtimes aren't the only solution
+        \begin{itemize}
+            \item Overhead
+            \item Only provide ``good'' page mapping
+            \item Sometimes provides worts results
+            \item Can't fix bad patter
+        \end{itemize}
+    \item  Need of memory profiling
+    \item Existing tools:
+        \begin{itemize}
+            \item Most are CPU oriented
+            \item Few Memory oriented
+                \begin{itemize}
+                    \item Show very precise informations (number of remote
+                        access)
+                    \item Often relies on info from CPU
+                    \item No global view of the memory
+                    \item No temporal informations
+                \end{itemize}
+        \end{itemize}
+    \item Getting a global view of the memory access over time is hard:
+        \begin{itemize}
+            \item How to collect efficiently
+            \item Lot of data to store / keep on memory
+            \item Times means synchronisations
+        \end{itemize}
 \end{itemize}

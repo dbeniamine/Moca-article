@@ -1,7 +1,6 @@
 %!TEX encoding=UTF-8 Unicode
 
-\documentclass{article}
-\usepackage{fullpage}
+\documentclass[10pt, conference, compsocconf]{sty/IEEEtran}
 
 %========================= Encodage fontes et langues =========================
 
@@ -12,17 +11,15 @@
 %==============================================================================
 
 %========================= Mise en forme de code ==============================
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+%\algblockdefx[<block>]{<start>}{<end>}
+%[<startparamcount>][<default value>]{<start text>}
+%[<endparamcount>][<default value>]{<end text>}
 
 \usepackage{listings}
 %Langage algorithmique français
-\lstdefinelanguage{algo}%
-{
-    alsoletter={\\,[,],/,*,\,},%
-    morekeywords=[2]{si, sinon, alors, finSi, pour tout, finPour,
-    tantQue, finTantQue, ou, et, non, vrai, faux},%
-    otherkeywords={},%
-    morestring=[b]"
-}
+
 \lstset{% general command to set parameter(s)
     basicstyle=\small,
     keywordstyle=\color{BrickRed}\bfseries,
@@ -58,24 +55,30 @@ bookmarksopen=true}
 
 %========================== Images ============================================
 
-\usepackage[center]{caption}
+\usepackage[]{caption}
+\usepackage{fixltx2e}
+\usepackage{stfloats}
+\usepackage{url}
 
 %==============================================================================
 
-%========================== Autres ============================================
 
-\usepackage{paralist} % listes : enumerate, itemize
-%\frenchbsetup{StandardLists=true} % Bullet liste en français
-
-%\usepackage{appendix} %Annexes
+\usepackage{todonotes}
+\newcommand{\DB}[1]{\todo[author=David,inline]{#1}}
+\newcommand{\GH}[1]{\todo[author=Guillaume,inline]{#1}}
 
 \newcommand{\Input}[1]{\input{tex/#1}}
 
 %==============================================================================
 
 %========================= Titre auteur etc ===================================
-\author{David Beniamine \and Guillaume Huard}
 \title{Moca: An efficient Memory trace collection }
+\author{\IEEEauthorblockN{David Beniamine, Guillaume Huard}
+\IEEEauthorblockA{Univ. Grenoble Alpes, LIG, F-38000 Grenoble, France\\
+CNRS, LIG, F-38000 Grenoble, France\\
+Inria\\
+<firstname>.<lastname>@imag.fr}
+}
 
 
 %==============================================================================
@@ -85,17 +88,19 @@ bookmarksopen=true}
 
 \maketitle
 
+\begin{abstract}
+    \DB{write abstract}
+\end{abstract}
+
+\listoftodos
 \Input{intro.tex}
 \Input{related.tex}
 \Input{design.tex}
 \Input{experiment.tex}
 \Input{cncl.tex}
 
-%\bibliography{biblio}
-
-%\newpage
-%\appendix{ \textbf{Annexe }}
-
+\bibliographystyle{sty/IEEEtranBST/IEEEtran}
+\bibliography{biblio}
 \end{document}
 
 
