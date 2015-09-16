@@ -5,8 +5,13 @@
 \label{sec:related}
 
 \DB{FULL rewrite, consider only data collection}
-\textbf{Keep in mind efficient collection, minize data loss, temporal
+\textbf{Keep in mind efficient collection, minimize data loss, temporal
 information, portability}
+\begin{itemize}
+    \item HW Sampling less precise, less portable (less efficient ?)
+    \item Instrumentation => high granularity / no temporal info
+    \item False page fault mechanism from Diener et al.
+\end{itemize}
 
 This section presents an overview of related work in the area of memory access
 profiling for parallel applications based on shared memory.
@@ -44,7 +49,7 @@ analysis on different machines with these tools.
 
 \DB{Develop more, this is our main concurrent}
 Another approach used by several
-tools~\cite{Lachaize12MemProf,McCurdy2010,Liu14Tool,Gimenez14Dissecting}
+tools~\cite{Lachaize12MemProf,McCurdy10Memphis,Liu14Tool,Gimenez14Dissecting}
 consists of using sampling mechanisms such as AMD's Instruction Based Sampling
 (IBS)~\cite{Drongowski07Instructionbased} or Intel Precise Event Based
 Sampling (PEBS) to analyze applications. Not only can sampling miss important events, leading to

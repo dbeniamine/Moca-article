@@ -13,6 +13,14 @@
 %========================= Mise en forme de code ==============================
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+
+\algblockdefx[]{Function}{EndFunction}
+[2]{\algorithmicfunction\ \textproc{#1}{(#2)}}%
+{\algorithmicend\ \algorithmicfunction}%
+
+
+\algnewcommand\Callp[2]{\textproc{#1}(#2)}%
+
 %\algblockdefx[<block>]{<start>}{<end>}
 %[<startparamcount>][<default value>]{<start text>}
 %[<endparamcount>][<default value>]{<end text>}
@@ -59,6 +67,7 @@ bookmarksopen=true}
 \usepackage{fixltx2e}
 \usepackage{stfloats}
 \usepackage{url}
+\usepackage{xspace}
 
 %==============================================================================
 
@@ -68,16 +77,17 @@ bookmarksopen=true}
 \newcommand{\GH}[1]{\todo[author=Guillaume,inline]{#1}}
 
 \newcommand{\Input}[1]{\input{tex/#1}}
-
+\newcommand{\Moca}{\emph{MOCA}\xspace}
 %==============================================================================
 
 %========================= Titre auteur etc ===================================
-\title{Moca: An efficient Memory trace collection }
+\title{Moca: An efficient Memory trace collection system}
 \author{\IEEEauthorblockN{David Beniamine, Guillaume Huard}
 \IEEEauthorblockA{Univ. Grenoble Alpes, LIG, F-38000 Grenoble, France\\
 CNRS, LIG, F-38000 Grenoble, France\\
 Inria\\
-<firstname>.<lastname>@imag.fr}
+%<firstname>.<lastname>@imag.fr}
+\{David.Beniamine,Guillaume.Huard\}@Imag.fr}
 }
 
 
