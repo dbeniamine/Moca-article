@@ -1,3 +1,14 @@
-*.pdf
-*.latexmain
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+moca.pdf
+sty/*.pdf
+sty/*/*.pdf
+*.tdo
+*.tex.latexmain
+*.fdb_latexmk
 *.synctex.gz
+*.swp
+*/*.swp

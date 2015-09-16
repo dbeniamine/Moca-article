@@ -39,8 +39,15 @@ faults). The third is the actual trace, each task have a private set of
 \emph{chunks}. A chunk is a set of accesses that occurred in a time laps. A
 monitoring (kernel) thread periodically ends the current chunk of each task
 and invalidate every page of these chunks. Finally, a logging process flush
-each ended chunks to the disc at a lower frequency. The interaction between
-theses entities is detailed in the next section.
+each ended chunks to the disc at a lower frequency.
+
+\Moca generate one (plain text) trace file per thread, each file start with a
+line giving the internal id and the PID of the tasks. Then the trace consist
+of a set of chunks. For each chunks the first line gives the chunk id, the
+number $N$ of accesses in it, it start and end clock and a bit vector telling
+which CPUs where responsible for the accesses (cpumask). This line is followed
+by $N$ accesses line giving the virtual and physical addresse accessed, the
+number of read and write intercepted and a cpumask.
 
 Every settings that can influence either the accuracy of the trace or the
 overhead of the tools (such as the number and size of chunks, wakeup intervals
@@ -48,7 +55,7 @@ for the monitoring thread and the logging process \ldots) are accessible to the
 user although the default have been defined after an experimental study
 (detailed in section \ref{sec:expe-ovh}).
 
-\subsection{Algorithms and technical issues}
+\subsection{Algorithms and technical aspects}
 \label{sec:design-tech}
 
 In this section we explain in more details how the main components of \Moca
@@ -63,7 +70,7 @@ interact and how we addressed some technical issues.
         \State \Callp{EndCurrentChunk}{t}
                 \ForAll{Addr in \Callp{PreviousChunk}{t}}
                     \State \Callp{WriteLockPF}{}
-                    \State \Callp{MarkNotPresent}{Addr}
+                    \State \Callp{AddFalsePF}{Addr}
                     \State \Callp{WriteUnlockPF}{}
                 \EndFor
             \EndFor
@@ -73,8 +80,9 @@ interact and how we addressed some technical issues.
 \end{algorithm}
 
 The monitor thread (kernel thread, algorithm \ref{algo:monTh}) is
-responsible to generate false page faults by invalidating
-recently accessed pages. The more page faults occurs, the more
+responsible to generate false page faults by removing the \texttt{PRESENT}
+flags from the \emph{Page Table Entry} (pte) corresponding to each recently
+accessed addresses. The more page faults occurs, the more
 precise the trace is. Still to invalidate the page, it needs
 to take a write lock on the page faults hashmap. Therefore
 delay every pending page fault. The
@@ -148,24 +156,16 @@ When a monitored task triggers a page fault, we first add the
 accessed address to it's current chunk (a.k.a store the fact
 then an access occurred, with it's type (read/write) and cpu).
 Then we try to ``fix'' the page fault, if it was triggered by
-Moca, no work will be necessary for the OS, else we will let
+Moca, we set the present flag on the \texttt{pte} and we only mark the hash
+map entry \emph{BAD} so we don't need a write lock. \emph{BAD} entries will be
+removed we required by the call to \texttt{AddFalsePF} which already held
+write lock. After the fix no work from the OS is required. If no fix occurs,
 Linux handle the fault normally.
 
-\DB{continue here}
-Other suff we should have said:
-\begin{itemize}
-    \item Few locks as everybody works on different chunks
-    \item \texttt{TryFixFalsePageFault} does not remove anything from hashmap
-        only mark the entry old which allow to use read locks and keep
-        page faults parallel
-    \item \texttt{MarkNotPresent}(address)
-        \begin{itemize}
-            \item Take WriteLock on apgefaults
-            \item Removed old hashmap entries if needed
-        \end{itemize}
-\end{itemize}
+Each page fault increase an atomic clock that is used to timestamp the
+beginning and end of the chunks.
 
-\begin{algorithm}[htb]
+\begin{algorithm}[!htb]
     \caption{Fair Rwlocks}
     \label{algo:rwlocks}
     \begin{algorithmic}[1]
@@ -211,11 +211,8 @@ low cost fair rwlocks on top of linux rwlocks (algoritm \ref{algo:rwlocks}),
 the idea of this mechanism is to forbid a reader to pass an older writter and
 conversely.
 
-\subsection{Conclusions}
-
-\begin{itemize}
-    \item Efficient design
-    \item Portable
-    \item Highly tunnable to find optimal trade off between performances and
-        trace accuracy
-\end{itemize}
+\Moca provides a new portable an efficient mechanism to trace memory accesses
+at the Linux kernel level. It does not require any kernel re-compilation or
+hardware modifications, it runs out of the box on recent Linux kernel and
+provides hooks to do fine tunning. In the next section we compare \Moca to
+existing tools in term of performances and trace precision.
