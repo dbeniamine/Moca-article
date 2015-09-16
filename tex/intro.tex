@@ -1,7 +1,28 @@
 \section{Introduction}
 \label{sec:intro}
 
-\DB{Write intro}
+
+In \emph{High Performance Computing} memory is often a bottleneck while it is
+trivial to access it, it is more then complex to do it efficiently. Several
+automated tools were designed to improve the memory usage on \emph{Not Uniform
+Memory Access} machines. These tools are able to move data on the memory to
+keep it as close as possible to the thread using them. Still they cannot
+change the memory access pattern. Thus the developer has to consider this
+pattern to produce efficient code.
+
+Numerous tools are able to generate a trace of events happening to the
+CPU during an execution and display them in a comprehensible way. Only a few
+tools address this problem from the memory point of view, and most of the time
+they focus on a small subset of event such as NUMA remote accesses.
+
+Providing a trace of the memory accesses of an application over time is
+fundamental to help the developer apprehending it's application memory pattern
+and improve it.
+
+Generating such trace is challenging \ldots
+\DB{Continue \ldots}
+
+
 \begin{itemize}
     \item HPC => importance of memory
         \begin{itemize}
