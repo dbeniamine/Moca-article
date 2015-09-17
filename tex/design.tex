@@ -21,6 +21,14 @@ keep their overhead reasonable.  Finally trapping to our tool have a very low
 cost as it relies on page faults which are triggered by hardware and and Linux
 kernel probing mechanism: \emph{kprobes}.
 
+\DB{Rewrite / introduce image}
+\begin{figure}[htb]
+    \centering
+    \Input{moca-tikz.tex}
+    \caption{Interactions betweens Moca's main component and Linux}
+    \label{fig:moca}
+\end{figure}
+
 During the execution, we need to store three types of information:
 \begin{enumerate}
     \item Which \emph{tasks} (Linux internal representation of threads/processes) are
@@ -164,6 +172,8 @@ Linux handle the fault normally.
 
 Each page fault increase an atomic clock that is used to timestamp the
 beginning and end of the chunks.
+
+\DB{Cette solution marche parceque peu de writer ET sequentiel}
 
 \begin{algorithm}[!htb]
     \caption{Fair Rwlocks}

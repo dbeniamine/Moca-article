@@ -40,6 +40,20 @@ the thesis} to generate a more accurate trace. Furthermore these hardware
 based methods are usually not portable and work only with a few recent
 architecture, therefore such tools can only be used in special circumstances.
 
+\DB{
+    Instrumentation: perte d'info
+        + Augmentation granularité
+        + Perte d'info (temporel notament)
+    Sampling
+        + Portabilité
+        + Pas de sur-esemble des addresse
+    Nous:
+        + Sampling mais avec sur-essemble
+        + Info temporel
+        + Page + addresse réelles
+        + Aussi bassé sur callback HW
+}
+
 Other studies uses hardware modification (with or without
 simulation)~\cite{Bao08HMTT,Martonosi92MemSpy}.  Although they provide more
 efficient trace collection than tools implemented purely in software, they are
