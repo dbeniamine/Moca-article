@@ -79,25 +79,32 @@ bookmarksopen=true}
 \pgfdeclarelayer{foreground}
 \pgfsetlayers{background,bg1,main,foreground}
 
-\tikzstyle{handler} = [diamond, draw, fill=orange!30,
+\definecolor{logcolor}{HTML}{FDAE61}
+\definecolor{moncolor}{HTML}{D7191C}
+\definecolor{pfcolor} {HTML}{2C7BB6}
+\definecolor{callcolor}{HTML}{FFFFBF}
+\definecolor{dtcolorL}{HTML}{ABD9E9}
+\colorlet{dtcolor}{dtcolorL!25}
+
+\tikzstyle{handler} = [diamond, draw, fill=callcolor,
 text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt]
 \tikzstyle{handlerI} = [diamond,
 text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt]
-\tikzstyle{data} = [rectangle, draw, fill=blue!25,
+\tikzstyle{data} = [rectangle, draw, fill=dtcolor,
 text width=5em, text centered, rounded corners, node distance=3cm, minimum height=4em]
 \tikzstyle{Chunk} = [rectangle, draw,rounded corners]
-\tikzstyle{dataL} = [rectangle, draw, fill=blue!10,
+\tikzstyle{dataL} = [rectangle, draw, fill=dtcolorL,
 text width=5em, text centered, rounded corners, node distance=3cm, minimum height=4em]
 \tikzstyle{entity} = [draw, ellipse,node distance=3cm,text centered,
 text width=5em,minimum height=2em]
-\tikzstyle{line} = [thick,align=center]
-\tikzstyle{pf} = [fill=green]
-\tikzstyle{log} = [fill=orange]
-\tikzstyle{mon} = [fill=red]
-\tikzstyle{monA} = [->,line,red]
-\tikzstyle{pfA} =  [->,line,green]
-\tikzstyle{pfAI} =  [line,green]
-\tikzstyle{logA} = [->,line,orange]
+\tikzstyle{line} = [very thick,align=center]
+\tikzstyle{pf} = [fill=pfcolor,solid]
+\tikzstyle{log} = [fill=logcolor,dotted]
+\tikzstyle{mon} = [fill=moncolor,dashed]
+\tikzstyle{monA} = [->,line,dashed,moncolor]
+\tikzstyle{pfA} =  [->,line,solid,pfcolor]
+\tikzstyle{pfAI} =  [line,solid,pfcolor]
+\tikzstyle{logA} = [->,dotted,line,logcolor]
 
 \tikzset{
   basic box/.style = {
@@ -107,19 +114,19 @@ text width=5em,minimum height=2em]
   filled box/.style = {
     shape = rectangle,
     draw  = #1,
-    fill  = #1!25,
+    fill  = #1,
     rounded corners},
   header node/.style = {
     %Minimum Width = header nodes,
     font          = \strut\Large\ttfamily,
     text depth    = +0pt,
-    fill          = white,
+    fill          = #1,
     draw},
-  header/.style = {%
+    header/.style n args={2}{%
     inner ysep = +1.5em,
     append after command = {
       \pgfextra{\let\TikZlastnode\tikzlastnode}
-      node [header node] (header-\TikZlastnode) at (\TikZlastnode.north) {#1}
+      node [header node=#2] (header-\TikZlastnode) at (\TikZlastnode.north) {#1}
       %node %[span = (\TikZlastnode)(header-\TikZlastnode)]
        % at (fit bounding box) (h-\TikZlastnode) {}
     }

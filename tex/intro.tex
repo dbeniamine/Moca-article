@@ -1,58 +1,98 @@
 \section{Introduction}
 \label{sec:intro}
 
+In \emph{High Performance Computing} memory is often a bottleneck.
+While it is trivial to access it, doing it efficiently is extremely
+complex, indeed the user needs to take into account the cache hierarchy and
+their mechanisms such as the pre-fetcher. It gets even more complex with
+\emph{Not Uniform Memory Access} machines where the location of data in
+physical memory impacts the performances~\cite{Drepper07What}.
 
-In \emph{High Performance Computing} memory is often a bottleneck while it is
-trivial to access it, it is more then complex to do it efficiently. Several
-automated tools were designed to improve the memory usage on \emph{Not Uniform
-Memory Access} machines. These tools are able to move data on the memory to
-keep it as close as possible to the thread using them. Still they cannot
-change the memory access pattern. Thus the developer has to consider this
-pattern to produce efficient code.
+Several tools such as NUMA Balancing~\cite{Corbet2012} were designed to improve the
+memory usage on NUMA machines. These tools are able to move data on the
+physical memory to keep it as close as possible to the thread using them
+reducing the number of remote accesses. These tools provides great results
+still they cannot fix every memory related issues. For instance if every
+threads of an application accesses to the same page, every page mapping will
+results on remote accesses from every NUMA node but one. The only way to fix
+this kind of issues is to rewrite the application's code considering the
+memory pattern. Thus tools helping the user to understand the memory pattern
+of its application can help improving performances.
 
-Numerous tools are able to generate a trace of events happening to the
-CPU during an execution and display them in a comprehensible way. Only a few
-tools address this problem from the memory point of view, and most of the time
-they focus on a small subset of event such as NUMA remote accesses.
+Numerous tools such as Vtune~\cite{Reinders05VTune} or
+HPCToolkit~\cite{Adhianto10HPCTOOLKIT} where developed to help the programmer
+understanding the performances issues of its applications. However these tools
+focuses on the CPU and can only provides a partial view of events happening on
+the memory. Thus they are not able to help solving memory access pattern
+related issues.
 
-Providing a trace of the memory accesses of an application over time is
-fundamental to help the developer apprehending it's application memory pattern
-and improve it.
+To solve this kind of issue, the user needs a \emph{complete} trace of memory
+accesses with a fine \emph{granularity}. We consider that a trace is
+\emph{complete} at a certain granularity if and only if it provides a superset
+of accesses at this granularity with for each access temporal, spacial and
+thread related information.
 
-%Generating such trace is challenging \ldots
-\DB{Continue \ldots}
+Memory analysis tools are currently not able to provide such traces. Either
+they only give a part of the trace such as
+\DB{verifier contenu trace memprof}
+remote accesses~\cite{Lachaize12MemProf}. Or they give up some information by
+doing some \emph{incomplete} sampling~\cite{Liu14Tool}, or removing temporal
+(or spacial) information~\cite{Beniamine15TabarnacRR}.
 
+Generating such traces is a challenge, indeed there is not hardware mechanism
+comparable to CPU performance counters to trace memory access, and the amount
+of data to collect is considerable. Instrumentation based methods are too slow
+to provide a complete trace, and efficient hardware sampling mechanisms cannot
+provide such trace by conception.
 
-\begin{itemize}
-    \item HPC => importance of memory
-        \begin{itemize}
-            \item NUMA
-            \item Caches
-        \end{itemize}
-    \item Runtimes aren't the only solution
-        \begin{itemize}
-            \item Overhead
-            \item Only provide ``good'' page mapping
-            \item Sometimes provides worts results
-            \item Can't fix bad patter
-        \end{itemize}
-    \item  Need of memory profiling
-    \item Existing tools:
-        \begin{itemize}
-            \item Most are CPU oriented
-            \item Few Memory oriented
-                \begin{itemize}
-                    \item Show very precise informations (number of remote
-                        access)
-                    \item Often relies on info from CPU
-                    \item No global view of the memory
-                    \item No temporal informations
-                \end{itemize}
-        \end{itemize}
-    \item Getting a global view of the memory access over time is hard:
-        \begin{itemize}
-            \item How to collect efficiently
-            \item Lot of data to store / keep on memory
-            \item Times means synchronisations
-        \end{itemize}
-\end{itemize}
+I this study, we present \emph{Memory Organisation, Cartography and Analysis}
+an efficient memory trace collection system based on page fault interception.
+This mechanism is able to provide a \emph{complete} sampled memory trace at
+the granularity of the page with information on accesses at the granularity of
+the address.
+
+% \begin{itemize}
+%     \item HPC => importance of memory
+%         \begin{itemize}
+%             \item NUMA
+%             \item Caches
+%         \end{itemize}
+%     \item Runtimes aren't the only solution
+%         \begin{itemize}
+%             \item Overhead
+%             \item Only provide ``good'' page mapping
+%             \item Sometimes provides worts results
+%             \item Can't fix bad patter
+%         \end{itemize}
+%     \item  Need of memory profiling
+%         \begin{itemize}
+%             \item Granularity: granularity of the stored information
+%             \item Complete trace: trace that cannot miss a part of the memory
+%                 (can miss events)
+%         \end{itemize}
+%     \item Existing tools:
+%         \begin{itemize}
+%             \item Most are CPU oriented
+%             \item Few Memory oriented
+%                 \begin{itemize}
+%                     \item Show very precise informations (number of remote
+%                         access)
+%                     \item Often relies on info from CPU
+%                     \item No global view of the memory
+%                     \item No temporal informations
+%                     \item Either high granularity or not complete
+%                 \end{itemize}
+%         \end{itemize}
+%     \item Getting a global view of the memory access over time is hard:
+%         \begin{itemize}
+%             \item How to collect efficiently
+%             \item Lot of data to store / keep on memory
+%             \item Times means synchronisations
+%         \end{itemize}
+%     \item Conclusion
+%         \begin{itemize}
+%             \item Efficient collection
+%             \item Complete trace at the page granularity
+%             \item Sampled information at the address granularity
+%         \end{itemize}
+% \end{itemize}
