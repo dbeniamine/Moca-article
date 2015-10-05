@@ -169,7 +169,23 @@ Inria\\
 \maketitle
 
 \begin{abstract}
-    \DB{write abstract}
+    In modern \emph{High Performance Computing} architectures, memory accesses
+    are a common bottleneck. Therefore optimizing the way an application
+    access the memory can provide significant performance improvements.
+
+    Most efforts on memory accesses optimization consists on adaptive tools which
+    move data or thread on the CPUs at the runtime to reduce and optimize
+    communications.
+
+    While a lots of tools have been developed to measure an application's
+    performances, most of them focus on the CPU and none of them is able to
+    provide an overview of the memory accesses.
+
+    In this study we present \Moca an efficient memory trace collection system
+    that provide a complete overview of an applications memory behaviour over
+    the time. We evaluate \Moca overhead and we compare it to existing tools
+    in terms of performances and trace precision.
+
 \end{abstract}
 
 \listoftodos
