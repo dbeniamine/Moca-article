@@ -139,27 +139,22 @@ be lost. It's wakeup interval is settable by the user.
         \Function{HandlePageFault}{task t,void *addr}
             \If {\Callp{IsNotMonitoredTask}{t}}
                 \If {!\Callp{AddToMonitoredIfNeeded}{t}}
-                    \State \Comment{Only read locks except if
-                    t is Added}
-                    \State \Callp{DoPageFault}{}
-                    \Comment{Linux handle page fault}
-                    \State \Return
+                    \State \Return \Comment{Resume page fault}
                 \EndIf
             \EndIf
             \State \Callp{ReadLockPF}{}
             \State \Callp{AddToChunk}{t,addr}
             \Comment{Trace the access}
-            \If {!\Callp{TryFixFalsePageFault}{addr}}
-                \State \Callp{DoPageFault}{}
-                \Comment{Linux handle page fault}
-            \EndIf
+            \State \Callp{TryFixFalsePageFault}{addr}
             \State \Callp{ReadUnlockPF}{}
             \State \Callp{UpdateClock}{}
+            \State \Comment{Resume page fault. If a fix occurred, Linux will
+                silently abort the page fault}
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
 
-Every time a page fault occurs, it traps to \Moca (algo
+Every time a page fault occurs, it traps to \Moca (algorithm
 \ref{algo:PageFault}), we first need to determine if the task
 (thread or process) responsible for the page fault is
 monitored or if we should monitor it. We only need a read lock
@@ -169,66 +164,21 @@ fault normally. The only case will need to take the write lock
 is when the second answer is yes (first page fault of a new
 monitored task) which occurs quite rarely.
 
-When a monitored task triggers a page fault, we first add the
-accessed address to it's current chunk (a.k.a store the fact
-then an access occurred, with it's type (read/write) and cpu).
-Then we try to ``fix'' the page fault, if it was triggered by
-Moca, we set the present flag on the \texttt{pte} and we only mark the hash
-map entry \emph{BAD} so we don't need a write lock. \emph{BAD} entries will be
-removed we required by the call to \texttt{AddFalsePF} which already held
-write lock. After the fix no work from the OS is required. If no fix occurs,
-Linux handle the fault normally.
+When a monitored task triggers a page fault, we first add the accessed address
+to it's current chunk (a.k.a store the fact then an access occurred, with it's
+type (read/write) and cpu).  Then we try to ``fix'' the page fault, if it was
+triggered by Moca, we set the present flag on the \texttt{pte} and we only
+mark the hash map entry \emph{BAD} so we don't need a write lock. \emph{BAD}
+entries will be removed we required by the call to \texttt{AddFalsePF} which
+already held write lock. If a fixed occured during our handler, Linux will
+silently abort the page fault without any more work, else it will execute a
+normal page fault. Each page fault increase an atomic clock that is used to
+timestamp the beginning and end of the chunks.
 
-Each page fault increase an atomic clock that is used to timestamp the
-beginning and end of the chunks.
-
-\DB{Cette solution marche parceque peu de writer ET sequentiel}
-
-\begin{algorithm}[!htb]
-    \caption{Fair Rwlocks}
-    \label{algo:rwlocks}
-    \begin{algorithmic}[1]
-    \State \textbf{atomic} {$writersWaiting \gets 0$}
-    \State \textbf{atomic} $readersWaiting \gets 0$
-    \State \textbf{rwlock} $lock$
-    \Comment{Linux rwlock (priority to readers)}
-    \Function{ReadLockPF}{}
-        \State $++readersWaiting$
-        \Comment{Block new writers}
-        \While{$writersWaiting > 0$}
-            \State \Callp{wait}{}
-            \Comment{Do not overtake older writer}
-        \EndWhile
-        \State \Callp{ReadLock}{lock}
-        \State $--readersWaiting$
-    \EndFunction
-    \Function{ReadUnlockPF}{}
-        \State \Callp{ReadUnlock}{lock}
-    \EndFunction
-    \Function{WriteLockPF}{}
-        \While{$readersWaiting > 0$}
-            \State \Callp{wait}{}
-            \Comment{Let their chance to old readers}
-        \EndWhile
-        \State $++writersWaiting$
-        \Comment{Tell next readers to wait}
-        \State \Callp{WriteLock}{lock}
-        \State $--writersWaiting$
-    \EndFunction
-    \Function{WriteUnlockPF}{}
-        \State \Callp{WriteUnlock}{lock}
-    \EndFunction
-    \end{algorithmic}
-\end{algorithm}
-
-Linux rwlocks advantages readers, for the false page faults hash map, as page
-faults occurs very frequently this will result on starvation for the monitor
-thread. On the other hand if we advantage writers, page faults will be delayed
-while the monitor thread is invalidating page faults and Linux will trigger an
-error. Thus we need faire rwlocks for the page faults hash map. We built
-low cost fair rwlocks on top of linux rwlocks (algoritm \ref{algo:rwlocks}),
-the idea of this mechanism is to forbid a reader to pass an older writter and
-conversely.
+A race might occurs if the monitor threads clears a page fault between the
+end of our handler and the end of Linux page fault. To avoid that, we store
+for each CPU the last address that faulted, and we forbid to clear this
+address.
 
 \Moca provides a new portable an efficient mechanism to trace memory accesses
 at the Linux kernel level. It does not require any kernel re-compilation or
