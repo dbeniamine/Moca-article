@@ -16,33 +16,56 @@
     \item Results available online ?
 \end{itemize}
 
-\subsection{Overhead}
+\subsection{Experiment}
 \label{sec:expe-ovh}
+\begin{table}
+    \centering
+    \begin{tabular}{p{1.3cm}lcc}
+        \toprule
+        & & Granularity & Over set \\
+        \cmidrule(lr){3-4}
+        \multirow{4}{.8cm}{Trace precision}
+        & Tabarnac & page & page \\
+        & Mitos & ?? & none \\
+        & MemProf & ?? & none \\
+        & Moca & Byte & Page \\
+        \midrule
+        & & Time & Sharing and CPU localisation \\
+        \cmidrule(lr){3-4}
+        \multirow{4}{.8cm}{Complentary informations}
+        & Tabarnac & no & thread sharing\\
+        & Mitos & ?? & ?? \\
+        & MemProf & ?? & ?? \\
+        & Moca & yes & thread sharing + CPU \\
+        \midrule
+        & & Collection method & Architecture \\
+        \cmidrule(lr){3-4}
+        \multirow{4}{.8cm}{Portability}
+        & Tabarnac & Instrumentation & Intel + AMD \\
+        & Mitos & Hardware sampling & Intel + AMD + IBM \\
+        & MemProf & Hardware sampling & AMD \\
+        & Moca & Complete sampling & Any architecture\\
+        \bottomrule
+    \end{tabular}
+    \caption{Comparison of different memory access collection
+        tools: tabanarc\cite{Beniamine15TABARNACRR},
+        Mitos~\cite{Gimenez14Dissecting},
+        MemProf~\cite{Lachaize12MemProf} and MOCA}
+        \label{tab:tools-comp}
+    \end{table}
 
-\begin{itemize}
-    \item NAS
-    \item Comparison with tabarnac
-    \item Comparison with MemProf
-    \item Impact of parameters
-\end{itemize}
+    \begin{itemize}
+        \item Wakeup and logging interval => define defaults
+        \item NAS + Tabarnac => not worst than other tools
+        \item Number of Pages => No loss
+        \item Number of uniq address => More precise
+        \item Trace details see Table~\ref{tab:tools-comp}
+    \end{itemize}
 
-\subsection{Precision}
-\label{sec:expe-precision}
+    \subsection{Conclusion}
+    \label{sec:expe-cncl}
 
-\begin{itemize}
-    \item Simple Pin instrumentation: count nb Acc / nb Pages
-    \item Metrics:
-        \begin{itemize}
-            \item Ratio captured: $\frac{NbAcc_{Mesured}}{NbAcc_{Total}}$
-            \item Pages captured: $\frac{NbPages_{Mesured}}{NbPages_{Total}}$
-                should be $1$
-        \end{itemize}
-\end{itemize}
-
-\subsection{Conclusion}
-\label{sec:expe-cncl}
-
-\begin{itemize}
-    \item ``fast''
-    \item ``precise''
-\end{itemize}
+    \begin{itemize}
+        \item ``fast''
+        \item ``precise''
+    \end{itemize}
