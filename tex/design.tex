@@ -21,9 +21,15 @@ guarantee that for each page of the monitored application, at least one access
 will be traced. Moreover we can still trace the exact accessed address
 therefore the granularity is not limited while instrumentation based tools
 often works at a high granularity to keep their overhead reasonable.  Finally
-trapping to our tool have a very low cost as it relies on page faults which
+trapping to our tool has a very low cost as it relies on page faults which
 are triggered by hardware and the Linux kernel probing mechanism:
 \emph{kprobes}.
+
+\subsection{Algorithms and technical aspects}
+\label{sec:design-tech}
+
+In this section we explain in more details how the main components of \Moca
+interact and how we addressed some technical issues.
 
 \begin{figure}[htb]
     \centering
@@ -43,40 +49,32 @@ the monitored application).
     \item Which page faults have been triggered by \Moca (false page faults).
     \item The set of addresses recently accessed by each task.
 \end{enumerate}
+
 Each of these informations are stored on preallocated hash maps to reduce the
-runtime overhead.
-The two first are read during every page faults but rarely
+runtime overhead.  The two first are read during every page faults but rarely
 written (when a new tasks of the monitored application triggers it first page
 fault or when \Moca create some false page faults). Therefore they are
-protected with Linux kernel built-in \emph{rwlocks} (with some small
-modifications detailed in section \ref{sec:design-tech} for the false page
-faults). The third is the actual trace, each task have a private set of
-\emph{chunks}. A chunk is a set of accesses that occurred in a time laps. A
-monitoring (kernel) thread periodically ends the current chunk of each task
-and invalidate every page of these chunks. Finally, a logging process flush
-each ended chunks to the disc at a lower frequency.
-Figure \ref{fig:moca} illustrate the interaction between the different process
-and threads of \Moca, these data structures and Linux.
+protected with Linux kernel built-in \emph{rwlocks}. The third is the actual
+trace, each task has a private set of \emph{chunks}. A chunk is a set of
+accesses that occurred in a (short) time laps.  Chunks provide a discrete
+representation of the time and reduce the amount of information stored (only
+two clocks per chunk). The discretization of time is useful as it allow the
+different component of \Moca to work on different data.  Indeed the traced
+program will always work on \emph{current} chunks, while the logging daemon
+which flush the trace from memory to disc works on \emph{finished} chunks. A
+monitoring (kernel) thread periodically wakes up, mark the current chunks as
+\emph{ending} and invalidate every page of these chunks. Once all pages of the
+chunk have been invalidated, it mark the chunk as \emph{fnished}. Finally, the
+logging process flush each \emph{finished} chunks to the disc at a lower
+frequency.  Figure~\ref{fig:moca} illustrate the interaction between the
+different process and threads of \Moca, these data structures and Linux.
 
-\Moca generate one (plain text) trace file per thread, each file start with a
-line giving the internal id and the PID of the tasks. Then the trace consist
-of a set of chunks. For each chunks the first line gives the chunk id, the
-number $N$ of accesses in it, it start and end clock and a bit vector telling
-which CPUs where responsible for the accesses (cpumask). This line is followed
-by $N$ accesses line giving the virtual and physical addresse accessed, the
-number of read and write intercepted and a cpumask.
-
-Every settings that can influence either the accuracy of the trace or the
-overhead of the tools (such as the number and size of chunks, wakeup intervals
-for the monitoring thread and the logging process \ldots) are accessible to the
-user although the default have been defined after an experimental study
-(detailed in section \ref{sec:expe-ovh}).
-
-\subsection{Algorithms and technical aspects}
-\label{sec:design-tech}
-
-In this section we explain in more details how the main components of \Moca
-interact and how we addressed some technical issues.
+\Moca generate one (plain text) trace file per thread, each file contain three
+types of information: meta data about the task (pid and \Moca internal id),
+chunks related information (number of element in the chunk, start and end
+clock) and accesses information (virtual and physical address, number of read
+and writes). Moreover for both chunks and accesses a bitmask indicate on which
+CPU the accesses were detected.
 
 \begin{algorithm}[htb]
     \caption{Monitoring thread algorithm}
@@ -96,7 +94,7 @@ interact and how we addressed some technical issues.
     \end{algorithmic}
 \end{algorithm}
 
-The monitor thread (kernel thread, algorithm \ref{algo:monTh}) is
+The monitor thread (kernel thread, algorithm~\ref{algo:monTh}) is
 responsible to generate false page faults by removing the \texttt{PRESENT}
 flags from the \emph{Page Table Entry} (pte) corresponding to each recently
 accessed addresses. The more page faults occurs, the more
@@ -107,12 +105,12 @@ delay every pending page fault. The
 to modify slightly this equilibrium.
 
 \begin{algorithm}[htb]
-    \caption{logging process}
+    \caption{Logging daemon algorithm. Note that no locks are required as we
+    work on finished chunks.}
     \label{algo:flushTh}
     \begin{algorithmic}[1]
         \While{\Callp{NotFinished}{}}
         \ForAll{t in \Callp{MonitoredTasks}{}}
-                \State \Comment{no locks: we work on finished chunks}
                 \ForAll{c in \Callp{FinishedChunks}{t}}
                 \State \Callp{WriteTraceToDisk}{c}
                 \State \Callp{ReinitChunk}{c}
@@ -123,28 +121,28 @@ to modify slightly this equilibrium.
     \end{algorithmic}
 \end{algorithm}
 
-(The logging daemon (algorithm \ref{algo:flushTh}) is a userspace process
+The logging daemon (algorithm~\ref{algo:flushTh}) is a userspace process
 which periodically reads \texttt{/proc} pseudo files. Those reads trigger a
-callback method in our tool which flush the  from the memory buffers to the
-disc. It works on old data therefore does not directly interfere with the
-normal application execution. As it generate disc I/O, it is preferable to
-keep it asleep most of the time. Still if it does not wake up often enough, no
+callback method in our tool which flush finished cunks from memory to the
+disc. As it works on finished chunks, it does not directly interfere with the
+normal application execution. Still as it generate disc I/O, it is preferable to
+keep it asleep most of the time. Yet if it does not wake up often enough, no
 more chunks will be available to store accesses and a part of the trace will
-be lost. It's wakeup interval is settable by the user.
+be lost.
 
 \begin{algorithm}[htb]
     \caption{Page fault handler}
     \label{algo:PageFault}
     \begin{algorithmic}[1]
-        \Function{HandlePageFault}{task t,void *addr}
+        \Function{HandleFault}{task t,void *addr, int type}
             \If {\Callp{IsNotMonitoredTask}{t}}
                 \If {!\Callp{AddToMonitoredIfNeeded}{t}}
                     \State \Return \Comment{Resume page fault}
                 \EndIf
             \EndIf
-            \State \Callp{ReadLockPF}{}
-            \State \Callp{AddToChunk}{t,addr}
+            \State \Callp{AddToChunk}{t,addr, type}
             \Comment{Trace the access}
+            \State \Callp{ReadLockPF}{}
             \State \Callp{TryFixFalsePageFault}{addr}
             \State \Callp{ReadUnlockPF}{}
             \State \Callp{UpdateClock}{}
@@ -154,34 +152,41 @@ be lost. It's wakeup interval is settable by the user.
     \end{algorithmic}
 \end{algorithm}
 
-Every time a page fault occurs, it traps to \Moca (algorithm
-\ref{algo:PageFault}), we first need to determine if the task
+Every time a page fault occurs, it traps to \Moca
+(algorithm~\ref{algo:PageFault}), we first need to determine if the task
 (thread or process) responsible for the page fault is
-monitored or if we should monitor it. We only need a read lock
+monitored. If not, we have to check if the task is a child of on monitored
+task, in this case, we have to monitor it.We only need a read lock
 to a hashmap containing the monitored tasks to answer these
 two questions. If the answer is no, Linux will handle the page
-fault normally. The only case will need to take the write lock
-is when the second answer is yes (first page fault of a new
-monitored task) which occurs quite rarely.
+fault normally. If and only if the second answer is yes, we will need to take
+a write lock, this case occurs only at the first page fault of a new monitored
+process or thread which is quite rare. For instance on the benchmarks used for
+the evaluation it happens $8$ times for $10^6$ accesses.
 
 When a monitored task triggers a page fault, we first add the accessed address
-to it's current chunk (a.k.a store the fact then an access occurred, with it's
-type (read/write) and cpu).  Then we try to ``fix'' the page fault, if it was
-triggered by Moca, we set the present flag on the \texttt{pte} and we only
-mark the hash map entry \emph{BAD} so we don't need a write lock. \emph{BAD}
-entries will be removed we required by the call to \texttt{AddFalsePF} which
-already held write lock. If a fixed occured during our handler, Linux will
-silently abort the page fault without any more work, else it will execute a
-normal page fault. Each page fault increase an atomic clock that is used to
-timestamp the beginning and end of the chunks.
+to it's current chunk. For each access, we store the address, it's type (read
+or write) and the CPU on which the fault occurred.  Then we check if the page
+fault was triggered by \Moca or if it is a legitimate page fault. In the first
+case, we \emph{fix} it which mean setting the present flag on the \texttt{Page
+Table Entry} and we mark the hash map entry \emph{BAD} so we only need a read
+lock on the false page fault hashmap. \emph{BAD} entries are removed if
+necessary by a call to \texttt{AddFalsePF} which already holds the write lock.
+If a fix occurred during our handler, Linux will silently abort the page fault
+without any more work, else it will execute a normal page fault. Each page
+fault increase an atomic clock that is used to timestamp the beginning and end
+of the chunks.
 
 A race might occurs if the monitor threads clears a page fault between the
 end of our handler and the end of Linux page fault. To avoid that, we store
 for each CPU the last address that faulted, and we forbid to clear this
 address.
 
-\Moca provides a new portable an efficient mechanism to trace memory accesses
-at the Linux kernel level. It does not require any kernel re-compilation or
-hardware modifications, it runs out of the box on recent Linux kernel and
-provides hooks to do fine tunning. In the next section we compare \Moca to
-existing tools in term of performances and trace precision.
+Every settings that can influence either the accuracy of the trace or the
+overhead of the tools (such as the number and size of chunks, wakeup intervals
+for the monitoring thread and the logging process \ldots) are accessible to the
+user although the default have been defined after an experimental study
+(detailed in section~\ref{sec:expe-ovh}).
+
+In the next section we evaluate \Moca by comparing it to existing tools in
+term of performances and trace precision.
