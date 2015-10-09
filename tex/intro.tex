@@ -32,12 +32,10 @@ accesses with a fine \emph{granularity}. We consider that a trace is
 of accesses at this granularity with for each access temporal, spacial and
 thread related information.
 
-Memory analysis tools are currently not able to provide such traces. Either
-they only give a part of the trace such as
-\DB{verifier contenu trace memprof}
-remote accesses~\cite{Lachaize12MemProf}, give up some information by
-doing some \emph{incomplete} sampling~\cite{Liu14Tool}, increase granularity
-and/or remove temporal information~\cite{Beniamine15TABARNACRR}.
+Memory analysis tools are currently not able to provide such traces, they
+always give up some information by doing some \emph{incomplete}
+sampling~\cite{Liu14Tool,Lachaize12MemProf}, increasing granularity and/or
+removing temporal information~\cite{Beniamine15TABARNACRR}.
 
 Generating such traces is a challenge, indeed there is not hardware mechanism
 comparable to CPU performance counters to trace memory access, and the amount

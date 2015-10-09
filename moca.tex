@@ -67,6 +67,10 @@ bookmarksopen=true}
 \usepackage[]{graphicx}
 \graphicspath{{./img/}}
 \usepackage{multirow,booktabs}
+\usepackage{array}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+\usepackage{balance}
 
 %\usepackage{fixltx2e}
 %\usepackage{stfloats}
@@ -152,6 +156,17 @@ text width=5em,minimum height=2em]
 
 \newcommand{\Input}[1]{\input{tex/#1}}
 \newcommand{\Moca}{\emph{MOCA}\xspace}
+% Bench
+\newcommand{\FT}{\texttt{FT}}
+\newcommand{\BT}{\texttt{BT}}
+\newcommand{\IS}{\texttt{IS}}
+\newcommand{\DC}{\texttt{DC}}
+\newcommand{\MG}{\texttt{MG}}
+\newcommand{\LU}{\texttt{LU}}
+\newcommand{\UA}{\texttt{UA}}
+\newcommand{\EP}{\texttt{EP}}
+\newcommand{\SP}{\texttt{SP}}
+\newcommand{\CG}{\texttt{CG}}
 %==============================================================================
 
 %========================= Titre auteur etc ===================================
@@ -210,7 +225,7 @@ action with support from CNRS, RENATER and several Universities as well
 s other funding bodies (see \url{https://www.grid5000.fr}).
 
 \bibliographystyle{sty/IEEEtranBST/IEEEtran}
+\balance
 \bibliography{biblio}
 \end{document}
-
 

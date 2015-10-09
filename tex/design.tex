@@ -25,6 +25,56 @@ trapping to our tool has a very low cost as it relies on page faults which
 are triggered by hardware and the Linux kernel probing mechanism:
 \emph{kprobes}.
 
+\begin{table}
+    \centering
+    \begin{tabular}{p{1.3cm}lcC{2.5cm}}
+        \toprule
+        & & Granularity & superset \\
+        \cmidrule(lr){3-4}
+        \multirow{4}{.8cm}{Trace precision}
+        & Tabarnac & Page & Page \\
+        & Mitos & Address & None \\
+        & MemProf & Address & None \\
+        & Moca & Address & Page \\
+        \midrule
+        & & Time & Sharing and CPU localisation \\
+        \cmidrule(lr){3-4}
+        \multirow{4}{.8cm}{Other informations}
+        & Tabarnac & No & Thread sharing\\
+        \addlinespace
+        & Mitos & Yes & CPU location \\
+        \addlinespace
+        & MemProf & Yes & Thread sharing and CPU location \\
+        \addlinespace
+        & Moca & Yes & Thread sharing and CPU location \\
+        \midrule
+        & & Collection method & Architecture \\
+        \cmidrule(lr){3-4}
+        \multirow{4}{.8cm}{Portability}
+        & Tabarnac & Instrumentation & Intel, AMD \\
+        & Mitos & Hardware sampling & Intel, AMD, IBM \\
+        & MemProf & Hardware sampling & AMD \\
+        & Moca & Complete sampling & Any architecture\\
+        \bottomrule
+    \end{tabular}
+    \caption{Comparison of different memory access collection
+        tools: tabanarc\cite{Beniamine15TABARNACRR},
+        Mitos~\cite{Gimenez14Dissecting},
+        MemProf~\cite{Lachaize12MemProf} and \Moca}
+        \label{tab:tools-comp}
+\end{table}
+
+Intercepting page faults instead of doing hardware sampling, guaranty that
+every page of the analyzed application will be intercepted. Therefore \Moca
+provide a \emph{complete} trace at the granularity of the page. Such guaranty
+is not provided by any other tool based on sampling. Instrumentations based
+tools that traces every memory accesses provides this guaranty but to keep
+their overhead reasonable they have to drop a part of the information.
+Furthermore while \Moca traces are \emph{complete} at the page granularity,
+they contains every intercepted addresses, thus their actual granularity is
+the page. Table~\ref{tab:tools-comp} recapitulate the main difference between
+\Moca and the main other memory profiling tools.
+
 \subsection{Algorithms and technical aspects}
 \label{sec:design-tech}
 
