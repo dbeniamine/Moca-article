@@ -19,7 +19,7 @@ We deployed a \emph{Debian} \emph{Wheezy} environment running a Linux $3.X$
 \DB{Environment online ?}.
 \DB{Results online ?}
 
-We evaluate our tool on all the NAS Parallel Benchmarks~\cite{Jin1999} for
+We evaluate our tool on all the \NPB~\cite{Jin1999} for
 each benchmarks, we compare \Moca with the Pin~\cite{Luk05Pin} instrumentation
 from Tabarnac~\cite{Beniamine15TABARNACRR}. This instrumentation traces every
 memory accesses but record only the number of time each thread accesses to
@@ -40,32 +40,33 @@ of $40ms$.
 
 \subsubsection{\Moca default parameters}
 
-\begin{figure}[htb]
-    \centering
-    \includegraphics[width=\linewidth]{moca_param_events.pdf}
-    \caption{Influence of the wakeup intervals on \Moca's the number of
-    captured events on \FT, class A.}
-    \label{fig:param_evts}
-\end{figure}
 
 Before comparing \Moca to existing tools, we need to evaluate the impact of
 the wakeup intervals (logging daemon and monitor thread) on the trace
-precision and on the overhead. To do so, we run the \FT under \Moca with
+precision and on the overhead. To do so, we run the \IS benchmark under \Moca with
 a wakeup interval from $0.1s$ to  $0.9s$ for the logging daemon and $20ms$ to
-$100ms$. For each run, we measured \FT execution time and the number of
-accesses captured.
+$100ms$. For each run, we measured \IS execution time and the number of
+accesses captured. We choose \IS as it is on of the memory intensive \NPB
 
 \begin{figure}[htb]
     \centering
-    \includegraphics[width=\linewidth]{moca_param.pdf}
-    \caption{Influence of the wakeup intervals on \Moca's overhead on
-        \FT, class A.}
+    \begin{subfigure}{\linewidth}
+        \includegraphics[width=\linewidth]{moca_param_events.pdf}
+        \caption{Number of captured events.}
+        \label{fig:param_evts}
+    \end{subfigure}
+    \begin{subfigure}{\linewidth}
+        \includegraphics[width=\linewidth]{moca_param.pdf}
+        \caption{Execution time.}
+        \label{fig:param_time}
+    \end{subfigure}
+    \caption{Influence of the wakeup intervals on \IS, class A.}
     \label{fig:param}
 \end{figure}
 
 We can see in Figure~\ref{fig:param_evts} that when the monitor thread wakes
 up less often then every $40ms$ the number of captured event start to drops.
-Moreover, Figure~\ref{fig:param} show that if the performance are decreasing
+Moreover, Figure~\ref{fig:param_time} show that if the performance are decreasing
 start with a monitor thread wakeup interval of $40ms$, there is a sweet spot
 with a logging interval of $0.4ms$.
     \DB{Only 20 runs, here intervals should be smaller on definitive version}
@@ -75,42 +76,72 @@ monitor thread, and $0.4s$ for the logging thread.
 
 \subsubsection{Comparison with existing tools}
 
+Finally, to evaluate \Moca we needed a tool that also provide a superset of
+the execution pages (see \ref{tab:tools-comp}) so we choose the Pin
+instrumentation from Tabarnac. All the experiment presented here were run on
+all the \NPB on class A.
+
 \begin{figure}[htb]
     \centering
     \includegraphics[width=\linewidth]{moca_overhead_nas.pdf}
-    \caption{Slowdown of \Moca on the NAS parallel benchmarks compared to
+    \caption{Slowdown of \Moca on the \NPB compared to
     Tabarnac.}
     \label{fig:ovh}
 \end{figure}
 
-\begin{figure}[htb]
-    \centering
-    \includegraphics[width=\linewidth]{moca_pages_nas.pdf}
-    \caption{Number of pages captured by \Moca and Tabarnac on the Nas
-    Parrallel benchmarks.}
-    \label{fig:pages}
-\end{figure}
+Figure~\ref{fig:ovh} shows the slowdown of \Moca and Tabarnac compared to the
+a normal execution of each benchmarks. We can identify three groups of
+applications:  for \BT, \DC, \EP, \LU, \FT, \SP and \UA, \Moca is
+significantly faster than Tabarnac. This set of benchmarks is interesting,
+indeed if \EP is mostly doing parallel computation with only a few number of
+memory accesses, \FT is a kernel containing all too all communications, \BT,
+\LU and \SP are pseudo applications doing a significant usage of memory.
+Finally \DC and \UA are categorised as \emph{unstructured computation,
+parallel I/O and data movement} by the \NPB website
+\footnote{\url{http://www.nas.nasa.gov/publications/npb.html}}. The second only
+contains memory oriented benchmarks (\CG and \IS). For this group \Moca is as
+good as Tabarnac or a bit faster. Finally for \MG, \Moca seems to be
+significantly slower than Tabarnac. Actually for this application, we
+identified two behaviors: for $28$ runs out of $30$, the execution time under
+\Moca was comparable to the on under Tabarnac, but for $2$ runs the execution
+was $10$ time slower.
+\DB{Check these numbers on definitive experiments}
 
 \begin{figure}[htb]
     \centering
-    \includegraphics[width=\linewidth]{moca_addresses_nas.pdf}
-    \caption{Number of unique addresses captured by \Moca and Tabarnac on the Nas
-    Parrallel benchmarks.}
-    \label{fig:addr}
+    \begin{subfigure}{\linewidth}
+        \includegraphics[width=\linewidth]{moca_pages_nas.pdf}
+        \caption{Number of pages.}
+        \label{fig:pages}
+    \end{subfigure}
+    \begin{subfigure}{\linewidth}
+        \includegraphics[width=\linewidth]{moca_addresses_nas.pdf}
+        \caption{Number of unique addresses.}
+        \label{fig:addr}
+    \end{subfigure}
+    \caption{Number of pages and unique addresses captured by \Moca and Tabarnac
+    on the \NPB.}
+    \label{fig:pages-addr}
 \end{figure}
 
-\begin{itemize}
-    \item Wakeup and logging interval => define defaults Figure~\ref{fig:param}
-    \item NAS + Tabarnac => not worst than other tools Figure~\ref{fig:ovh}
-    \item Number of Pages => No loss Figure~\ref{fig:pages}
-    \item Number of uniq address => More precise Figure~\ref{fig:addr}
-    \item Trace details see Table~\ref{tab:tools-comp}
-\end{itemize}
+We then compared the number of pages and of unique addresses captured by \Moca
+and Tabarnac during the previous experiment. As expected, we can see in
+Figure~\ref{fig:pages} that both methods capture the exact same number of
+pages which is the super set of all the accessed pages. Furthermore,
+Figure~\ref{fig:addr} shows that \Moca also provides a more precise trace in
+terms of unique addresses than Tabarnac. Indeed while \Moca provides a
+superset of the pages of the execution, it store for each page fault the
+actual address responsible for the page fault. Therefore it provide a trace
+with the precision of the byte, while tools like Tabarnac needs to work at a
+coarse granularity to limit their overhead.
 
-    \subsection{Conclusion}
-    \label{sec:expe-cncl}
+\subsection{Summary}
+\label{sec:expe-cncl}
 
-    \begin{itemize}
-        \item ``fast''
-        \item ``precise''
-    \end{itemize}
+We have tested \Moca under different application and with several parameters.
+Our experiments, helped defining default parameters, and shows that with these
+parameters, \Moca is at worst as slow as existing tools and in most of the
+case faster. Moreover \Moca provides more precise traces than existing tools,
+it is indeed the only tool able to provide a detailed trace with temporal,
+spacial and sharing informations while providing guarantees on the information
+loss during sampling.

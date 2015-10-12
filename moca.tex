@@ -64,6 +64,7 @@ bookmarksopen=true}
 %========================== Images ============================================
 
 \usepackage[]{caption}
+\usepackage[]{subcaption}
 \usepackage[]{graphicx}
 \graphicspath{{./img/}}
 \usepackage{multirow,booktabs}
@@ -156,17 +157,18 @@ text width=5em,minimum height=2em]
 
 \newcommand{\Input}[1]{\input{tex/#1}}
 \newcommand{\Moca}{\emph{MOCA}\xspace}
+\newcommand{\NPB}{\emph{NAS parallel benchmarks}\xspace}
 % Bench
-\newcommand{\FT}{\texttt{FT}}
-\newcommand{\BT}{\texttt{BT}}
-\newcommand{\IS}{\texttt{IS}}
-\newcommand{\DC}{\texttt{DC}}
-\newcommand{\MG}{\texttt{MG}}
-\newcommand{\LU}{\texttt{LU}}
-\newcommand{\UA}{\texttt{UA}}
-\newcommand{\EP}{\texttt{EP}}
-\newcommand{\SP}{\texttt{SP}}
-\newcommand{\CG}{\texttt{CG}}
+\newcommand{\FT}{\texttt{FT}\xspace}
+\newcommand{\BT}{\texttt{BT}\xspace}
+\newcommand{\IS}{\texttt{IS}\xspace}
+\newcommand{\DC}{\texttt{DC}\xspace}
+\newcommand{\MG}{\texttt{MG}\xspace}
+\newcommand{\LU}{\texttt{LU}\xspace}
+\newcommand{\UA}{\texttt{UA}\xspace}
+\newcommand{\EP}{\texttt{EP}\xspace}
+\newcommand{\SP}{\texttt{SP}\xspace}
+\newcommand{\CG}{\texttt{CG}\xspace}
 %==============================================================================
 
 %========================= Titre auteur etc ===================================
@@ -212,7 +214,7 @@ Inria\\
 
 \end{abstract}
 
-\listoftodos
+%\listoftodos
 \Input{intro.tex}
 \Input{related.tex}
 \Input{design.tex}

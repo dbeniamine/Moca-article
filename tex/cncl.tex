@@ -1,18 +1,28 @@
 \section{Conclusions}
 \label{sec:cncl}
 
-\Moca provides a new portable an efficient mechanism to trace memory accesses
-at the Linux kernel level. It does not require any kernel re-compilation or
-hardware modifications, it runs out of the box on recent Linux kernel and
-provides hooks to do fine tunning.
+In this study, we addressed the issue memory accesses collection. This is a
+very important challenge in high performance architecture as memory is often a
+bottleneck. Memory traces can be used at runtime to improve data locality or
+offline by developers to understand and improve their applications memory
+behavior and therefore their performances.
 
-\begin{itemize}
-    \item Fast and precise trace collection
-    \item Compatible
-    \item Easy yet highly tunable
-    \item TODO:
-        \begin{itemize}
-            \item Add struct infos
-            \item Work on vizualisation
-        \end{itemize}
-\end{itemize}
+To address this challenge, we  presented \Moca an efficient memory trace
+collection system, while other existing tools relies on \emph{incomplete} sampling to
+provide such traces at an acceptable cost, \Moca provides a \emph{complete}
+trace at the granularity of the page. By this we mean that \Moca traces
+contains every pages that are accessed during the execution at least once,
+and, for each accesses, it contains temporal, spacial and sharing
+informations (which thread, accessed what addresses on which CPU and when).
+Furthermore while \Moca works at the page granularity, it store the exact
+address of each intercepted accesses, therefore it provide an
+\emph{incomplete} trace at the granularity of the byte.
+
+While \Moca is highly tunable, we evaluated with its default parameters by
+comparing it to existing tools in termes of performances and trace details.
+Our evaluations shows that with its default settings, \Moca is faster in most
+cases and at worst as slow as existing tools to collect more detailed memory
+traces.
+
+Future work will focus on the visualization and exploitation of memory traces
+which is a challenge as those traces are rich in terms of data.

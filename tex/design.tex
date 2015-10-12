@@ -27,7 +27,7 @@ are triggered by hardware and the Linux kernel probing mechanism:
 
 \begin{table}
     \centering
-    \begin{tabular}{p{1.3cm}lcC{2.5cm}}
+    \begin{tabular}{p{1.3cm}lC{2.5cm}C{2.5cm}}
         \toprule
         & & Granularity & superset \\
         \cmidrule(lr){3-4}
@@ -50,10 +50,13 @@ are triggered by hardware and the Linux kernel probing mechanism:
         \midrule
         & & Collection method & Architecture \\
         \cmidrule(lr){3-4}
-        \multirow{4}{.8cm}{Portability}
         & Tabarnac & Instrumentation & Intel, AMD \\
-        & Mitos & Hardware sampling & Intel, AMD, IBM \\
+        \addlinespace
+        \multirow{4}{.8cm}{Portability}
+        & Mitos & Hardware sampling and Instrumentation & Intel, AMD, IBM \\
+        \addlinespace
         & MemProf & Hardware sampling & AMD \\
+        \addlinespace
         & Moca & Complete sampling & Any architecture\\
         \bottomrule
     \end{tabular}
