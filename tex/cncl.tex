@@ -8,21 +8,21 @@ offline by developers to understand and improve their applications memory
 behavior and therefore their performances.
 
 To address this challenge, we  presented \Moca an efficient memory trace
-collection system, while other existing tools relies on \emph{incomplete} sampling to
+collection system. While other existing tools relies on \emph{incomplete} sampling to
 provide such traces at an acceptable cost, \Moca provides a \emph{complete}
 trace at the granularity of the page. By this we mean that \Moca traces
 contains every pages that are accessed during the execution at least once,
 and, for each accesses, it contains temporal, spacial and sharing
 informations (which thread, accessed what addresses on which CPU and when).
 Furthermore while \Moca works at the page granularity, it store the exact
-address of each intercepted accesses, therefore it provide an
+address of each intercepted accesses, therefore it also provide an
 \emph{incomplete} trace at the granularity of the byte.
 
 While \Moca is highly tunable, we evaluated with its default parameters by
 comparing it to existing tools in termes of performances and trace details.
-Our evaluations shows that with its default settings, \Moca is faster in most
-cases and at worst as slow as existing tools to collect more detailed memory
-traces.
+Our evaluations shows that with its default settings, \Moca is significantly
+faster in most cases and at worst as slow as existing tools to collect more
+detailed memory traces.
 
 Future work will focus on the visualization and exploitation of memory traces
 which is a challenge as those traces are rich in terms of data.

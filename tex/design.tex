@@ -9,21 +9,20 @@ technologies such as AMD IBS or Intel PEBS, or architecture dependent kernel
 code. Therefore it is highly portable and can be run on any recent kernel
 (Linux $> 3.X$).
 
-In recent Linux kernel, memory page are not allocate before the execution: the
+In recent Linux kernel, memory page are not allocated before the execution: the
 first access to a page will trigger a page fault. Linux will then allocate the
 page. Page fault can also be triggered when a thread access a page modified by
 an other thread. We can monitor memory access by registering a callback on
-Linux page faults. Still page fault does not occurs at each memory access so
+Linux page faults. Still, as  page fault does not occurs at each memory access
 we need to generate false page fault by periodically marking some page as not
 present. This method have several advantages over hardware sampling or
 instrumentation. First it provides a super set of the accesses: indeed it
-guarantee that for each page of the monitored application, at least one access
-will be traced. Moreover we can still trace the exact accessed address
+guarantee that each page of the monitored application will at least fault once
+and will therefore be traced. Moreover we can still trace the exact accessed address
 therefore the granularity is not limited while instrumentation based tools
 often works at a high granularity to keep their overhead reasonable.  Finally
 trapping to our tool has a very low cost as it relies on page faults which
-are triggered by hardware and the Linux kernel probing mechanism:
-\emph{kprobes}.
+are triggered by hardware and the Linux kernel probing mechanism.
 
 \begin{table}
     \centering
@@ -61,7 +60,7 @@ are triggered by hardware and the Linux kernel probing mechanism:
         \bottomrule
     \end{tabular}
     \caption{Comparison of different memory access collection
-        tools: tabanarc\cite{Beniamine15TABARNACRR},
+        tools: Tabarnac~\cite{Beniamine15TABARNACRR},
         Mitos~\cite{Gimenez14Dissecting},
         MemProf~\cite{Lachaize12MemProf} and \Moca}
         \label{tab:tools-comp}
@@ -74,15 +73,15 @@ is not provided by any other tool based on sampling. Instrumentations based
 tools that traces every memory accesses provides this guaranty but to keep
 their overhead reasonable they have to drop a part of the information.
 Furthermore while \Moca traces are \emph{complete} at the page granularity,
-they contains every intercepted addresses, thus their actual granularity is
-the page. Table~\ref{tab:tools-comp} recapitulate the main difference between
-\Moca and the main other memory profiling tools.
+they contains every intercepted addresses, thus they provide detailed
+information at the byte granularity. \tbl{tab:tools-comp} recapitulate
+the main difference between \Moca and the main other memory profiling tools.
 
 \subsection{Algorithms and technical aspects}
 \label{sec:design-tech}
 
 In this section we explain in more details how the main components of \Moca
-interact and how we addressed some technical issues.
+interact and how we addressed technical issues.
 
 \begin{figure}[htb]
     \centering
@@ -96,7 +95,7 @@ interact and how we addressed some technical issues.
 
 During the execution, we need to store three types of information:
 \begin{enumerate}
-    \item Which \emph{tasks} (Linux internal representation of threads/processes) are
+    \item Which \emph{tasks} (Linux internal representation of threads and process) are
 monitored (as page fault will be triggered by tasks which does not belong to
 the monitored application).
     \item Which page faults have been triggered by \Moca (false page faults).
@@ -106,8 +105,8 @@ the monitored application).
 Each of these informations are stored on preallocated hash maps to reduce the
 runtime overhead.  The two first are read during every page faults but rarely
 written (when a new tasks of the monitored application triggers it first page
-fault or when \Moca create some false page faults). Therefore they are
-protected with Linux kernel built-in \emph{rwlocks}. The third is the actual
+fault or when \Moca create some false page faults). Therefore we can protect
+them with Linux kernel built-in \emph{rwlocks}. The third is the actual
 trace, each task has a private set of \emph{chunks}. A chunk is a set of
 accesses that occurred in a (short) time laps.  Chunks provide a discrete
 representation of the time and reduce the amount of information stored (only
@@ -119,12 +118,12 @@ monitoring (kernel) thread periodically wakes up, mark the current chunks as
 \emph{ending} and invalidate every page of these chunks. Once all pages of the
 chunk have been invalidated, it mark the chunk as \emph{fnished}. Finally, the
 logging process flush each \emph{finished} chunks to the disc at a lower
-frequency.  Figure~\ref{fig:moca} illustrate the interaction between the
-different process and threads of \Moca, these data structures and Linux.
+frequency.  \fig{fig:moca} illustrate the interaction between the
+different process and threads of \Moca, its data structures and Linux.
 
 \Moca generate one (plain text) trace file per thread, each file contain three
 types of information: meta data about the task (pid and \Moca internal id),
-chunks related information (number of element in the chunk, start and end
+chunks related information (number of elements, start and end
 clock) and accesses information (virtual and physical address, number of read
 and writes). Moreover for both chunks and accesses a bitmask indicate on which
 CPU the accesses were detected.
@@ -134,13 +133,14 @@ CPU the accesses were detected.
     \label{algo:monTh}
     \begin{algorithmic}[1]
         \While{\Callp{NotFinished}{}}
-        \ForAll{t in \Callp{MonitoredTasks}{}}
-        \State \Callp{EndCurrentChunk}{t}
-                \ForAll{Addr in \Callp{PreviousChunk}{t}}
-                    \State \Callp{WriteLockPF}{}
-                    \State \Callp{AddFalsePF}{Addr}
-                    \State \Callp{WriteUnlockPF}{}
-                \EndFor
+            \ForAll{t in \Callp{MonitoredTasks}{}}
+                \State \Callp{EndCurrentChunk}{t}
+                    \ForAll{Addr in \Callp{PreviousChunk}{t}}
+                        \State \Callp{WriteLockPF}{}
+                        \State \Callp{AddFalsePF}{Addr}
+                        \State \Callp{WriteUnlockPF}{}
+                    \EndFor
+                \State \Callp{MarkPreviousChunkFinished}{t}
             \EndFor
             \State \Callp{sleep}{MonitorThreadWakeUpInterval}
         \EndWhile
@@ -149,7 +149,7 @@ CPU the accesses were detected.
 
 The monitor thread (kernel thread, algorithm~\ref{algo:monTh}) is
 responsible to generate false page faults by removing the \texttt{PRESENT}
-flags from the \emph{Page Table Entry} (pte) corresponding to each recently
+flags from the \texttt{Page Table Entry} (pte) corresponding to each recently
 accessed addresses. The more page faults occurs, the more
 precise the trace is. Still to invalidate the page, it needs
 to take a write lock on the page faults hashmap. Therefore
@@ -176,7 +176,7 @@ to modify slightly this equilibrium.
 
 The logging daemon (algorithm~\ref{algo:flushTh}) is a userspace process
 which periodically reads \texttt{/proc} pseudo files. Those reads trigger a
-callback method in our tool which flush finished cunks from memory to the
+callback method in our tool which flush finished chunks from memory to
 disc. As it works on finished chunks, it does not directly interfere with the
 normal application execution. Still as it generate disc I/O, it is preferable to
 keep it asleep most of the time. Yet if it does not wake up often enough, no
@@ -208,12 +208,12 @@ be lost.
 Every time a page fault occurs, it traps to \Moca
 (algorithm~\ref{algo:PageFault}), we first need to determine if the task
 (thread or process) responsible for the page fault is
-monitored. If not, we have to check if the task is a child of on monitored
-task, in this case, we have to monitor it.We only need a read lock
+monitored. If not, we have to check if the task is a child of a monitored
+task, in this case, we have to monitor it. We only need a read lock
 to a hashmap containing the monitored tasks to answer these
 two questions. If the answer is no, Linux will handle the page
 fault normally. If and only if the second answer is yes, we will need to take
-a write lock, this case occurs only at the first page fault of a new monitored
+a write lock. This case occurs only at the first page fault of a new monitored
 process or thread which is quite rare. For instance on the benchmarks used for
 the evaluation it happens $8$ times for $10^6$ accesses.
 

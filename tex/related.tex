@@ -10,14 +10,14 @@ Performance Counter Monitor~(PCM)~\cite{Intel2012b}, the
 HPCToolkit~\cite{Adhianto10HPCTOOLKIT}, and AMD's
 CodeAnalyst~\cite{Drongowski2008}. All of these tools uses performances
 counters and CPU traces to show when and where CPUs are idle while they could
-be used. All these tools focus on CPU related information and provide only
+be used. Thus, they focus on CPU related information and provide only
 indirect data on memory performances.
 
 As performances counters are architecture dependent and not always easily
 understandable, higher level library such as \emph{PAPI}~\cite{Weaver13PAPI} and
 \emph{Likwid}~\cite{Treibig10LIKWID} were developed to ease such analysis. These
-libraries are also able to derive metrics from these counters \DB{example:
-likwid memory groups}. Finally, a lot of studies provides memory anlysis based
+libraries are also able to derive metrics from these counters. \DB{example:
+likwid memory groups} Finally, a lot of studies provides memory anlysis based
 on information collected through hardware performance counters~\cite{Majo13(Mis)understanding,
 Jiang14Understanding,Bosch00Rivet,Weyers14Visualization,Tao01Visualizing,DeRose01Hardware}.
 However, these counters only provide a partial view of the execution, they
@@ -29,9 +29,9 @@ consists of using sampling mechanisms such as AMD's Instruction Based Sampling
 (IBS)~\cite{Drongowski07Instructionbased} or Intel Precise Event Based
 Sampling (PEBS)~\cite{Levinthal2009} to analyze applications. This methods
 provide \emph{incomplete} sampling thus they can miss all the accesses to a
-particular zone.I t is thus often necessary to run several times the
+particular zone. It is thus often necessary to run several times the
 instrumentation and use advanced methods such as
-folding~\cite{Servat15Towards} to generate a more accurate trace. Furthermore
+folding~\cite{Servat15Towards} to generate a more accurate summary trace. Furthermore
 these hardware based methods are usually not portable and work only with a few
 recent architecture, therefore such tools can only be used in special
 circumstances.
@@ -45,15 +45,15 @@ Finally, binary instrumentation can provide information about memory access
 behavior, this method is more portable and  more precise than the other
 previously described but it comes at the cost of performances. Fast
 instrumentations usually relies either on a simulator~\cite{DeRose02SIGMA} or
-increase the granularity and/or gives up a part of the information such as
+increase the granularity and gives up a part of the information such as
 temporal data~\cite{Beniamine15TABARNACRR}.
 
 Precise memory trace are also useful for adaptive NUMA mapping tools which
 needs to know in real time which processors are accessing which pages. Some of
-them have developed efficient mechanisms based on page faults to retrieve this
-information~\cite{Diener13CommunicationBased}. Still this mechanism is
-designed for online analysis and only keep few informations about a small set
-of pages which ease the data collection.
+them have developed efficient mechanisms based on page faults interception to
+retrieve this information~\cite{Diener13CommunicationBased}. Still this
+mechanism is designed for online analysis and only keep few informations about
+a small set of pages which ease data collection.
 
 In this study we present a new memory trace collection system based on page
 fault interception. We compare it to other memory trace tools in term of

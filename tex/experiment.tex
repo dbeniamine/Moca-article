@@ -19,13 +19,13 @@ We deployed a \emph{Debian} \emph{Wheezy} environment running a Linux $3.X$
 \DB{Environment online ?}.
 \DB{Results online ?}
 
-We evaluate our tool on all the \NPB~\cite{Jin1999} for
+We evaluate our tool on all the \NPB~\cite{Jin1999}. For
 each benchmarks, we compare \Moca with the Pin~\cite{Luk05Pin} instrumentation
 from Tabarnac~\cite{Beniamine15TABARNACRR}. This instrumentation traces every
 memory accesses but record only the number of time each thread accesses to
 each page, without any other information.
 
-Each configuration of each plots was executed at least $32$ times. Each point
+Each configuration of each plots was executed at least $30$ times. Each point
 shows the arithmetic mean of all runs. The error bars represent
 the standard error.
 
@@ -40,6 +40,22 @@ of $40ms$.
 
 \subsubsection{\Moca default parameters}
 
+\begin{figure}[htb]
+    \centering
+    \begin{subfigure}{\linewidth}
+        \includegraphics[width=\linewidth]{moca_param.pdf}
+        \caption{Execution time.}
+        \label{fig:param_time}
+    \end{subfigure}
+
+    \begin{subfigure}{\linewidth}
+        \includegraphics[width=\linewidth]{moca_param_events.pdf}
+        \caption{Number of captured events.}
+        \label{fig:param_evts}
+    \end{subfigure}
+    \caption{Influence of the wakeup intervals on \IS, class A.}
+    \label{fig:param}
+\end{figure}
 
 Before comparing \Moca to existing tools, we need to evaluate the impact of
 the wakeup intervals (logging daemon and monitor thread) on the trace
@@ -48,28 +64,13 @@ a wakeup interval from $0.1s$ to  $0.9s$ for the logging daemon and $20ms$ to
 $100ms$. For each run, we measured \IS execution time and the number of
 accesses captured. We choose \IS as it is on of the memory intensive \NPB
 
-\begin{figure}[htb]
-    \centering
-    \begin{subfigure}{\linewidth}
-        \includegraphics[width=\linewidth]{moca_param_events.pdf}
-        \caption{Number of captured events.}
-        \label{fig:param_evts}
-    \end{subfigure}
-    \begin{subfigure}{\linewidth}
-        \includegraphics[width=\linewidth]{moca_param.pdf}
-        \caption{Execution time.}
-        \label{fig:param_time}
-    \end{subfigure}
-    \caption{Influence of the wakeup intervals on \IS, class A.}
-    \label{fig:param}
-\end{figure}
-
-We can see in Figure~\ref{fig:param_evts} that when the monitor thread wakes
-up less often then every $40ms$ the number of captured event start to drops.
-Moreover, Figure~\ref{fig:param_time} show that if the performance are decreasing
-start with a monitor thread wakeup interval of $40ms$, there is a sweet spot
-with a logging interval of $0.4ms$.
-    \DB{Only 20 runs, here intervals should be smaller on definitive version}
+We can see in \fig{fig:param_time} that with a smaller wakeup interval for the
+monitor thread than
+$40ms$, performances are decreasing. Furthermore \fig{fig:param_evts} shows
+that at this point he can capture a significant number of events. For this
+value, waking up the logging process every $0.4s$ provides nice trade-off
+between the execution time and the number of captured events.
+\DB{$30$ runs here, let's do more to reduce the confidence intervals}
 
 Using this knowledge, we set the default wakeup intervals to $40ms$ for the
 monitor thread, and $0.4s$ for the logging thread.
@@ -89,23 +90,27 @@ all the \NPB on class A.
     \label{fig:ovh}
 \end{figure}
 
-Figure~\ref{fig:ovh} shows the slowdown of \Moca and Tabarnac compared to the
+\fig{fig:ovh} shows the slowdown of \Moca and Tabarnac compared to the
 a normal execution of each benchmarks. We can identify three groups of
-applications:  for \BT, \DC, \EP, \LU, \FT, \SP and \UA, \Moca is
+applications:  for \BT, \DC, \EP, \FT, \LU, \SP and \UA, \Moca is
+\DB{\BT results for Tabarnac are weird on last experiment => re run them}
 significantly faster than Tabarnac. This set of benchmarks is interesting,
 indeed if \EP is mostly doing parallel computation with only a few number of
-memory accesses, \FT is a kernel containing all too all communications, \BT,
+memory accesses, \FT is a kernel containing all to all communications, \BT,
 \LU and \SP are pseudo applications doing a significant usage of memory.
 Finally \DC and \UA are categorised as \emph{unstructured computation,
 parallel I/O and data movement} by the \NPB website
-\footnote{\url{http://www.nas.nasa.gov/publications/npb.html}}. The second only
-contains memory oriented benchmarks (\CG and \IS). For this group \Moca is as
-good as Tabarnac or a bit faster. Finally for \MG, \Moca seems to be
-significantly slower than Tabarnac. Actually for this application, we
+\footnote{\url{http://www.nas.nasa.gov/publications/npb.html}}. The second
+group only contains memory oriented benchmarks (\CG and \IS). For this group
+\Moca is as good as Tabarnac or a bit faster. Finally for \MG, \Moca seems to
+be significantly slower than Tabarnac. Actually for this application, we
 identified two behaviors: for $28$ runs out of $30$, the execution time under
 \Moca was comparable to the on under Tabarnac, but for $2$ runs the execution
 was $10$ time slower.
-\DB{Check these numbers on definitive experiments}
+\DB{Actually 3 levels of runs for mg: 35sec, 120sec and 280sec \ldots}
+This experiment shows that \Moca is significantly faster than existing tools
+for most benchmarks, and at least as good for a few memory intensive
+benchmarks.
 
 \begin{figure}[htb]
     \centering
@@ -126,9 +131,9 @@ was $10$ time slower.
 
 We then compared the number of pages and of unique addresses captured by \Moca
 and Tabarnac during the previous experiment. As expected, we can see in
-Figure~\ref{fig:pages} that both methods capture the exact same number of
+\fig{fig:pages} that both methods capture the exact same number of
 pages which is the super set of all the accessed pages. Furthermore,
-Figure~\ref{fig:addr} shows that \Moca also provides a more precise trace in
+\fig{fig:addr} shows that \Moca also provides a more precise trace in
 terms of unique addresses than Tabarnac. Indeed while \Moca provides a
 superset of the pages of the execution, it store for each page fault the
 actual address responsible for the page fault. Therefore it provide a trace

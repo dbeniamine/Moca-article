@@ -169,6 +169,9 @@ text width=5em,minimum height=2em]
 \newcommand{\EP}{\texttt{EP}\xspace}
 \newcommand{\SP}{\texttt{SP}\xspace}
 \newcommand{\CG}{\texttt{CG}\xspace}
+% Figures and tables
+\newcommand{\fig}[1]{Figure~\ref{#1}}
+\newcommand{\tbl}[1]{Table~\ref{#1}}
 %==============================================================================
 
 %========================= Titre auteur etc ===================================
@@ -193,24 +196,26 @@ Inria\\
     In modern \emph{High Performance Computing} architectures, memory accesses
     are a common bottleneck. To benefit from hardware optimization mechanisms
     such as cache pre-fetcher, the developer needs to consider memory access
-    pattern trying to improve locality and linearity.
+    patterns aiming at locality and linearity.
 
     Most efforts on memory performances optimization at software level relies
-    on adaptive tools which move data or thread on the CPUs at the runtime to
+    on adaptive tools which move data or thread on CPUs at the runtime to
     reduce communication times. Such tools are often efficient but cannot
-    modify an application's memory access pattern thus the developer still
-    have to consider the memory behavior to benefit from them.
+    modify an application's memory access pattern thus they are not efficient
+    on application written without considering memory behavior. The developer
+    still need to consider this behavior.
 
     While a lots of tools have been developed to measure an application's
     performances, most of them focus on the CPU and none of them is able to
     provide an overview of the memory accesses. Such an overview can help the
-    developer optimizing its application memory behavior resulting in
-    significant performance gain.
+    developer understanding and therefore optimizing its application memory
+    behavior resulting in significant performance gain.
 
-    In this study we present \Moca an efficient software level memory trace
-    collection system that provide a complete overview of an applications
-    memory behaviour over the time. We evaluate \Moca overhead and we compare
-    it to existing tools in terms of performances and trace details.
+    In this study we present \Moca an efficient memory trace collection
+    system, based on a Linux kernel module, that provide a complete overview
+    of an applications memory behaviour over the time. We evaluate \Moca
+    overhead and we compare it to existing tools in terms of performances and
+    trace details.
 
 \end{abstract}
 
