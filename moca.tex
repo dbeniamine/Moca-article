@@ -193,29 +193,29 @@ Inria\\
 \maketitle
 
 \begin{abstract}
-    In modern \emph{High Performance Computing} architectures, memory accesses
-    are a common bottleneck. To benefit from hardware optimization mechanisms
-    such as cache pre-fetcher, the developer needs to consider memory access
-    patterns aiming at locality and linearity.
+    In modern \emph{High Performance Computing} architectures, the memory subsystem
+    is a common performance bottleneck. To take advantage from the cache or from hardware optimization mechanisms
+    such as the memory prefetcher, the developer has to study the memory accesses
+    patterns of his application and optimize it for locality and linearity.
 
-    Most efforts on memory performances optimization at software level relies
-    on adaptive tools which move data or thread on CPUs at the runtime to
+    Most efforts about memory performance optimizations at software level relie
+    on adaptive tools which move data or thread between CPUs at runtime to
     reduce communication times. Such tools are often efficient but cannot
-    modify an application's memory access pattern thus they are not efficient
-    on application written without considering memory behavior. The developer
-    still need to consider this behavior.
+    change memory accesses patterns performed by the application. Thus they will not
+    be able to improve upon applications written without care about memory behavior.
+    The developer still has to consider memory optimizations in his implementation.
 
-    While a lots of tools have been developed to measure an application's
-    performances, most of them focus on the CPU and none of them is able to
-    provide an overview of the memory accesses. Such an overview can help the
-    developer understanding and therefore optimizing its application memory
-    behavior resulting in significant performance gain.
+    Numerous tools have been developed to measure the performance of an application.
+    Nevertheless, most of them focus on CPU metrics and none of them is able to
+    provide an overview of the memory patterns involved by the execution. Such an overview would help the
+    developer to understand and therefore to optimize the memory
+    behavior of his application and would result in significant performance gains.
 
-    In this study we present \Moca an efficient memory trace collection
-    system, based on a Linux kernel module, that provide a complete overview
-    of an applications memory behaviour over the time. We evaluate \Moca
-    overhead and we compare it to existing tools in terms of performances and
-    trace details.
+    In this study we present \Moca an efficient tool for spatiotemporal memory traces collection.
+    It is based on a Linux kernel module and provides a complete coarse grained overview
+    of an applications memory accesses over the addressing space and the time. While the
+    overhead \Moca is smaller than the overhead of comparable tools, it is able to provide
+    more precise and more complete results.
 
 \end{abstract}
 
