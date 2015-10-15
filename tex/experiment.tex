@@ -8,16 +8,16 @@ This section briefly discusses our experimental setup for the evaluation of
 \Moca.
 
 All our experiment were run on  machines from Grid5000 \emph{Edel} cluster
-\footnote{A full hardware description is available here
+\footnote{A full hardware description is available here\\
     \url{https://www.grid5000.fr/mediawiki/index.php/Grenoble:Hardware\#Edel}}.
     These machines are composed of $2$ quad core \texttt{Intel Xeon E5520}
     cadenced a $2.27GHz$ with
     $24 GB$ of RAM. Hyper threading was disabled during the experiment.
 
-We deployed a \emph{Debian} \emph{Wheezy} environment running a Linux $3.X$
-\DB{Linux version}.
-\DB{Environment online ?}.
-\DB{Results online ?}
+We deployed a \emph{Debian} \emph{Wheezy} environment running a Linux $3.2.41-2$.
+To make the experiments reproducible, the environment and the trace files are
+available
+online~\footnote{Experiment traces and environments are available here:\\ \url{http://moais.imag.fr/membres/david.beniamine/experiments.html}}.
 
 We evaluate our tool on all the \NPB~\cite{Jin1999}. For
 each benchmarks, we compare \Moca with the Pin~\cite{Luk05Pin} instrumentation
