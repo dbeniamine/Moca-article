@@ -1,54 +1,57 @@
 \section{Introduction}
 \label{sec:intro}
 
-In \emph{High Performance Computing} memory is often a bottleneck.
-While it is trivial to access it, doing it efficiently is extremely
-complex, indeed the user needs to take into account the cache hierarchy and
-their mechanisms such as the pre-fetcher. It gets even more complex with
-\emph{Not Uniform Memory Access} machines where the location of data in
-physical memory impacts the performances~\cite{Drepper07What}.
+In \emph{High Performance Computing} the memory subsystem is often a performance bottleneck.
+Using efficiently this memory subsystem can be extremely
+complex, indeed the developper has to take into account both the cache hierarchy and
+hardware mechanisms such as the memory prefetcher. It gets even more complex with
+\emph{Non Uniform Memory Access} machines in which data location in
+physical memory impacts the accesses latency and contention issues arise~\cite{Drepper07What}.
 
-Several tools such as NUMA Balancing~\cite{Corbet2012} were designed to improve the
-memory usage on NUMA machines. These tools are able to move data on the
-physical memory to keep it as close as possible to the thread using them
-reducing the number of remote accesses. They provide great performance gain
-still they cannot fix every memory related issues. For instance if all
-threads of an application accesses to the same page, any page mapping will
-result on remote accesses from every NUMA node but one. The only way to fix
-this kind of issues is to rewrite the application's code considering the
-memory pattern. Thus tools helping the user to understand the memory pattern
-of its application can help improving performances.
+Several tools such as NUMA Balancing~\cite{Corbet2012} have been designed to automatically improve the
+memory usage on NUMA machines. These tools are able to move pages of data in the
+physical memory to keep them as close as possible to the thread that use them, thereby
+reducing the number of remote accesses. While this can provide great performance gains,
+this cannot address all the memory related issues. For instance, if all the
+threads of an application access to the same memory page, whatever the page mapping is,
+this will result in remote accesses from all the NUMA nodes but one. The only way to fix
+this kind of issue is to rewrite a part of the application code in order to take into account these
+unbalanced memory accesses. This is why tools than can help the developer to understand the memory accesses patterns
+of its application are of utter importance for performances optimizations.
 
-Numerous tools such as Vtune~\cite{Reinders05VTune} and
-HPCToolkit~\cite{Adhianto10HPCTOOLKIT} where developed to help the programmer
-understanding an application performance issues. However these tools
-focuses on the CPU and can only provides a partial view of events happening on
-the memory. Thus they are not able to help solving memory access pattern
-related issues.
+Other tools such as Vtune~\cite{Reinders05VTune} and
+HPCToolkit~\cite{Adhianto10HPCTOOLKIT} have been developed to help the programmer
+understand correction and performance issues in a multithreaded application. However, these tools
+focus on the CPU and can only provides a global view of events related to the memory: the location of accesses,
+their time or both are usually lost in the process. Thus, they are not able to provide the developper with
+a clear view of memory accesses patterns occuring during the execution. In such situation, fixing
+memory related issues is a matter of trial and error and the eventual code is often suboptimal.
 
-To solve this kind of issues, the user needs a \emph{complete} trace of memory
-accesses with a fine \emph{granularity}. We consider that a trace is
-\emph{complete} at a certain granularity if and only if it provides a superset
-of accesses at this granularity with for each access temporal, spacial (on
-which CPU the event occurs) and sharing (which threads accesses this address)
-information.
-
-Memory analysis tools are currently not able to provide such traces, they
-always give up some information by doing some \emph{incomplete}
-sampling~\cite{Liu14Tool,Lachaize12MemProf}, increasing granularity and/or
+Indeed, to solve memory related issues, the developper needs a detailed trace of memory
+accesses at a sufficiently fine \emph{granularity}. Furthermore, to ensure that a lack of precision
+does not compromise the analysis, such a trace should be \emph{complete}. We say that a trace is
+\emph{complete} at a certain granularity if and only if the events it contains along with their granularity
+form a superset of the actual accesses. Furthermore, memory events in a \emph{complete} trace should
+include information about time, space (at which address the event occurs) and nature of access (is this
+a read, a write, by which thread).
+%
+At the time of this writing, existing memory analysis tools are not able to provide such traces. They
+always lack some of the information either by relying on \emph{incomplete}
+sampling~\cite{Liu14Tool,Lachaize12MemProf}, or by
 removing temporal information~\cite{Beniamine15TABARNACRR}.
 
-Generating such traces is a challenge, indeed there is no hardware mechanism
-comparable to CPU performance counters to trace memory access, and the amount
-of data to collect is considerable. Instrumentation based methods are too slow
-to provide a complete trace, and efficient hardware sampling mechanisms cannot
-provide such trace by conception.
+Generating such traces is a challenge: there is no hardware mechanism
+comparable to CPU performance counters to collect a detailled trace of memory accesses, and the volume
+of data to collect is huge. Instrumentation based methods are too slow
+to provide a \emph{complete} trace, and efficient hardware sampling mechanisms are not designed
+to provide all the information that constitute a \emph{complete} trace.
 
-I this study, we present \emph{Memory Organisation, Cartography and Analysis}
+In this study, we present \emph{Memory Organisation Cartography and Analysis}
 an efficient memory trace collection system based on page fault interception.
 This mechanism is able to provide a \emph{complete} sampled memory trace at
-the granularity of the page with detailed information on accesses at the
-granularity of the address.
+the spatial granularity of the page along with a parametrized temporal granularity.
+It also collects detailed information about sampled accesses, including their address and
+precise timestamp.
 
 % \begin{itemize}
 %     \item HPC => importance of memory
