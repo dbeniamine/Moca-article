@@ -56,8 +56,7 @@ Finally, binary instrumentation can provide accurate information about memory ac
 This method is portable and  more precise than the aforementioned ones,
 but it comes at the cost of performances. Fast
 instrumentations usually either rely on a simulator~\cite{DeRose02SIGMA} which is not as realistic as an actual execution
-\GH{ET ?} \DB{ça ramène au problème de la simulation} or
-collect data at a coarser granularity and gives up temporal data~\cite{Beniamine15TABARNACRR}.
+or collect data at a coarser granularity and gives up temporal data~\cite{Beniamine15TABARNACRR}.
 
 Notice, that the kind of precise memory trace we are looking for is also useful for adaptive NUMA mapping tools, which
 need to know at runtime which processors are accessing which pages. Some of
