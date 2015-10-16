@@ -8,6 +8,7 @@ BIB = bibtex
 TEXSRC = $(wildcard *.tex)
 BIBSRC = $(wildcard *.bib)
 PDF = $(TEXSRC:.tex=.pdf)
+PS = $(TEXSRC:.tex=.ps)
 AUX = $(TEXSRC:.tex=.aux)
 BBL = $(TEXSRC:.tex=.bbl)
 NLO = $(TEXSRC:.tex=.nlo)
@@ -16,6 +17,8 @@ NLS = $(TEXSRC:.tex=.nls)
 #Commands + arguments
 TEXCOMPILE = $(TEX) $(TEXSRC)
 BIBCOMPILE = $(BIB) $(AUX)
+PDFTOPS = pdftops $(PDF)
+PSTOPDF = ps2pdf14 -dPDFSETTINGS=/prepress $(PS)
 
 #Windows
 ifeq ($(OS),Windows_NT)
@@ -39,9 +42,12 @@ bib-default : $(PDF) $(BIBSRC)
 finalize : $(AUX) $(BBL)
 	$(TEXCOMPILE)
 	$(TEXCOMPILE)
+	# Embed fonts
+	$(PDFTOPS)
+	$(PSTOPDF)
 
 clean :
-	rm -rf *.tdo *.idx *.nlo *.log *.lof *.lot *.bbl *.blg *.thm *.pdf *.aux *.backup *.bak *.toc *.out *.ilg *.nls *~ .*~ img/*eps-converted-to.pdf
+	rm -rf $(PS) *.tdo *.idx *.nlo *.log *.lof *.lot *.bbl *.blg *.thm *.pdf *.aux *.backup *.bak *.toc *.out *.ilg *.nls *~ .*~ img/*eps-converted-to.pdf
 
 distclean: clean
 	rm -rf $(PDF)
