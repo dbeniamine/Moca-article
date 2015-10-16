@@ -8,16 +8,16 @@ This section briefly discusses our experimental setup for the evaluation of
 \Moca.
 
 All our experiment were run on  machines from Grid5000 \emph{Edel} cluster
-\footnote{A full hardware description is available here
+\footnote{A full hardware description is available here\\
     \url{https://www.grid5000.fr/mediawiki/index.php/Grenoble:Hardware\#Edel}}.
     These machines are composed of $2$ quad core \texttt{Intel Xeon E5520}
     cadenced a $2.27GHz$ with
     $24 GB$ of RAM. Hyper threading was disabled during the experiment.
 
-We deployed a \emph{Debian} \emph{Wheezy} environment running a Linux $3.X$
-\DB{Linux version}.
-\DB{Environment online ?}.
-\DB{Results online ?}
+We deployed a \emph{Debian} \emph{Wheezy} environment running a Linux $3.2.41-2$.
+To make the experiments reproducible, the environment and the trace files are
+available
+online~\footnote{Experiment traces and environments are available here:\\ \url{http://moais.imag.fr/membres/david.beniamine/experiments.html}}.
 
 We evaluate our tool on all the \NPB~\cite{Jin1999}. For
 each benchmarks, we compare \Moca with the Pin~\cite{Luk05Pin} instrumentation
@@ -92,16 +92,15 @@ all the \NPB on class A.
 
 \fig{fig:ovh} shows the slowdown of \Moca and Tabarnac compared to the
 a normal execution of each benchmarks. We can identify three groups of
-applications:  for \BT, \DC, \EP, \FT, \LU, \SP and \UA, \Moca is
-\DB{\BT results for Tabarnac are weird on last experiment => re run them}
+applications:  for \BT, \DC, \EP, \IS, \LU, \SP and \UA, \Moca is
 significantly faster than Tabarnac. This set of benchmarks is interesting,
 indeed if \EP is mostly doing parallel computation with only a few number of
-memory accesses, \FT is a kernel containing all to all communications, \BT,
-\LU and \SP are pseudo applications doing a significant usage of memory.
+memory accesses, \IS is memory intensive with a random memory access pattern
+\BT, \LU and \SP are pseudo applications doing a significant usage of memory.
 Finally \DC and \UA are categorised as \emph{unstructured computation,
 parallel I/O and data movement} by the \NPB website
 \footnote{\url{http://www.nas.nasa.gov/publications/npb.html}}. The second
-group only contains memory oriented benchmarks (\CG and \IS). For this group
+group only contains memory oriented benchmarks (\CG and \FT). For this group
 \Moca is as good as Tabarnac or a bit faster. Finally for \MG, \Moca seems to
 be significantly slower than Tabarnac. Actually for this application, we
 identified two behaviors: for $28$ runs out of $30$, the execution time under
