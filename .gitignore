@@ -12,3 +12,4 @@ sty/*/*.pdf
 *.synctex.gz
 *.swp
 */*.swp
+*.ps
