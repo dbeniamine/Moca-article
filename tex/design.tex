@@ -152,11 +152,8 @@ them with Linux kernel built-in \emph{rwlocks}.\GH{Un peu contradictoire si on s
 The third type of information is the actual
 trace, divided, for each task, in a private set of \emph{chunks}. A chunk is the set of
 accesses that have been collected during some configurable time interval. Chunks provide a discretization
-of the time and reduce the volume of information stored (only
-two clocks per chunk).\GH{C'est quoi ces clocks ? Si c'est stocké une fois par chunk, la réduction de volume est ridicule}
-\DB{timestamp de debut et fin de chunk. Sans chunks on stockerait un clock par
-    accès, ici on descend a quelque chose comme 2 clock pour plusieurs
-centaines d'accès}
+of the time, that we use as a timestamp for all the accesses it contains. This is not a limitation as timestamps more
+precise than the sampling frequency would not really make sense. The advantage is that it reduces the volume of information stored for the accesses.
 
 This discretization of the time, materialized as a sequence of chunks, is useful as it let the
 different components of \Moca work concurrently on different chunks.  Indeed the traced
