@@ -9,7 +9,7 @@ code. Therefore it is highly portable and can be run on any recent Linux kernel
 from the 3.0. \Moca collects complete traces in the sense that the exact set
 of pages accessed by the application is deduced from the collected events
 at all times during the execution. Thus, it is complete at the page granularity.
-Other informations such as exact addresses and access times are a sample of
+Other information such as exact addresses and access times are a sample of
 the set of all the accesses.
 
 Two tasks are addressed by the kernel module included in \Moca. The first one is
@@ -78,7 +78,7 @@ The table \tbl{tab:tools-comp} summarizes these main differences between \Moca a
         \midrule
         & & Time & Sharing and CPU localisation \\
         \cmidrule(lr){3-4}
-        \multirow{4}{.8cm}{Other informations}
+        \multirow{4}{.8cm}{Other information}
         & Tabarnac & No & Thread sharing\\
         \addlinespace
         & Mitos & Yes & CPU location \\
@@ -99,7 +99,7 @@ The table \tbl{tab:tools-comp} summarizes these main differences between \Moca a
         & Moca & Complete sampling & Any architecture\\
         \bottomrule
     \end{tabular}
-    \caption{Comparison of different memory access collection
+    \caption{Comparison of different memory accesses collection
         tools: Tabarnac~\cite{Beniamine15TABARNACRR},
         Mitos~\cite{Gimenez14Dissecting},
         MemProf~\cite{Lachaize12MemProf} and \Moca}
@@ -133,40 +133,45 @@ within the kernel space.
 \end{figure}
 
 
-During the execution, we need to store three types of information:
+During the execution, \Moca needs to store three types of information:
 \begin{enumerate}
-    \item Which \emph{tasks} (Linux internal representation of threads and process) are
-monitored (as page fault will be triggered by tasks which does not belong to
-the monitored application).
-    \item Which page faults have been triggered by \Moca (false page faults).
-    \item The set of addresses recently accessed by each task.
+    \item the set of \emph{tasks} (Linux internal representation of threads and process) which are
+monitored. This is necessary because page faults will also be triggered by other tasks which does not belong to
+the monitored application.
+    \item the set of addresses recently accessed by each task. This is necessary to re-enable the false page
+      fault at the end of each monitoring interval.
+    \item the set of all page faults which have been triggered by \Moca. They will be stored until they are
+      transfered to the user space by a dedicated thread.
 \end{enumerate}
 
-Each of these informations are stored on preallocated hash maps to reduce the
-runtime overhead.  The two first are read during every page faults but rarely
-written (when a new tasks of the monitored application triggers it first page
-fault or when \Moca create some false page faults). Therefore we can protect
-them with Linux kernel built-in \emph{rwlocks}. The third is the actual
-trace, each task has a private set of \emph{chunks}. A chunk is a set of
-accesses that occurred in a (short) time laps.  Chunks provide a discrete
-representation of the time and reduce the amount of information stored (only
-two clocks per chunk). The discretization of time is useful as it allow the
-different component of \Moca to work on different data.  Indeed the traced
-program will always work on \emph{current} chunks, while the logging daemon
-which flush the trace from memory to disc works on \emph{finished} chunks. A
-monitoring (kernel) thread periodically wakes up, mark the current chunks as
-\emph{ending} and invalidate every page of these chunks. Once all pages of the
-chunk have been invalidated, it mark the chunk as \emph{fnished}. Finally, the
-logging process flush each \emph{finished} chunks to the disc at a lower
-frequency.  \fig{fig:moca} illustrate the interaction between the
-different process and threads of \Moca, its data structures and Linux.
+The first two types of information are stored in preallocated hashmaps in order to reduce the
+runtime overhead of their management.  The two first hashmaps are read at each page fault but rarely
+written, only when a new task of the monitored application triggers it first page
+fault or when \Moca create some false page faults. We can protect
+them with Linux kernel built-in \emph{rwlocks}.\GH{Un peu contradictoire si on sait que les rwlocks favorisent les lecteurs\ldots}
+The third type of information is the actual
+trace, divided, for each task, in a private set of \emph{chunks}. A chunk is the set of
+accesses that have been collected during some configurable time interval. Chunks provide a discretization
+of the time and reduce the volume of information stored (only
+two clocks per chunk).\GH{C'est quoi ces clocks ? Si c'est stocké une fois par chunk, la réduction de volume est ridicule}
 
-\Moca generate one (plain text) trace file per thread, each file contain three
-types of information: meta data about the task (pid and \Moca internal id),
-chunks related information (number of elements, start and end
-clock) and accesses information (virtual and physical address, number of read
-and writes). Moreover for both chunks and accesses a bitmask indicate on which
-CPU the accesses were detected.
+This discretization of the time, materialized as a sequence of chunks, is useful as it let the
+different components of \Moca work concurrently on different chunks.  Indeed the traced
+program will always work on \emph{current} chunks, one for each core, while the logging daemon,
+which flushes the trace from memory to disc works on \emph{completed} chunks. A
+monitoring kernel thread, manage the progressing of this logical time. It periodically wakes up, marks the current chunks as
+\emph{ending} and invalidate all the pages they reference. Once all pages of the \emph{ending}
+chunks have been invalidated, it marks the chunk as \emph{finished}. Finally, the
+logging process flush \emph{finished} chunks to the filesystem at a lower
+frequency, and recycle them as empty places for upcoming chunks.  \fig{fig:moca} depicts the interaction between the
+different processes and threads of \Moca, its data structures and Linux.
+
+At the end of the day, \Moca generates one plain text trace file per thread. Each of these files contains three
+types of information: meta data about the task (its pid and \Moca internal id),
+chunks related information (their number of elements, their start and end
+clock) and accesses information (virtual and physical addresses, number of read
+and writes\GH{N'y a-t-il pas une entrée par accès ???}). Moreover for both chunks and accesses a bitmask indicate on which
+CPU the accesses have been detected.
 
 \begin{algorithm}[htb]
     \caption{Monitoring thread algorithm}
