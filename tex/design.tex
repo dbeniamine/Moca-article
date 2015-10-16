@@ -222,14 +222,15 @@ that we have empirically chosen.
     \end{algorithmic}
 \end{algorithm}
 
-The logging daemon (algorithm~\ref{algo:flushTh}) is a userspace process
-which periodically reads \texttt{/proc} pseudo files. Those reads trigger a
+The logging daemon, that uses algorithm~\ref{algo:flushTh}, is a userspace process
+which periodically reads \texttt{/proc} pseudo files used by \Moca kernel module to export
+its data to userspace. Those reads trigger a
 callback method in our tool which flush finished chunks from memory to
 disc. As it works on finished chunks, it does not directly interfere with the
-normal application execution. Still as it generate disc I/O, it is preferable to
-keep it asleep most of the time. Yet if it does not wake up often enough, no
-more chunks will be available to store accesses and a part of the trace will
-be lost.
+normal application execution. Especially, no lock is required to access to these finished chunks,
+and, as it mostly generates disc I/O, it does not compete much for CPU.
+\Moca has just to wake him up sufficiently often so that the kernel module does not run out
+of free space to store upcoming chunks.
 
 \begin{algorithm}[htb]
     \caption{Page fault handler}
@@ -253,41 +254,42 @@ be lost.
     \end{algorithmic}
 \end{algorithm}
 
-Every time a page fault occurs, it traps to \Moca
-(algorithm~\ref{algo:PageFault}), we first need to determine if the task
+Each time a page fault occurs, it is traped by the \Moca handler that uses
+algorithm~\ref{algo:PageFault}. This algorithm first finds out if the task
 (thread or process) responsible for the page fault is
-monitored. If not, we have to check if the task is a child of a monitored
-task, in this case, we have to monitor it. We only need a read lock
-to a hashmap containing the monitored tasks to answer these
-two questions. If the answer is no, Linux will handle the page
-fault normally. If and only if the second answer is yes, we will need to take
-a write lock. This case occurs only at the first page fault of a new monitored
-process or thread which is quite rare. For instance on the benchmarks used for
-the evaluation it happens $8$ times for $10^6$ accesses.
+monitored or not. If not, it has to check if the task is a child of a monitored
+task, in this case, we have to monitor it as well. We only need a read lock
+to access to the hashmap containing the monitored tasks in order to answer to these
+two questions.
+If and only if the second answer is yes, it is necessary to take
+a write lock to add the task to the monitored ones.
+This case occurs only at the first page fault of a new monitored
+process or thread which is quite rare. For instance, in the benchmarks used for
+the evaluation it happens $8$ times out of $10^6$ accesses.
+At the end of this phase, if the task is still not monitored, Linux can handle the page fault normally.
 
-When a monitored task triggers a page fault, we first add the accessed address
-to it's current chunk. For each access, we store the address, it's type (read
-or write) and the CPU on which the fault occurred.  Then we check if the page
-fault was triggered by \Moca or if it is a legitimate page fault. In the first
-case, we \emph{fix} it which mean setting the present flag on the \texttt{Page
-Table Entry} and we mark the hash map entry \emph{BAD} so we only need a read
+When a monitored task triggers a page fault, the access is first added
+to its current chunk. For each access, \Moca stores the exact address, it's type (read
+or write) and the CPU on which the fault occurred.  Then, it checks if the page
+fault was triggered by \Moca or if this is a legitimate page fault.
+\GH{Je ne comprend rien à ce paragraphe\ldots}
+In the first
+case, \Moca \emph{fixes} it by setting the present flag on the \texttt{Page
+Table Entry} and by marking the according hashmap entry as \emph{BAD} so we only need a read
 lock on the false page fault hashmap. \emph{BAD} entries are removed if
 necessary by a call to \texttt{AddFalsePF} which already holds the write lock.
-If a fix occurred during our handler, Linux will silently abort the page fault
-without any more work, else it will execute a normal page fault. Each page
-fault increase an atomic clock that is used to timestamp the beginning and end
+\GH{\ldots qui termine ici}
+If a fix occurred in the \Moca handler, Linux silently aborts the page fault
+when it resumes its execution. In the other case, it executes a normal page fault handling. Each page
+fault increases an atomic clock that is used to timestamp the beginning and end
 of the chunks.
-
-A race might occurs if the monitor threads clears a page fault between the
-end of our handler and the end of Linux page fault. To avoid that, we store
-for each CPU the last address that faulted, and we forbid to clear this
+In this description, one can notice that a race might occur if the monitoring thread enables a false page fault between the
+end of our handler and the end of Linux page fault handler. To avoid that, \Moca stores
+for each CPU the last address that faulted, and does not clear this
 address.
 
-Every settings that can influence either the accuracy of the trace or the
+All the settings that can influence either the accuracy of the trace or the
 overhead of the tools (such as the number and size of chunks, wakeup intervals
-for the monitoring thread and the logging process \ldots) are accessible to the
-user although the default have been defined after an experimental study
-(detailed in section~\ref{sec:expe-ovh}).
-
-In the next section we evaluate \Moca by comparing it to existing tools in
-term of performances and trace precision.
+for the monitoring thread and the logging process \ldots) can be overridden by the
+user. Nevertheless, reasonable defaults have been defined from the experimental study
+detailed in section~\ref{sec:expe-ovh}.
