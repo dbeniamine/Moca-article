@@ -1,28 +1,68 @@
 \section{Design}
 \label{sec:design}
 
-\subsection{Mainlines}
-
-\Moca consist of a Linux kernel module and a script responsible to launching it
-with the right parameters. It does not relies on architecture specific
+\Moca consist of a Linux kernel module and a script that loads this module with
+the proper parameters and launch the monitored application on the user behalf.
+It does not rely on architecture specific
 technologies such as AMD IBS or Intel PEBS, or architecture dependent kernel
-code. Therefore it is highly portable and can be run on any recent kernel
-(Linux $> 3.X$).
+code. Therefore it is highly portable and can be run on any recent Linux kernel
+from the 3.0. \Moca collects complete traces in the sense that the exact set
+of pages accessed by the application is deduced from the collected events
+at all times during the execution. Thus, it is complete at the page granularity.
+Other informations such as exact addresses and access times are a sample of
+the set of all the accesses.
 
-In recent Linux kernel, memory page are not allocated before the execution: the
-first access to a page will trigger a page fault. Linux will then allocate the
-page. Page fault can also be triggered when a thread access a page modified by
-an other thread. We can monitor memory access by registering a callback on
-Linux page faults. Still, as  page fault does not occurs at each memory access
-we need to generate false page fault by periodically marking some page as not
-present. This method have several advantages over hardware sampling or
-instrumentation. First it provides a super set of the accesses: indeed it
-guarantee that each page of the monitored application will at least fault once
-and will therefore be traced. Moreover we can still trace the exact accessed address
-therefore the granularity is not limited while instrumentation based tools
-often works at a high granularity to keep their overhead reasonable.  Finally
-trapping to our tool has a very low cost as it relies on page faults which
-are triggered by hardware and the Linux kernel probing mechanism.
+Two tasks are addressed by the kernel module included in \Moca. The first one is
+keeping track of the set of pages accessed by the application during an elementary monitoring
+interval. The second one is managing somehow the huge quantity of data produced
+by the trace collection whithin the kernel space inbeetween regular flushes toward
+the user space. Of course, these two tasks should be as slightly intrusive as possible.
+
+\subsection{Collecting memory accesses}
+
+In recent Linux kernel, physical memory pages are lazily allocated to page frames during
+the execution. The first access to a page in the virtual address space triggers a page fault.
+To handle this page fault, Linux allocates a physical page to the requested page frame.
+Such a page fault can also be triggered when a thread access a shared page modified by
+another thread. \Moca is built upon the possibility to monitor memory accesses by registering
+a callback on Linux page faults.
+
+Nevertheless, a page fault does not occur at each memory access. To monitor memory accesses during
+the course of the execution, we need to reenable a page fault similar to the first access, but
+performed on a regular basis and on behalf of \Moca.
+In other words, we need to generate false page fault by periodically marking as \emph{not present}
+the pages accesses by the application.
+In Linux terminology, this means that any access to the page will trigger a page fault which
+will have to be handled, in this case, by a handler contained in \Moca.
+
+This method has several advantages over hardware sampling or
+instrumentation. First it provides a superset of all the memory accesses, because it
+guarantee that each page accessed by the monitored application will at least fault once
+and will be traced. Thus, at the end of each monitoring interval, we know the exact set
+of accessed pages from which we deduce a superset of actual memory accesses.
+This comes in addition to the fact that each false page fault generated provides \Moca with
+exact information about one memory access. This means that \Moca also performs a sampling
+of all the memory accesses and, because it is designed to manage large chunks of trace data
+within the kernel space, it stores all the details about these samples in the collected trace.
+
+\Moca differs from instruction sampling because it is not necessary to increase the monitoring
+frequency of \Moca to collect a complete trace. On the contrary, when using instruction sampling,
+if the pages of the application are accessed in an unbalanced manner, it is necessary to increase
+the sampling frequency to get a precise picture of the memory working set of the application.
+Nevertheless, there can be no guarantee that a chosen sampling frequency will result in a trace
+that contains all the pages on which the application works.
+\Moca also differs from instrumentation based tools because, just as in the case of sampling,
+memory accesses that are not collected in the trace are not traped at all. Furthermore, the
+remaining memory accesses, those which are collected, are traped using a hardware mechanism and
+Linux kernel probes. Both are lightweight mechanisms, this means that
+the overall instrumentation overhead of \Moca is likely to be much lower.
+Indeed, instrumentation based methods often work at a high granularity, collecting few information,
+in order to restrain their naturally high overhead.
+
+In short, \Moca collects complete traces at the granularity of the page, whereas instruction
+sampling cannot guarantee any completeness of the collected trace. And \Moca is as lightweight
+as instruction sampling whereas binary instrumentation has to trap all the memory instructions.
+The table \tbl{tab:tools-comp} summarizes these main differences between \Moca and the other memory profiling tools.
 
 \begin{table}
     \centering
@@ -66,22 +106,22 @@ are triggered by hardware and the Linux kernel probing mechanism.
         \label{tab:tools-comp}
 \end{table}
 
-Intercepting page faults instead of doing hardware sampling, guaranty that
-every page of the analyzed application will be intercepted. Therefore \Moca
-provide a \emph{complete} trace at the granularity of the page. Such guaranty
-is not provided by any other tool based on sampling. Instrumentations based
-tools that traces every memory accesses provides this guaranty but to keep
-their overhead reasonable they have to drop a part of the information.
-Furthermore while \Moca traces are \emph{complete} at the page granularity,
-they contains every intercepted addresses, thus they provide detailed
-information at the byte granularity. \tbl{tab:tools-comp} recapitulate
-the main difference between \Moca and the main other memory profiling tools.
+%Intercepting page faults instead of doing hardware sampling, guaranty that
+%every page of the analyzed application will be intercepted. Therefore \Moca
+%provide a \emph{complete} trace at the granularity of the page. Such guaranty
+%is not provided by any other tool based on sampling. Instrumentations based
+%tools that traces every memory accesses provides this guaranty but to keep
+%their overhead reasonable they have to drop a part of the information.
+%Furthermore while \Moca traces are \emph{complete} at the page granularity,
+%they contains every intercepted addresses, thus they provide detailed
+%information at the byte granularity.
 
-\subsection{Algorithms and technical aspects}
+\subsection{Managing data}
 \label{sec:design-tech}
 
-In this section we explain in more details how the main components of \Moca
-interact and how we addressed technical issues.
+In this section we present in details how the main components of \Moca
+interact and how \Moca addresses the management of the data it collects
+within the kernel space.
 
 \begin{figure}[htb]
     \centering
