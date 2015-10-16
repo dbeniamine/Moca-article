@@ -17,8 +17,11 @@ indirect data about memory performances, that can be computed from the performan
 As performances counters are architecture dependent and are not always easily
 understandable, higher level libraries such as \emph{PAPI}~\cite{Weaver13PAPI} and
 \emph{Likwid}~\cite{Treibig10LIKWID} have been developed to ease such analysis. These
-libraries are able to derive more abstract and understandable metrics from raw hardware counters. \DB{example:
-likwid memory groups} Overall, a lot of studies provide a memory analysis solely based
+libraries are able to derive more abstract and understandable metrics from raw hardware counters.
+For instance Likwid provides several groups of metrics related to memory
+allowing the user to compute bandwith of each cache level and between a CPU
+and the main memory.
+Overall, a lot of studies provide a memory analysis solely based
 on information collected through hardware performance counters~\cite{Majo13(Mis)understanding,
 Jiang14Understanding,Bosch00Rivet,Weyers14Visualization,Tao01Visualizing,DeRose01Hardware}.
 Despite providing a good global summary about memory performance figures, these counters only provide a partial view of the execution. They
@@ -50,9 +53,10 @@ more complete traces efficiently, they are even less usable than sampling techni
 these techniques, one has to have access to exotic hardware prototypes or even build them.
 
 Finally, binary instrumentation can provide accurate information about memory accesses.
-This method is portable and  more precise than the aforementionned ones,
+This method is portable and  more precise than the aforementioned ones,
 but it comes at the cost of performances. Fast
-instrumentations usually either rely on a simulator~\cite{DeRose02SIGMA} \GH{ET ?} or
+instrumentations usually either rely on a simulator~\cite{DeRose02SIGMA}
+\GH{ET ?} \DB{ça ramène au problème de la simulation} or
 collect data at a coarser granularity and gives up temporal data~\cite{Beniamine15TABARNACRR}.
 
 Notice, that the kind of precise memory trace we are looking for is also useful for adaptive NUMA mapping tools, which

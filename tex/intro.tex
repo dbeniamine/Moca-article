@@ -21,7 +21,7 @@ of its application are of utter importance for performances optimizations.
 
 Other tools such as Vtune~\cite{Reinders05VTune} and
 HPCToolkit~\cite{Adhianto10HPCTOOLKIT} have been developed to help the programmer
-understand correction and performance issues in a multithreaded application. However, these tools
+understand and correct performance issues in a multithreaded application. However, these tools
 focus on the CPU and can only provides a global view of events related to the memory: the location of accesses,
 their time or both are usually lost in the process. Thus, they are not able to provide the developper with
 a clear view of memory accesses patterns occuring during the execution. In such situation, fixing
@@ -32,7 +32,8 @@ accesses at a sufficiently fine \emph{granularity}. Furthermore, to ensure that 
 does not compromise the analysis, such a trace should be \emph{complete}. We say that a trace is
 \emph{complete} at a certain granularity if and only if the events it contains along with their granularity
 form a superset of the actual accesses. Furthermore, memory events in a \emph{complete} trace should
-include information about time, space (at which address the event occurs) and nature of access (is this
+include information about time, space (at which address the event occurs),
+location (on which CPU it occurs) and nature of access (is this
 a read, a write, by which thread).
 %
 At the time of this writing, existing memory analysis tools are not able to provide such traces. They
