@@ -48,54 +48,10 @@ to provide a \emph{complete} trace, and efficient hardware sampling mechanisms a
 to provide all the information that constitute a \emph{complete} trace.
 
 In this study, we present \emph{Memory Organisation Cartography and Analysis}
+\footnote{\Moca is distributed under GPL licence:\\
+    \url{https://github.com/dbeniamine/MOCA}}
 an efficient memory trace collection system based on page fault interception.
 This mechanism is able to provide a \emph{complete} sampled memory trace at
 the spatial granularity of the page along with a parametrized temporal granularity.
 It also collects detailed information about sampled accesses, including their address and
 precise timestamp.
-
-% \begin{itemize}
-%     \item HPC => importance of memory
-%         \begin{itemize}
-%             \item NUMA
-%             \item Caches
-%         \end{itemize}
-%     \item Runtimes aren't the only solution
-%         \begin{itemize}
-%             \item Overhead
-%             \item Only provide ``good'' page mapping
-%             \item Sometimes provides worts results
-%             \item Can't fix bad patter
-%         \end{itemize}
-%     \item  Need of memory profiling
-%         \begin{itemize}
-%             \item Granularity: granularity of the stored information
-%             \item Complete trace: trace that cannot miss a part of the memory
-%                 (can miss events)
-%         \end{itemize}
-%     \item Existing tools:
-%         \begin{itemize}
-%             \item Most are CPU oriented
-%             \item Few Memory oriented
-%                 \begin{itemize}
-%                     \item Show very precise informations (number of remote
-%                         access)
-%                     \item Often relies on info from CPU
-%                     \item No global view of the memory
-%                     \item No temporal informations
-%                     \item Either high granularity or not complete
-%                 \end{itemize}
-%         \end{itemize}
-%     \item Getting a global view of the memory access over time is hard:
-%         \begin{itemize}
-%             \item How to collect efficiently
-%             \item Lot of data to store / keep on memory
-%             \item Times means synchronisations
-%         \end{itemize}
-%     \item Conclusion
-%         \begin{itemize}
-%             \item Efficient collection
-%             \item Complete trace at the page granularity
-%             \item Sampled information at the address granularity
-%         \end{itemize}
-% \end{itemize}
