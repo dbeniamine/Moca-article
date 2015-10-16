@@ -6,7 +6,7 @@ the proper parameters and launch the monitored application on the user behalf.
 It does not rely on architecture specific
 technologies such as AMD IBS or Intel PEBS, or architecture dependent kernel
 code. Therefore it is highly portable and can be run on any recent Linux kernel
-from the 3.0. \Moca collects complete traces in the sense that the exact set
+from the $3.0$. \Moca collects complete traces in the sense that the exact set
 of pages accessed by the application is deduced from the collected events
 at all times during the execution. Thus, it is complete at the page granularity.
 Other information such as exact addresses and access times are a sample of
@@ -154,6 +154,9 @@ trace, divided, for each task, in a private set of \emph{chunks}. A chunk is the
 accesses that have been collected during some configurable time interval. Chunks provide a discretization
 of the time and reduce the volume of information stored (only
 two clocks per chunk).\GH{C'est quoi ces clocks ? Si c'est stocké une fois par chunk, la réduction de volume est ridicule}
+\DB{timestamp de debut et fin de chunk. Sans chunks on stockerait un clock par
+    accès, ici on descend a quelque chose comme 2 clock pour plusieurs
+centaines d'accès}
 
 This discretization of the time, materialized as a sequence of chunks, is useful as it let the
 different components of \Moca work concurrently on different chunks.  Indeed the traced
@@ -272,21 +275,22 @@ When a monitored task triggers a page fault, the access is first added
 to its current chunk. For each access, \Moca stores the exact address, it's type (read
 or write) and the CPU on which the fault occurred.  Then, it checks if the page
 fault was triggered by \Moca or if this is a legitimate page fault.
-\GH{Je ne comprend rien à ce paragraphe\ldots}
+
 In the first
-case, \Moca \emph{fixes} it by setting the present flag on the \texttt{Page
-Table Entry} and by marking the according hashmap entry as \emph{BAD} so we only need a read
-lock on the false page fault hashmap. \emph{BAD} entries are removed if
-necessary by a call to \texttt{AddFalsePF} which already holds the write lock.
-\GH{\ldots qui termine ici}
+case, \Moca \emph{fixes} it by setting the present flag on the \texttt{PTE}.
+The hashmap entry indicating that the fault was triggered by \Moca should then
+be removed, but this would required a write lock, so we only mark the hashmap
+entry as \emph{BAD}. \emph{BAD} entries are removed if required when the
+monitor thread calls \texttt{AddFalsePF} as this function already holds the
+write lock.
+
 If a fix occurred in the \Moca handler, Linux silently aborts the page fault
 when it resumes its execution. In the other case, it executes a normal page fault handling. Each page
 fault increases an atomic clock that is used to timestamp the beginning and end
 of the chunks.
 In this description, one can notice that a race might occur if the monitoring thread enables a false page fault between the
 end of our handler and the end of Linux page fault handler. To avoid that, \Moca stores
-for each CPU the last address that faulted, and does not clear this
-address.
+for each CPU the last address that faulted, and does not clear it.
 
 All the settings that can influence either the accuracy of the trace or the
 overhead of the tools (such as the number and size of chunks, wakeup intervals
