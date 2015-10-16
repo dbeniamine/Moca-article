@@ -70,7 +70,6 @@ $40ms$, performances are decreasing. Furthermore \fig{fig:param_evts} shows
 that at this point he can capture a significant number of events. For this
 value, waking up the logging process every $0.4s$ provides nice trade-off
 between the execution time and the number of captured events.
-\DB{$30$ runs here, let's do more to reduce the confidence intervals}
 
 Using this knowledge, we set the default wakeup intervals to $40ms$ for the
 monitor thread, and $0.4s$ for the logging thread.
@@ -101,12 +100,12 @@ Finally \DC and \UA are categorised as \emph{unstructured computation,
 parallel I/O and data movement} by the \NPB website
 \footnote{\url{http://www.nas.nasa.gov/publications/npb.html}}. The second
 group only contains memory oriented benchmarks (\CG and \FT). For this group
-\Moca is as good as Tabarnac or a bit faster. Finally for \MG, \Moca seems to
-be significantly slower than Tabarnac. Actually for this application, we
-identified two behaviors: for $28$ runs out of $30$, the execution time under
-\Moca was comparable to the on under Tabarnac, but for $2$ runs the execution
-was $10$ time slower.
-\DB{Actually 3 levels of runs for mg: 35sec, 120sec and 280sec \ldots}
+\Moca is as good as Tabarnac or a bit faster. Finally for \MG, \Moca is
+significantly slower than Tabarnac. This benchmark seems to be a pathological
+case were the execution time under \Moca have a lot a variability.
+\DB{Je sais pas vraiment comment présenter les resultats de \MG, c'est mauvais
+et variable (sur une centaine de runs ici, la moitié sont très lent et l'autre
+moitié plus proche de tabarnac)}
 This experiment shows that \Moca is significantly faster than existing tools
 for most benchmarks, and at least as good for a few memory intensive
 benchmarks.
