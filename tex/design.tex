@@ -192,18 +192,21 @@ CPU the accesses have been detected.
     \end{algorithmic}
 \end{algorithm}
 
-The monitor thread (kernel thread, algorithm~\ref{algo:monTh}) is
-responsible to generate false page faults by removing the \texttt{PRESENT}
-flags from the \texttt{Page Table Entry} (pte) corresponding to each recently
-accessed addresses. The more page faults occurs, the more
-precise the trace is. Still to invalidate the page, it needs
-to take a write lock on the page faults hashmap. Therefore
-delay every pending page fault. The
-\texttt{MonitorThreadWakeUpInterval} parameter allows the user
-to modify slightly this equilibrium.
+The monitoring thread, which is a kernel thread that uses the algorithm~\ref{algo:monTh}, is
+in charge of enabling false page faults destined for \Moca. It performs its task by
+removing the \texttt{PRESENT} flags from the \texttt{Page Table Entry} (PTE) that corresponds to each recently
+accessed addresses. Of course, the more frequently this thread can enable page faults, the more
+precise the trace is. This frequency is the sampling frequency of our tools, which is able to collect
+one access per distinct page between two wakeup of the monitoring thread.
+But invalidatng all the recently accessed pages takes time and requires
+to take a write lock on the page faults hashmap. This write lock
+delays any pending false page fault in the monitored application. Thus the wakeup frequency of the
+monitoring thread cannot be too high, otherwise its action becomes too intrusive.
+The \texttt{MonitorThreadWakeUpInterval} \Moca parameter lets the user change the default setting
+that we have empirically chosen.
 
 \begin{algorithm}[htb]
-    \caption{Logging daemon algorithm. Note that no locks are required as we
+    \caption{Logging daemon algorithm. Note that no locks are required to
     work on finished chunks.}
     \label{algo:flushTh}
     \begin{algorithmic}[1]
