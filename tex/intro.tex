@@ -3,7 +3,7 @@
 
 In \emph{High Performance Computing} the memory subsystem is often a performance bottleneck.
 Using efficiently this memory subsystem can be extremely
-complex, indeed the developper has to take into account both the cache hierarchy and
+complex, indeed the developer has to take into account both the cache hierarchy and
 hardware mechanisms such as the memory prefetcher. It gets even more complex with
 \emph{Non Uniform Memory Access} machines in which data location in
 physical memory impacts the accesses latency and contention issues arise~\cite{Drepper07What}.
@@ -23,11 +23,11 @@ Other tools such as Vtune~\cite{Reinders05VTune} and
 HPCToolkit~\cite{Adhianto10HPCTOOLKIT} have been developed to help the programmer
 understand and correct performance issues in a multithreaded application. However, these tools
 focus on the CPU and can only provides a global view of events related to the memory: the location of accesses,
-their time or both are usually lost in the process. Thus, they are not able to provide the developper with
-a clear view of memory accesses patterns occuring during the execution. In such situation, fixing
+their time or both are usually lost in the process. Thus, they are not able to provide the developer with
+a clear view of memory accesses patterns occurring during the execution. In such situation, fixing
 memory related issues is a matter of trial and error and the eventual code is often suboptimal.
 
-Indeed, to solve memory related issues, the developper needs a detailed trace of memory
+Indeed, to solve memory related issues, the developer needs a detailed trace of memory
 accesses at a sufficiently fine \emph{granularity}. Furthermore, to ensure that a lack of precision
 does not compromise the analysis, such a trace should be \emph{complete}. We say that a trace is
 \emph{complete} at a certain granularity if and only if the events it contains along with their granularity
@@ -42,7 +42,7 @@ sampling~\cite{Liu14Tool,Lachaize12MemProf}, or by
 removing temporal information~\cite{Beniamine15TABARNACRR}.
 
 Generating such traces is a challenge: there is no hardware mechanism
-comparable to CPU performance counters to collect a detailled trace of memory accesses, and the volume
+comparable to CPU performance counters to collect a detailed trace of memory accesses, and the volume
 of data to collect is huge. Instrumentation based methods are too slow
 to provide a \emph{complete} trace, and efficient hardware sampling mechanisms are not designed
 to provide all the information that constitute a \emph{complete} trace.

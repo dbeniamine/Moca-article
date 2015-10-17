@@ -15,7 +15,7 @@ the set of all the accesses.
 Two tasks are addressed by the kernel module included in \Moca. The first one is
 keeping track of the set of pages accessed by the application during an elementary monitoring
 interval. The second one is managing somehow the huge quantity of data produced
-by the trace collection whithin the kernel space inbeetween regular flushes toward
+by the trace collection within the kernel space in-between regular flushes toward
 the user space. Of course, these two tasks should be as slightly intrusive as possible.
 
 \subsection{Collecting memory accesses}
@@ -52,8 +52,8 @@ the sampling frequency to get a precise picture of the memory working set of the
 Nevertheless, there can be no guarantee that a chosen sampling frequency will result in a trace
 that contains all the pages on which the application works.
 \Moca also differs from instrumentation based tools because, just as in the case of sampling,
-memory accesses that are not collected in the trace are not traped at all. Furthermore, the
-remaining memory accesses, those which are collected, are traped using a hardware mechanism and
+memory accesses that are not collected in the trace are not trapped at all. Furthermore, the
+remaining memory accesses, those which are collected, are trapped using a hardware mechanism and
 Linux kernel probes. Both are lightweight mechanisms, this means that
 the overall instrumentation overhead of \Moca is likely to be much lower.
 Indeed, instrumentation based methods often work at a high granularity, collecting few information,
@@ -62,7 +62,8 @@ in order to restrain their naturally high overhead.
 In short, \Moca collects complete traces at the granularity of the page, whereas instruction
 sampling cannot guarantee any completeness of the collected trace. And \Moca is as lightweight
 as instruction sampling whereas binary instrumentation has to trap all the memory instructions.
-The table \tbl{tab:tools-comp} summarizes these main differences between \Moca and the other memory profiling tools.
+Furthermore \Moca traces provides information on time, thread sharing and CPU
+location of each captured accesses. The \tbl{tab:tools-comp} summarizes these main differences between \Moca and the other memory profiling tools.
 
 \begin{table}
     \centering
@@ -169,8 +170,9 @@ different processes and threads of \Moca, its data structures and Linux.
 At the end of the day, \Moca generates one plain text trace file per thread. Each of these files contains three
 types of information: meta data about the task (its pid and \Moca internal id),
 chunks related information (their number of elements, their start and end
-clock) and accesses information (virtual and physical addresses, number of read
-and writes\GH{N'y a-t-il pas une entrée par accès ???}). Moreover for both chunks and accesses a bitmask indicate on which
+clock) and information on each intercepted accesses (virtual and physical addresses, number of read
+and writes \GH{N'y a-t-il pas une entrée par accès ???}\DB{Si, j'ai fait une
+petite modif pour clarifier}). Moreover for both chunks and accesses a bitmask indicate on which
 CPU the accesses have been detected.
 
 \begin{algorithm}[htb]
@@ -198,7 +200,7 @@ removing the \texttt{PRESENT} flags from the \texttt{Page Table Entry} (PTE) tha
 accessed addresses. Of course, the more frequently this thread can enable page faults, the more
 precise the trace is. This frequency is the sampling frequency of our tools, which is able to collect
 one access per distinct page between two wakeup of the monitoring thread.
-But invalidatng all the recently accessed pages takes time and requires
+But invalidating all the recently accessed pages takes time and requires
 to take a write lock on the page faults hashmap. This write lock
 delays any pending false page fault in the monitored application. Thus the wakeup frequency of the
 monitoring thread cannot be too high, otherwise its action becomes too intrusive.
@@ -254,7 +256,7 @@ of free space to store upcoming chunks.
     \end{algorithmic}
 \end{algorithm}
 
-Each time a page fault occurs, it is traped by the \Moca handler that uses
+Each time a page fault occurs, it is trapped by the \Moca handler that uses
 algorithm~\ref{algo:PageFault}. This algorithm first finds out if the task
 (thread or process) responsible for the page fault is
 monitored or not. If not, it has to check if the task is a child of a monitored

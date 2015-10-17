@@ -25,7 +25,7 @@ memory accesses but keeps only tracks of the number of time each thread accesses
 each page, without any other information. Thus it does not require the management
 of all the data structures necessary for \Moca.
 
-Each point in each plot is the average of $30$ executions. Along with each point,
+Each point in each plot is the average of at least $30$ executions. Along with each point,
 the error bars represent the standard deviation.
 Except for the experiment about the influence of \Moca's parameters, on each
 experiment, \Moca was run with it's default parameters: a wakeup interval of
@@ -60,12 +60,13 @@ $100ms$ for the monitoring thread. For each run, we measure \IS execution time a
 accesses captured. We have chosen \IS for this evaluation as it is one of the memory intensive \NPB,
 quick experiments with other ones confirmed these results.
 
-We can see on the figure \fig{fig:param_time} that performances seem too decrease linearly
+We can see on the \fig{fig:param_time} that performances seem too decrease linearly
 as the monitoring interval decreases. A closer examination reveals that results
 suffer from a high variability under $40ms$. 
-In addition, the figure \fig{fig:param_evts} shows
+In addition, the \fig{fig:param_evts} shows
 that, at $40ms$, \Moca can capture a significant number of events, not significantly improved
 \GH{Sur les figures, je vois plutôt 60ms et 50ms repectivement comme intervalles interessants\ldots}
+\DB{Les ecarts se sont resserés avec le nombre de runs \ldots}
 by lower wakeup intervals. Having chosen this interval of $40ms$ seconds for the monitoring thread,
 we found out that waking up the logging process every $0.4s$ gave a sufficient reactivity to store
 all the collected events.
@@ -86,7 +87,7 @@ all the \NPB on class A.
     \label{fig:ovh}
 \end{figure}
 
-\fig{fig:ovh} shows the slowdown of each benchmark, respectively instrumented with \Moca and Tabarnac and compared to the
+\fig{fig:ovh} shows the slowdown of each benchmark, respectively instrumented with \Moca and Tabarnac and compared to
 an uninstrumented execution. We can classify these results into three groups of
 applications:  for \BT, \DC, \EP, \IS, \LU, \SP and \UA, \Moca is
 significantly faster than Tabarnac. This set of benchmarks is interesting as it is made of varied application profiles.
@@ -98,6 +99,8 @@ parallel I/O and data movement} by the \NPB website
 \footnote{\url{http://www.nas.nasa.gov/publications/npb.html}}, their interaction with memory seems noticeable.
 The second group only contains memory oriented benchmarks (\CG and \FT). For this group,
 \GH{C'est plutôt équilibré calcul / accès mémoire, non ?}
+\DB{Boaf la description CG dit ``irregular memory accesses and communication''
+et \FT ``all to all communications}
 \Moca is as good as Tabarnac or a bit faster, probably because the balance between computations and memory accesses hides the overhead of the instrumentation.
 Finally for \MG, \Moca is
 significantly slower than Tabarnac. This benchmark seems to be a pathological
@@ -108,6 +111,7 @@ We suspect that this is the cause if its bad beahavior.
 et variable (sur une centaine de runs ici, la moitié sont très lent et l'autre
 moitié plus proche de tabarnac)}
 \GH{Et les exec avec plus de mémoire dans le module ?}
+\DB{Ca a merdé ya des soucis avec la migration OAR vers postgresql}
 Overall, these experiments show that \Moca is significantly faster than a typical tool based on binary instrumentation
 for a majority of benchmarks, and at least as good for most of the others.
 
@@ -153,4 +157,6 @@ cases faster. Moreover, \Moca provides more precise traces than comparable tools
 It is noteworthy that \Moca is the only tool able to provide a detailed trace with temporal,
 spacial and sharing information while providing guarantees on the information
 \GH{Tu ne parles vraiment de sharing qu'ici !!}
+\DB{Dans la Table I de design aussi, j'ai modifié un paragraphe pour insister
+dessus}
 lost during the sampling.

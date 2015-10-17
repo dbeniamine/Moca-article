@@ -43,8 +43,8 @@ finalize : $(AUX) $(BBL)
 	$(TEXCOMPILE)
 	$(TEXCOMPILE)
 	# Embed fonts
-	$(PDFTOPS)
-	$(PSTOPDF)
+	# $(PDFTOPS)
+	# $(PSTOPDF)
 
 clean :
 	rm -rf $(PS) *.tdo *.idx *.nlo *.log *.lof *.lot *.bbl *.blg *.thm *.pdf *.aux *.backup *.bak *.toc *.out *.ilg *.nls *~ .*~ img/*eps-converted-to.pdf
