@@ -1,6 +1,6 @@
 %!TEX encoding=UTF-8 Unicode
 
-\documentclass[10pt, conference, compsocconf]{sty/IEEEtran}
+\documentclass{sty/acm_proc_article-sp}
 
 %========================= Encodage fontes et langues =========================
 
@@ -13,6 +13,7 @@
 %========================= Mise en forme de code ==============================
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{siunitx}
 
 \algblockdefx[]{Function}{EndFunction}
 [2]{\algorithmicfunction\ \textproc{#1}{(#2)}}%
@@ -51,13 +52,14 @@
 %==============================================================================
 
 % gestion des hyperliens
-%\usepackage{hyperref}
-%\hypersetup{
-%    colorlinks=true, %colore les liens
-%    breaklinks=true, %permet le retour à la ligne dans les liens trop longs
-%    urlcolor= blue, %couleur des hyperliens
-%    linkcolor= black, %couleur des liens internes
-%bookmarksopen=true}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true, %colore les liens
+    breaklinks=true, %permet le retour à la ligne dans les liens trop longs
+    urlcolor= blue, %couleur des hyperliens
+    linkcolor= black, %couleur des liens internes
+    bookmarksopen=true,
+}
 
 %==============================================================================
 
@@ -151,8 +153,8 @@ text width=5em,minimum height=2em]
 %==============================================================================
 
 
-\usepackage[obeyDraft]{todonotes}
-%\usepackage{todonotes}
+%\usepackage[obeyDraft]{todonotes}
+\usepackage{todonotes}
 \newcommand{\DB}[1]{\todo[author=David,inline]{#1}}
 \newcommand{\GH}[1]{\todo[author=Guillaume,inline]{#1}}
 
@@ -176,13 +178,21 @@ text width=5em,minimum height=2em]
 %==============================================================================
 
 %========================= Titre auteur etc ===================================
+\def\sharedaffiliation{%
+\end{tabular}
+\begin{tabular}{c}}
+
 \title{Moca: An efficient Memory trace collection system}
-\author{\IEEEauthorblockN{David Beniamine, Guillaume Huard}
-\IEEEauthorblockA{Univ. Grenoble Alpes, LIG, F-38000 Grenoble, France\\
-CNRS, LIG, F-38000 Grenoble, France\\
-Inria\\
-%<firstname>.<lastname>@imag.fr}
-\{David.Beniamine,Guillaume.Huard\}@Imag.fr}
+\numberofauthors{2}
+\author{
+\alignauthor David Beniamine\\
+    \email{David.Beniamine@Imag.fr}
+\alignauthor Guillaume Huard\\
+    \email{Guillaume.Huard@Imag.fr}
+    \sharedaffiliation
+       \affaddr{Univ. Grenoble Alpes, LIG, F-38000 Grenoble, France}\\
+       \affaddr{CNRS, LIG, F-38000 Grenoble, France}\\
+       \affaddr{Inria}\\
 }
 
 
@@ -194,6 +204,8 @@ Inria\\
 \maketitle
 
 \begin{abstract}
+    \DB{Remove three firsts, increase last}
+
     In modern \emph{High Performance Computing} architectures, the memory subsystem
     is a common performance bottleneck. To take advantage from the cache or from hardware optimization mechanisms
     such as the memory prefetcher, the developer has to study the memory accesses

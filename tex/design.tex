@@ -18,6 +18,8 @@ interval. The second one is managing somehow the huge quantity of data produced
 by the trace collection within the kernel space in-between regular flushes toward
 the user space. Of course, these two tasks should be as slightly intrusive as possible.
 
+\DB{Also data structure detection with Pin}
+
 \subsection{Collecting memory accesses}
 
 In recent Linux kernel, physical memory pages are lazily allocated to page frames during
@@ -171,8 +173,9 @@ At the end of the day, \Moca generates one plain text trace file per thread. Eac
 types of information: meta data about the task (its pid and \Moca internal id),
 chunks related information (their number of elements, their start and end
 clock) and information on each intercepted accesses (virtual and physical addresses, number of read
-and writes \GH{N'y a-t-il pas une entrée par accès ???}\DB{Si, j'ai fait une
-petite modif pour clarifier}). Moreover for both chunks and accesses a bitmask indicate on which
+and writes
+%\GH{N'y a-t-il pas une entrée par accès ???}\DB{Si, j'ai fait une petite modif pour clarifier}
+). Moreover for both chunks and accesses a bitmask indicate on which
 CPU the accesses have been detected.
 
 \begin{algorithm}[htb]

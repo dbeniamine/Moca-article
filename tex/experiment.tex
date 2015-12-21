@@ -8,11 +8,12 @@
 %\Moca.
 
 All our experiment were run on  machines from Grid5000 \emph{Edel} cluster
-\footnote{A full hardware description is available here\\
+\footnote{A full hardware description is available online:\\
     \url{https://www.grid5000.fr/mediawiki/index.php/Grenoble:Hardware\#Edel}}.
-    These machines are composed of $2$ quad core \texttt{Intel Xeon E5520}
-    clocked at $2.27GHz$ with
-    $24 GB$ of RAM. Hyper threading has been disabled during the experiment.
+    \DB{Do a table or something more visual}
+These machines are composed of $2$ quad core \texttt{Intel Xeon E5520}
+clocked at \SI{2.27}{GHz} with
+\SI{24}{GB} of RAM. Hyper threading has been disabled during the experiment.
 We deployed a \emph{Debian} \emph{Wheezy} environment running a Linux $3.2.41-2$.
 To make the experiments reproducible, the environment and the trace files are
 available
@@ -29,10 +30,10 @@ Each point in each plot is the average of at least $30$ executions. Along with e
 the error bars represent the standard deviation.
 Except for the experiment about the influence of \Moca's parameters, on each
 experiment, \Moca was run with it's default parameters: a wakeup interval of
-$0.5s$ for the logging process and $40ms$ for the monitoring thread.
+\SI{0.5}{s} for the logging process and \SI{40}{ms} for the monitoring thread.
 
 %\subsection{Experiments}
-\subsection{\Moca default parameters}
+\subsection{Moca default parameters}
 \label{sec:expe-ovh}
 
 \begin{figure}[htb]
@@ -55,29 +56,30 @@ $0.5s$ for the logging process and $40ms$ for the monitoring thread.
 Before comparing \Moca to existing tools, we need to evaluate the impact of
 the wakeup intervals (logging daemon and monitor thread) on the trace
 precision and on the overhead. To do so, we run the \IS benchmark instrumented by \Moca with
-a wakeup interval ranging from $0.1s$ to  $0.9s$ for the logging daemon and from $20ms$ to
-$100ms$ for the monitoring thread. For each run, we measure \IS execution time and the number of
+a wakeup interval ranging from \SI{0.1}{s} to  \SI{0.9}{s} for the logging daemon and from \SI{20}{ms} to
+\SI{100}{ms} for the monitoring thread. For each run, we measure \IS execution time and the number of
 accesses captured. We have chosen \IS for this evaluation as it is one of the memory intensive \NPB,
 quick experiments with other ones confirmed these results.
 
 We can see on the \fig{fig:param_time} that performances seem too decrease linearly
 as the monitoring interval decreases. A closer examination reveals that results
-suffer from a high variability under $40ms$. 
+suffer from a high variability under \SI{40}{ms}. 
 In addition, the \fig{fig:param_evts} shows
-that, at $40ms$, \Moca can capture a significant number of events, not significantly improved
+that, at \SI{40}{ms}, \Moca can capture a significant number of events, not significantly improved
 \GH{Sur les figures, je vois plutôt 60ms et 50ms repectivement comme intervalles interessants\ldots}
 \DB{Les ecarts se sont resserés avec le nombre de runs \ldots}
-by lower wakeup intervals. Having chosen this interval of $40ms$ seconds for the monitoring thread,
-we found out that waking up the logging process every $0.4s$ gave a sufficient reactivity to store
+by lower wakeup intervals. Having chosen this interval of \SI{40}{ms} seconds for the monitoring thread,
+we found out that waking up the logging process every \SI{0.4}{s} gave a sufficient reactivity to store
 all the collected events.
 These two values have been chosen as default values in \Moca.
 
 \subsection{Comparison with existing tools}
-
+\DB{New: MemProf, Tabarnac, Moca, Moca + Pin}
 To evaluate \Moca fairly, we have chosen a tool that also provides a superset of
 all the memory accesses (see table \ref{tab:tools-comp}). Therefore, we have chosen the Pin
 instrumentation used in Tabarnac. All the experiment presented here have been run on
 all the \NPB on class A.
+\DB{See new figure, maybe log scale ?}
 
 \begin{figure}[htb]
     \centering
@@ -156,7 +158,7 @@ parameters, \Moca is at worst as slow as comparable tools and in most
 cases faster. Moreover, \Moca provides more precise traces than comparable tools.
 It is noteworthy that \Moca is the only tool able to provide a detailed trace with temporal,
 spacial and sharing information while providing guarantees on the information
-\GH{Tu ne parles vraiment de sharing qu'ici !!}
-\DB{Dans la Table I de design aussi, j'ai modifié un paragraphe pour insister
-dessus}
+% \GH{Tu ne parles vraiment de sharing qu'ici !!}
+% \DB{Dans la Table I de design aussi, j'ai modifié un paragraphe pour insister
+% dessus}
 lost during the sampling.
