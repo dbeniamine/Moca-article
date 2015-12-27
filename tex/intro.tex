@@ -8,7 +8,8 @@ hardware mechanisms such as the memory prefetcher. It gets even more complex wit
 \emph{Non Uniform Memory Access} machines in which data location in
 physical memory impacts the accesses latency and contention issues arise~\cite{Drepper07What}.
 
-Several tools such as NUMA Balancing~\cite{Corbet2012} have been designed to automatically improve the
+Most efforts about memory performance optimizations at software level consists
+on tools such as NUMA Balancing~\cite{Corbet2012} have been designed to automatically improve the
 memory usage on NUMA machines. These tools are able to move pages of data in the
 physical memory to keep them as close as possible to the thread that use them, thereby
 reducing the number of remote accesses. While this can provide great performance gains,
@@ -54,4 +55,11 @@ an efficient memory trace collection system based on page fault interception.
 This mechanism is able to provide a \emph{complete} sampled memory trace at
 the spatial granularity of the page along with a parametrized temporal granularity.
 It also collects detailed information about sampled accesses, including their address and
-precise timestamp.
+precise timestamp. Finally \Moca is able to retrieve date structure
+information (address, size and name) using a pin instrumentation.
+
+The remaining of this paper is organised as follow: section~\ref{sec:related}
+discuss related works, section~\ref{sec:design} present \Moca design, then we
+evaluate \Moca by comparing it to existing tools on section~\ref{sec:expe}.
+Finally we present our conclusions and some possible future work on
+section~\ref{sec:cncl}.

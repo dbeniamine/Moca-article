@@ -59,14 +59,16 @@ instrumentations usually either rely on a simulator~\cite{DeRose02SIGMA} which i
 or collect data at a coarser granularity and gives up temporal
 data~\cite{Beniamine15TABARNAC}.
 
-\DB{ Add paper review IPDPS here: \cite{Boehm91Mostly} and
-\cite{Heo05Spaceefficient}}
-Notice, that the kind of precise memory trace we are looking for is also useful for adaptive NUMA mapping tools, which
-need to know at runtime which processors are accessing which pages. Some of
-them include efficient mechanisms based on page faults interception to
-retrieve this information~\cite{Diener13CommunicationBased}. As this
-mechanism is designed for online analysis its only stores few information about
-a small set of pages which ease data collection.
+
+Page fault interception can provide efficient and precise memory traces, it
+have been used online for different tools: parallel garbage
+collectors~\cite{Boehm91Mostly}, memory
+checkpointing~\cite{Heo05Spaceefficient} and NUMA mapping
+tools~\cite{Diener13CommunicationBased}. All these tools need to know where a
+memory page is and which threads are accessing it, still they only keep a
+short history on a small set of pages that they use online. Tracing the state
+of the whole memory of an application and storing it efficiently is a
+challenge.
 
 In this study we present a new complete memory trace collection system based on page
 fault interception. We compare it to other memory trace tools in term of

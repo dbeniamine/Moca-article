@@ -18,7 +18,13 @@ interval. The second one is managing somehow the huge quantity of data produced
 by the trace collection within the kernel space in-between regular flushes toward
 the user space. Of course, these two tasks should be as slightly intrusive as possible.
 
-\DB{Also data structure detection with Pin}
+To ease the trace analysis, \Moca is also able to retrieve data structure
+names, addresses and size. This is done (on demand) using a Pin~\cite{Luk05Pin}
+instrumentation. When enabled, this instrumentation reads static data
+structures of every executed binary files and store all structure bigger than
+one page. It also intercept every calls to \texttt{malloc} family functions an
+names malloced structures according to their call path. The overhead of this
+data instrumentation is discussed in section~\ref{sec:expe-ovh}
 
 \subsection{Collecting memory accesses}
 
@@ -298,4 +304,4 @@ All the settings that can influence either the accuracy of the trace or the
 overhead of the tools (such as the number and size of chunks, wakeup intervals
 for the monitoring thread and the logging process \ldots) can be overridden by the
 user. Nevertheless, reasonable defaults have been defined from the experimental study
-detailed in section~\ref{sec:expe-ovh}.
+detailed in section~\ref{sec:expe-param}.

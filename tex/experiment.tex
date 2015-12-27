@@ -20,7 +20,7 @@ available
 online~\footnote{Experiment traces and environments are available here:\\ \url{http://moais.imag.fr/membres/david.beniamine/experiments.html}}.
 
 We present evaluation results for all the \NPB~\cite{Jin1999}. For
-each benchmarks, we compare \Moca with the Pin~\cite{Luk05Pin} instrumentation
+each benchmarks, we compare \Moca with the Pin instrumentation
 used in Tabarnac~\cite{Beniamine15TABARNACRR}, one of our previous contribution. This instrumentation traps all the
 memory accesses but keeps only tracks of the number of time each thread accesses to
 each page, without any other information. Thus it does not require the management
@@ -34,7 +34,7 @@ experiment, \Moca was run with it's default parameters: a wakeup interval of
 
 %\subsection{Experiments}
 \subsection{Moca default parameters}
-\label{sec:expe-ovh}
+\label{sec:expe-param}
 
 \begin{figure}[htb]
     \centering
@@ -74,6 +74,7 @@ all the collected events.
 These two values have been chosen as default values in \Moca.
 
 \subsection{Comparison with existing tools}
+\label{sec:expe-ovh}
 \DB{New: MemProf, Tabarnac, Moca, Moca + Pin}
 To evaluate \Moca fairly, we have chosen a tool that also provides a superset of
 all the memory accesses (see table \ref{tab:tools-comp}). Therefore, we have chosen the Pin

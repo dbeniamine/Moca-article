@@ -204,25 +204,13 @@ text width=5em,minimum height=2em]
 \maketitle
 
 \begin{abstract}
-    \DB{Remove three firsts, increase last}
 
     In modern \emph{High Performance Computing} architectures, the memory subsystem
     is a common performance bottleneck. To take advantage from the cache or from hardware optimization mechanisms
     such as the memory prefetcher, the developer has to study the memory accesses
     patterns of his application and optimize it for locality and linearity.
-
-    Most efforts about memory performance optimizations at software level relies
-    on adaptive tools which move data or thread between CPUs at runtime to
-    reduce communication times. Such tools are often efficient but cannot
-    change memory accesses patterns performed by the application. Thus they will not
-    be able to improve upon applications written without care about memory behavior.
-    The developer still has to consider memory optimizations in his implementation.
-
-    Numerous tools have been developed to measure the performance of an application.
-    Nevertheless, most of them focus on CPU metrics and none of them is able to
-    provide an overview of the memory patterns involved by the execution. Such an overview would help the
-    developer to understand and therefore to optimize the memory
-    behavior of his application and would result in significant performance gains.
+    Still most profiling tools focus on CPU metrics and none of them is able to
+    provide an overview of the memory patterns involved by the execution.
 
     In this study we present \Moca an efficient tool for spatiotemporal memory traces collection.
     It is based on a Linux kernel module and provides a complete coarse grained overview
