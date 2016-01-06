@@ -19,11 +19,17 @@ information: which thread, accessed what addresses on which CPU and when.
 While \Moca works at the page granularity, it stores the exact
 address of each intercepted accesses. Therefore, it also provide an
 \emph{incomplete} trace at the granularity of the byte, similar to
-traces collected by instructions sampling.
+traces collected by instructions sampling. Furthermore \Moca can also detect
+data structure by combining the efficient trace system with a lightweight pin
+instrumentation.
 
-When evaluated along with a comparable tool based on binary instrumentation,
-\Moca demonstrates a significantly lower overhead despite the fact that it collects
-much more detailed traces.
+\DB{Update with final results}
+We evaluated \Moca by comparing it to other existent tools this evaluation
+show that \Moca is faster then tools based on binary instrumentation on
+almost as fast as hardware sampling tools while providing complete and much
+more detailed traces.
+Finally the additional overhead required to detect data structure using a pin
+instrumentation appears to be quite reasonable.
 
 Future work will focus on the visualization and exploitation of these memory traces
 which is another challenge mainly due to the volume of the collected data.
