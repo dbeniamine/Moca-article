@@ -31,9 +31,9 @@
         \node[fit=(F) (M) (cur) (Flh) (PfH) (Tr) (PfL)(TL),header={Moca}{white},basic box] (Moca) {};
     \end{pgfonlayer}
 
-    \node[entity,pf,below right=5em and 4em of M] (T) {Tasks\\(user/kernel\\thread/process)};
+    \node[entity,text width=6em,pf,below right=5em and 4.5em of M] (T) {Tasks\\(user/kernel\\thread/process)};
 
-    \node [dataL, below left=2em and 1em of T]    (pgt)      {Page table (kernel)};
+    \node [dataL, below left=2em and .5em of T]    (pgt)      {Page table (kernel)};
     \node [dataL, left of=pgt] (proc)     {/proc file (kernel)};
     \node [dataL, left of=proc]   (file)     {File (userspace)};
 
@@ -55,7 +55,7 @@
     \path[logA] (Flh.west) edge[in=100,out=250] node[pos=.2,right] {write} (file.north);
 
     % Page faults
-    \path[pfA] (T.north)   edge[out=80,in=280] node[pos=.3,left] {triggers} (PfH.east);
+    \path[pfA] (T.north)   edge[out=80,in=0] node[pos=.6,left] {triggers} (PfH.east);
 
     \node[above=1em of PfL] (inv2) {};
     \path[pfAI] (PfH.north) edge[out=140,in=345]  (inv2.east);
@@ -63,7 +63,7 @@
 
     \path[pfA] (PfH.north) edge node[right] {read \\ (might \\ write)} (TL.south);
     \path[pfA] (PfH.north) edge[out=140,in=310] node[pos=.3,below=.3em] {read} (PfL.south);
-    \path[pfA] (PfH.south)  edge[out=220,in=70] node[pos=.1,left=.5em] {read\\write} (pgt.north);
+    \path[pfA] (PfH.south)  edge[out=270,in=100] node[pos=.25,left=.5em] {read\\write} (pgt.north);
 
     %Monitor
     \path[monA] (M.north) edge[out=70,in=290] node[pos=.3,right] {write} (PfL.south);
