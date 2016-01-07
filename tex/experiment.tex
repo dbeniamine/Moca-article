@@ -72,22 +72,22 @@ experiment, \Moca was run with it's default parameters: a wakeup interval of
 \subsection{Moca default parameters}
 \label{sec:expe-param}
 
-\begin{figure}[htb]
+\begin{figure*}[htb]
     \centering
-    \begin{subfigure}{\linewidth}
+    \begin{subfigure}{.49\linewidth}
         \includegraphics[width=\linewidth]{moca_param.pdf}
         \caption{Execution time.}
         \label{fig:param_time}
     \end{subfigure}
-
-    \begin{subfigure}{\linewidth}
+    ~
+    \begin{subfigure}{.49\linewidth}
         \includegraphics[width=\linewidth]{moca_param_events.pdf}
         \caption{Number of captured events.}
         \label{fig:param_evts}
     \end{subfigure}
     \caption{Influence of the wakeup intervals on \IS, class A.}
     \label{fig:param}
-\end{figure}
+\end{figure*}
 
 
 
@@ -123,8 +123,9 @@ PEBS technology, the pin instrumentation from
 which relies on AMD IBS. Every tool is evaluate with its default parameters,
 except MemProf which requires\footnote{see
     \url{https://github.com/Memprof/scripts/issues/1}} to increase its
-    sampling frequency to work from $0xFFF0$ to $0x8FFF0$ \DB{Fix MemProf,
-    higher frequencies}.
+    sampling frequency to work from $0xFFF0$ to $0x8FFF0$.
+    \DB{Mitos et MemProf => default + tuné pour nombre d'evenements
+    comparable. Conclure Moca seul designé et efficace pour cartographie}
 We include two version of \Moca in our evaluation: the default version and
 \MocaPin which also retrieve the data structure information using a pin
 instrumentation.
@@ -133,43 +134,45 @@ other memory profiling tools.
 
 \begin{table}[htb]
     \centering
-    \begin{tabular}{p{1.3cm}lC{2.5cm}C{2.5cm}}
+    \begin{tabular}{p{1.4cm}lC{2.5cm}C{2.5cm}}
         \toprule
+        & & Mechanisms* & Architecture \\
+        \cmidrule(lr){3-4}
+        \multirow{4}{.8cm}{Portability}
+        & Tabarnac & Inst & Intel, AMD \\
+        \addlinespace
+        & Mitos & PEBS + Inst & Intel \\
+        \addlinespace
+        & MemProf & IBS & AMD \\
+        \addlinespace
+        & \Moca & PfI (+ Inst) & Any\\
+        \midrule
         & & Granularity & superset \\
         \cmidrule(lr){3-4}
         \multirow{4}{.8cm}{Trace precision}
         & Tabarnac & Page & Page \\
         & Mitos & Address & None \\
         & MemProf & Address & None \\
-        & Moca & Address & Page \\
+        & \Moca & Address & Page \\
         \midrule
-        & & Time & Sharing and CPU localisation \\
+        & & \multicolumn{2}{C{5cm}}{Time, Thread sharing, CPU**} \\
         \cmidrule(lr){3-4}
-        \multirow{4}{.8cm}{Other information}
-        & Tabarnac & No & Thread sharing\\
+        \multirow{4}{.8cm}{Additional information}
+        & Tabarnac & \multicolumn{2}{C{5cm}}{Thread sharing} \\
         \addlinespace
-        & Mitos & Yes & CPU location \\
+        & Mitos & \multicolumn{2}{C{5cm}}{Time + CPU} \\
         \addlinespace
-        & MemProf & Yes & Thread sharing and CPU location \\
+        & MemProf & \multicolumn{2}{C{5cm}}{All}  \\
         \addlinespace
-        & Moca & Yes & Thread sharing and CPU location \\
-        \midrule
-        & & Collection method & Architecture \\
-        \cmidrule(lr){3-4}
-        & Tabarnac & Instrumentation & Intel, AMD \\
-        \addlinespace
-        \multirow{4}{.8cm}{Portability}
-        & Mitos & Hardware sampling and Instrumentation & Intel, AMD, IBM \\
-        \addlinespace
-        & MemProf & Hardware sampling & AMD \\
-        \addlinespace
-        & Moca & Complete sampling + Pin (optional) & Any architecture\\
+        & \Moca & \multicolumn{2}{C{5cm}}{All} \\
         \bottomrule
     \end{tabular}
     \caption{Comparison of different memory accesses collection
         tools: Tabarnac~\cite{Beniamine15TABARNACRR},
         Mitos~\cite{Gimenez14Dissecting},
-        MemProf~\cite{Lachaize12MemProf} and \Moca}
+        MemProf~\cite{Lachaize12MemProf} and \Moca.\\
+        \emph{*~Inst: Binary instrumentation, PfI: Pagefault Interception}\\
+        \emph{**~CPU on which the access occured}}
         \label{tab:tools-comp}
 \end{table}
 
@@ -181,23 +184,23 @@ show the number of pages captured during the analysis then the number of
 unique addresses. All these experiments have been run on all the \NPB on class A.
 
 
-\begin{figure}[htb]
+\begin{figure*}[htb]
     \centering
-    \begin{subfigure}{\linewidth}
+    \begin{subfigure}{.49\linewidth}
         \rule{8cm}{7cm}
         %\includegraphics[width=\linewidth]{moca_overhead_nas.pdf}
         \caption{Evaluation on Intel machine}
         \label{fig:ovh-Intel}
     \end{subfigure}
-
-    \begin{subfigure}{\linewidth}
+    ~
+    \begin{subfigure}{.49\linewidth}
         \rule{8cm}{7cm}
         \caption{Evaluation on AMD machine}
         \label{fig:ovh-AMD}
     \end{subfigure}
     \caption{Slowdown of \Moca on the \NPB compared to state of the art tools.}
     \label{fig:ovh}
-\end{figure}
+\end{figure*}
 
 \fig{fig:ovh} shows for each of the \NPB, the slowdown factor when
 instrumented by \Moca, \MocaPin and the other existing tools on Intel
@@ -235,14 +238,15 @@ faire au moins courbe en log scale pour plus de lisibilité}
 Overall, these experiments show that \Moca is significantly faster than a typical tool based on binary instrumentation
 for a majority of benchmarks, and at least as good for most of the others.
 
-\begin{figure}[htb]
+\begin{figure*}[htb]
     \centering
-    \begin{subfigure}{\linewidth}
+    \begin{subfigure}{.49\linewidth}
         \includegraphics[width=\linewidth]{moca_pages_nas.pdf}
         \caption{Number of pages.}
         \label{fig:pages}
     \end{subfigure}
-    \begin{subfigure}{\linewidth}
+    ~
+    \begin{subfigure}{.49\linewidth}
         \includegraphics[width=\linewidth]{moca_addresses_nas.pdf}
         \caption{Number of unique addresses.}
         \label{fig:addr}
@@ -250,7 +254,7 @@ for a majority of benchmarks, and at least as good for most of the others.
     \caption{Number of pages and unique addresses captured by \Moca and Tabarnac
     on the \NPB.}
     \label{fig:pages-addr}
-\end{figure}
+\end{figure*}
 
 Then, we have compared the number of pages and unique addresses captured by \Moca
 and Tabarnac during the previous experiment. As expected and as we can see in figure
