@@ -37,14 +37,18 @@ being noticed by the tool if none the associated instructions are not part of th
 instructions.
 Thus they can ignore some parts of the memory less frequently accessed but in which
 optimization could take place.
+Furthermore while these sampling mechanisms can only monitor a small set of event
+at the time due to hardware limitations (number of available processor
+registers), there is an important number of existing events to reflect the
+complexity of memory hierarchy which make hard to trace every memory
+access with only one analysis.
 One way to lessen the impact of this limitation is to run several times the
 instrumentation and use advanced methods such as
 folding~\cite{Servat15Towards} to generate a more accurate summary trace.
 Nevertheless, this make the instrumentation cost grow accordingly.
-Furthermore
-these hardware based methods are often not portable, both among architectures and
-among successive generations of processors, and work only with the most
-recent architectures.
+Still writing (and sometimes) using tools that relies on hardware mechanisms
+requires a deep knowledge of the processor. And as processor evolves,
+such tools are hard to maintain and can quickly become outdated.
 We regard all these limitations as too constraining for a general purpose memory optimization tool.
 
 Some other studies make use of hardware modification, either actual or
