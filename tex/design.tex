@@ -22,9 +22,10 @@ To ease the trace analysis, \Moca is also able to retrieve data structure
 names, addresses and size. This is done (on demand) using a Pin~\cite{Luk05Pin}
 instrumentation. When enabled, this instrumentation reads static data
 structures of every executed binary files and store all structure bigger than
-one page. It also intercept every calls to \texttt{malloc} family functions an
-names malloced structures according to their call path. The overhead of this
-data instrumentation is discussed in section~\ref{sec:expe-ovh}
+one page. It also intercept every calls to \texttt{malloc} family functions
+and names malloced structures according to their call path. This
+instrumentation adds mainly a constant overhead when pin opens a binary and on
+every allocations. This overhead is evaluated in section~\ref{sec:expe-ovh}
 
 \subsection{Collecting memory accesses}
 
