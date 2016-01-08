@@ -176,19 +176,62 @@ other memory profiling tools.
         \label{tab:tools-comp}
 \end{table}
 
-For our evaluation, we compare the different tools on three metrics: first we
-compare the slowdown factor of the tool
-$slowdown\_factor(tool,bench)=\frac{execution\_time(bench,tool)}{execution\_time(bench)}$
-the two last metrics aims at evaluating the precision of the trace, we first
-show the number of pages captured during the analysis then the number of
-unique addresses. All these experiments have been run on all the \NPB on class A.
+For our evaluation, we compare the different tools on two aspect: trace
+precision and induced slowdown. The first experiment shows the number of pages
+and unique addresses captured during the analysis. The second one compare the
+tools in terms of slowdown factor:
+$slowdown\_factor(tool,bench)=\frac{execution\_time(bench,tool)}{execution\_time(bench)}$.
+All these experiments have been run on all the \NPB on class A.
 
 
 \begin{figure*}[htb]
     \centering
     \begin{subfigure}{.49\linewidth}
-        \rule{8cm}{7cm}
-        %\includegraphics[width=\linewidth]{moca_overhead_nas.pdf}
+        \includegraphics[width=\linewidth]{moca_pages_intel.pdf}
+        \caption{Number of pages.}
+        \label{fig:pages}
+    \end{subfigure}
+    ~
+    \begin{subfigure}{.49\linewidth}
+        \includegraphics[width=\linewidth]{moca_addr_intel.pdf}
+        \caption{Number of unique addresses.}
+        \label{fig:addr}
+    \end{subfigure}
+    \caption{Number of pages and unique addresses captured by \Moca and Tabarnac
+    on the \NPB. Y-axis is in log scale.}
+    \label{fig:pages-addr}
+\end{figure*}
+
+\DB{Rewritte text:\\
+    + Warning log scale !\\
+    pages:\\
+    + Moca and Tabarnac capture every pages \\
+    + MocaPin have a bit more pages due to pin stuff, but not much => trace
+    still reliable\\
+    + Mitos trace are way insufficient\\
+    + Mitostun ? \\
+    Addr:\\
+    + Moca Better then every tools\\
+}
+
+Then, we have compared the number of pages and unique addresses captured by \Moca
+and Tabarnac during the previous experiment. As expected and as we can see in figure
+\fig{fig:pages}, both methods capture the exact same number of
+pages, which is the superset of all the memory accesses. Furthermore,
+\fig{fig:addr} shows that \Moca also provides a more precise trace than Tabarnac
+regarding the number of unique addresses collected. This can be explained by the 
+radically different designs of the two tools. While \Moca keeps track of all
+the pages accessed during the execution, it also stores, for each triggered page fault, the
+exact address of the memory access. On the contrary, to keep the overhead small,
+a tool like Tabarnac has to work at a coarser granularity: it only counts the number
+of accesses performed by the application for each page address. The result is that Tabarnac
+collects space data with the precision of the page (4096 bytes) while \Moca collects them with
+the precision of the byte.
+
+\begin{figure*}[htb]
+    \centering
+    \begin{subfigure}{.49\linewidth}
+        \includegraphics[width=\linewidth]{moca_overhead_intel.pdf}
         \caption{Evaluation on Intel machine}
         \label{fig:ovh-Intel}
     \end{subfigure}
@@ -198,7 +241,8 @@ unique addresses. All these experiments have been run on all the \NPB on class A
         \caption{Evaluation on AMD machine}
         \label{fig:ovh-AMD}
     \end{subfigure}
-    \caption{Slowdown of \Moca on the \NPB compared to state of the art tools.}
+    \caption{Slowdown of \Moca on the \NPB compared to state of the art tools.
+    Y-axis is in log scale.}
     \label{fig:ovh}
 \end{figure*}
 
@@ -207,9 +251,16 @@ instrumented by \Moca, \MocaPin and the other existing tools on Intel
 (\fig{fig:ovh-Intel}) and AMD (\fig{fig:ovh-AMD}) Machines.
 
 \DB{Rewritte text:\\
-    + Benchmarks classification\\
-    + Moca vs other tools\\
-    + Cost of pin for structure detection}
+    + Warning log scale !\\
+    + Mitos almost no overhead => but previous expe show traces are not
+    precise\\
+    + Moca usually significantly bettr then tabarnac except ft dc and mg\\
+    + Pin additional overhead is negligible.
+    + Explain mg\\
+    cncl:\\
+    + Moca overhead is more precise than the most precise tools existing and
+    faster then them => yeay !
+}
 We can classify these results into three groups of
 applications:  for \BT, \DC, \EP, \IS, \LU, \SP and \UA, \Moca is
 significantly faster than Tabarnac. This set of benchmarks is interesting as it is made of varied application profiles.
@@ -238,40 +289,13 @@ faire au moins courbe en log scale pour plus de lisibilité}
 Overall, these experiments show that \Moca is significantly faster than a typical tool based on binary instrumentation
 for a majority of benchmarks, and at least as good for most of the others.
 
-\begin{figure*}[htb]
-    \centering
-    \begin{subfigure}{.49\linewidth}
-        \includegraphics[width=\linewidth]{moca_pages_nas.pdf}
-        \caption{Number of pages.}
-        \label{fig:pages}
-    \end{subfigure}
-    ~
-    \begin{subfigure}{.49\linewidth}
-        \includegraphics[width=\linewidth]{moca_addresses_nas.pdf}
-        \caption{Number of unique addresses.}
-        \label{fig:addr}
-    \end{subfigure}
-    \caption{Number of pages and unique addresses captured by \Moca and Tabarnac
-    on the \NPB.}
-    \label{fig:pages-addr}
-\end{figure*}
 
-Then, we have compared the number of pages and unique addresses captured by \Moca
-and Tabarnac during the previous experiment. As expected and as we can see in figure
-\fig{fig:pages}, both methods capture the exact same number of
-pages, which is the superset of all the memory accesses. Furthermore,
-\fig{fig:addr} shows that \Moca also provides a more precise trace than Tabarnac
-regarding the number of unique addresses collected. This can be explained by the 
-radically different designs of the two tools. While \Moca keeps track of all
-the pages accessed during the execution, it also stores, for each triggered page fault, the
-exact address of the memory access. On the contrary, to keep the overhead small,
-a tool like Tabarnac has to work at a coarser granularity: it only counts the number
-of accesses performed by the application for each page address. The result is that Tabarnac
-collects space data with the precision of the page (4096 bytes) while \Moca collects them with
-the precision of the byte.
 
 \subsection{Summary}
 \label{sec:expe-cncl}
+
+
+\DB{Complete rewrite here}
 
 We have tested \Moca with various applications and using several parameters.
 Our experiments, show that \Moca has a good behavior for a wide range of parameter and
