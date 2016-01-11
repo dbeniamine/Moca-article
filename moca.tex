@@ -59,6 +59,7 @@
     urlcolor= blue, %couleur des hyperliens
     linkcolor= black, %couleur des liens internes
     bookmarksopen=true,
+    citecolor=black,
 }
 
 %==============================================================================
@@ -159,10 +160,12 @@ text width=5em,minimum height=2em]
 \newcommand{\GH}[1]{\todo[author=Guillaume,inline]{#1}}
 
 \newcommand{\Input}[1]{\input{tex/#1}}
-\newcommand{\Moca}{\emph{MOCA}\xspace}
-\newcommand{\MocaPin}{\emph{MOCA}\xspace}
+\newcommand{\Moca}{\emph{Moca}\xspace}
+\newcommand{\MocaPin}{\emph{MocaPin}\xspace}
 \newcommand{\Mitos}{\emph{Mitos}\xspace}
-\newcommand{\TABARNAC}{\emph{TABARNAC}\xspace}
+\newcommand{\MitosTun}{\emph{MitosTun}\xspace}
+\newcommand{\TABARNAC}{\emph{Tabarnac}\xspace}
+\newcommand{\MemProf}{\emph{MemProf}\xspace}
 \newcommand{\NPB}{\emph{NAS parallel benchmarks}\xspace}
 % Bench
 \newcommand{\FT}{\texttt{FT}\xspace}
@@ -175,9 +178,14 @@ text width=5em,minimum height=2em]
 \newcommand{\EP}{\texttt{EP}\xspace}
 \newcommand{\SP}{\texttt{SP}\xspace}
 \newcommand{\CG}{\texttt{CG}\xspace}
+% Machines
+\newcommand{\Edel}{\texttt{Edel}\xspace}
+\newcommand{\Idfreeze}{\texttt{Idfreeze}\xspace}
 % Figures and tables
 \newcommand{\fig}[1]{Figure~\ref{#1}}
 \newcommand{\tbl}[1]{Table~\ref{#1}}
+
+\hyphenation{over-view}
 %==============================================================================
 
 %========================= Titre auteur etc ===================================
@@ -185,7 +193,7 @@ text width=5em,minimum height=2em]
 \end{tabular}
 \begin{tabular}{c}}
 
-\title{Moca: An efficient Memory trace collection system}
+\title{Moca: An Efficient Memory Trace Collection System}
 \numberofauthors{2}
 \author{
 \alignauthor David Beniamine\\
@@ -213,10 +221,10 @@ text width=5em,minimum height=2em]
     such as the memory prefetcher, the developer has to study the memory accesses
     patterns of his application and optimize it for locality and linearity.
     Still most profiling tools focus on CPU metrics and none of them is able to
-    provide an over\-view of the memory patterns involved by the execution.
+    provide an overview of the memory patterns involved by the execution.
 
     In this study we present \Moca an efficient tool for spatiotemporal memory traces collection.
-    It is based on a Linux kernel module and provides a complete coarse grained over\-view
+    It is based on a Linux kernel module and provides a complete coarse grained overview
     of memory accesses performed by an application over its addressing space and the time of its execution. While the
     overhead of \Moca is smaller than the one of comparable tools, it is able to provide
     more precise and complete results.

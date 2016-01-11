@@ -10,14 +10,16 @@ existing memory analysis tools in terms of performances and trace precision.
 %This section briefly discusses our experimental setup for the evaluation of
 %\Moca.
 
-Our main experiments were run on  machines from Grid5000 \texttt{Edel}
-cluster~\footnote{A full hardware description is available online:\\
-    \url{https://www.grid5000.fr/mediawiki/index.php/Grenoble:Hardware\#Edel}}.
+Our main experiments were run on  machines from Grid5000 \Edel
+cluster.
     As some state of the art tools can only run on AMD machines, we also run
     some of the experiment presented in section~\ref{sec:expe-ovh} on
-    \texttt{Idfreeze} machine from
-    Digitalis~\footnote{\url{http://digitalis.inria.fr/index.php/Idfreeze}}.
-    These machines hardware specification is presented in table~\ref{tab:hw}.
+    \Idfreeze machine from
+    Digitalis.
+    These machines hardware specification is summarized in
+    \tbl{tab:hw}\footnote{Both platforms provides an online hardware description:\\
+        \url{https://www.grid5000.fr/mediawiki/index.php/Grenoble:Hardware\#Edel}
+     \\\url{http://digitalis.inria.fr/index.php/Idfreeze}}.
 
 \begin{table}[htb]
     \centering
@@ -26,71 +28,101 @@ cluster~\footnote{A full hardware description is available online:\\
         \multirow{3}{.8cm}{CPU}
         &  & \multicolumn{2}{c}{Vendor} & \multicolumn{2}{c}{Model} \\
         \cmidrule(lr){3-6}
-        & \texttt{Edel}  & \multicolumn{2}{c}{Intel} & \multicolumn{2}{c}{Xeon E5520} \\
-        & \texttt{Idfreeze} & \multicolumn{2}{c}{AMD} & \multicolumn{2}{c}{Opteron 6174} \\
-        \midrule
+        & \Edel  & \multicolumn{2}{c}{Intel} & \multicolumn{2}{c}{Xeon E5520} \\
+        & \Idfreeze & \multicolumn{2}{c}{AMD} & \multicolumn{2}{c}{Opteron 6174} \\
         \midrule
         \multirow{3}{.8cm}{System totals}
         & & Nodes & Threads & Freq & Memory \\
         \cmidrule(lr){3-6}
-        & \texttt{Edel}   & $2$ & $8$ & \SI{2.27}{Ghz} & \SI{24}{Gib} \\
-        & \texttt{Idfreeze} & $8$ & $48$ & \SI{2.20}{Ghz} & \SI{256}{Gib}\\
-        \midrule
+        & \Edel   & $2$ & $8$ & \SI{2.27}{Ghz} & \SI{24}{Gib} \\
+        & \Idfreeze & $8$ & $48$ & \SI{2.20}{Ghz} & \SI{256}{Gib}\\
         \midrule
         \multirow{3}{.8cm}{Per node}
         & & Cores & Threads & L3 Cache & Memory \\
         \cmidrule(lr){3-6}
-        & \texttt{Edel}   & $4$ & $4$ & \SI{8}{Mib} & \SI{12}{Gib} \\
-        & \texttt{Idfreeze} & $6$ & $6$  & \SI{12}{Mib} & \SI{32}{Gib} \\
+        & \Edel   & $4$ & $4$ & \SI{8}{Mib} & \SI{12}{Gib} \\
+        & \Idfreeze & $6$ & $6$  & \SI{12}{Mib} & \SI{32}{Gib} \\
         \bottomrule
     \end{tabular}
     \caption{Hardware configuration of our evaluation system.}
     \label{tab:hw}
 \end{table}
 
-For every experiment, deployed the same \emph{Debian} \emph{Wheezy}
-environment running a \texttt{Linux 3.2.41-2} and hyper threading was
+For every experiment, deployed the same \emph{Debian} \emph{Jessie}
+environment running a \texttt{Linux 3.16.0-4} and hyper threading was
 disabled.
 To make the experiments reproducible, the environment and the trace files are
 available
-online~\footnote{Experiment traces and environments are available here:\\ \url{http://moais.imag.fr/membres/david.beniamine/experiments.html}}.
+online\footnote{Experiment traces and environments are available here:\\ \url{http://moais.imag.fr/membres/david.beniamine/experiments.html}}.
 
-We present evaluation results for all the \NPB~\cite{Jin1999}. For
-each benchmarks, we compare \Moca with the Pin instrumentation
-used in Tabarnac~\cite{Beniamine15TABARNACRR}, one of our previous contribution. This instrumentation traps all the
-memory accesses but keeps only tracks of the number of time each thread accesses to
-each page, without any other information. Thus it does not require the management
-of all the data structures necessary for \Moca.
+We evaluate \Moca by comparing it to several state of the art tools: \Mitos
+the tracing tool from MemAxes~\cite{Gimenez14Dissecting} which relies on Intel
+PEBS technology. 
+\TABARNAC~\cite{Beniamine15TABARNACRR}, one of our previous contribution,
+based on a Pin instrumentation which traps all the memory accesses but keeps
+only tracks of the number of time each thread accesses to each page, without
+any other information. Thus it does not require the management of all the data
+structures necessary for \Moca.
+\MemProf~\cite{Lachaize12MemProf} which is designed to analyze NUMA
+performance issues and relies on AMD IBS.
+\tbl{tab:tools-comp} summarizes the main differences
+between \Moca and the other memory profiling tools.
+
+\begin{table}[htb]
+    \centering
+    \begin{tabular}{p{1.3cm}lcc}
+        \toprule
+        & & Mechanisms* & Architecture \\
+        \cmidrule(lr){3-4}
+        \multirow{4}{.8cm}{Portability}
+        & \TABARNAC & Inst & Intel, AMD \\
+        \addlinespace
+        & \Mitos & PEBS + Inst & Intel \\
+        \addlinespace
+        & \MemProf & IBS & AMD \\
+        \addlinespace
+        & \Moca & PfI (+ Inst) & Any\\
+        \midrule
+        & & Granularity & superset \\
+        \cmidrule(lr){3-4}
+        \multirow{4}{.8cm}{Trace precision}
+        & \TABARNAC & Page & Page \\
+        & \Mitos & Address & None \\
+        & \MemProf & Address & None \\
+        & \Moca & Address & Page \\
+        \midrule
+        & & \multicolumn{2}{C{5cm}}{Time, Thread sharing, CPU**} \\
+        \cmidrule(lr){3-4}
+        \multirow{4}{.8cm}{Additional information}
+        & \TABARNAC & \multicolumn{2}{C{5cm}}{Thread sharing} \\
+        \addlinespace
+        & \Mitos & \multicolumn{2}{C{5cm}}{Time + CPU} \\
+        \addlinespace
+        & \MemProf & \multicolumn{2}{C{5cm}}{All}  \\
+        \addlinespace
+        & \Moca & \multicolumn{2}{C{5cm}}{All} \\
+        \bottomrule
+    \end{tabular}
+    \caption{Comparison of different memory accesses collection
+        tools.
+        %\TABARNAC~\cite{Beniamine15TABARNACRR},
+        %\Mitos~\cite{Gimenez14Dissecting},
+        %\MemProf~\cite{Lachaize12MemProf} and \Moca.
+        \\
+        \emph{*~Inst: Binary instrumentation, PfI: Pagefault Interception}\\
+        \emph{**~CPU on which the access occured}}
+        \label{tab:tools-comp}
+\end{table}
 
 Each point in each plot is the average of at least $30$ executions. Along with each point,
 the error bars represent the standard deviation.
 Except for the experiment about the influence of \Moca's parameters, on each
 experiment, \Moca was run with it's default parameters: a wakeup interval of
-\SI{0.5}{s} for the logging process and \SI{40}{ms} for the monitoring thread.
+\SI{0.5}{s} for the logging process and \SI{50}{ms} for the monitoring thread.
 
 %\subsection{Experiments}
 \subsection{Moca default parameters}
 \label{sec:expe-param}
-
-\begin{figure*}[htb]
-    \centering
-    \begin{subfigure}{.49\linewidth}
-        \includegraphics[width=\linewidth]{moca_param.pdf}
-        \caption{Execution time.}
-        \label{fig:param_time}
-    \end{subfigure}
-    ~
-    \begin{subfigure}{.49\linewidth}
-        \includegraphics[width=\linewidth]{moca_param_events.pdf}
-        \caption{Number of captured events.}
-        \label{fig:param_evts}
-    \end{subfigure}
-    \caption{Influence of the wakeup intervals on \IS, class A.}
-    \label{fig:param}
-\end{figure*}
-
-
-
 
 Before comparing \Moca to existing tools, we need to evaluate the impact of
 the wakeup intervals (logging daemon and monitor thread) on the trace
@@ -98,213 +130,169 @@ precision and on the overhead. To do so, we run the \IS benchmark instrumented b
 a wakeup interval ranging from \SI{0.1}{s} to  \SI{0.9}{s} for the logging daemon and from \SI{20}{ms} to
 \SI{100}{ms} for the monitoring thread. For each run, we measure \IS execution time and the number of
 accesses captured. We have chosen \IS for this evaluation as it is one of the memory intensive \NPB,
-quick experiments with other ones confirmed these results.
+quick experiments with other ones confirmed these results. This experiment was
+run on a machine from the \Edel cluster.
 
+\begin{figure}[htb]
+    \centering
+    \begin{subfigure}{\linewidth}
+        \includegraphics[width=\linewidth]{moca_param.pdf}
+        \caption{Execution time.}
+        \label{fig:param_time}
+    \end{subfigure}
+    \begin{subfigure}{\linewidth}
+        \includegraphics[width=\linewidth]{moca_param_events.pdf}
+        \caption{Number of captured events.}
+        \label{fig:param_evts}
+    \end{subfigure}
+    \caption{Influence of the wakeup intervals on \IS, class A.}
+    \label{fig:param}
+\end{figure}
 
-We can see on the \fig{fig:param_time} that performances seem too decrease linearly
-as the monitoring interval decreases. A closer examination reveals that results
-suffer from a high variability under \SI{40}{ms}. 
-In addition, the \fig{fig:param_evts} shows
-that, at \SI{40}{ms}, \Moca can capture a significant number of events, not significantly improved
-\GH{Sur les figures, je vois plutôt 60ms et 50ms repectivement comme intervalles interessants\ldots}
-\DB{Les ecarts se sont resserés avec le nombre de runs \ldots}
-by lower wakeup intervals. Having chosen this interval of \SI{40}{ms} seconds for the monitoring thread,
-we found out that waking up the logging process every \SI{0.4}{s} gave a sufficient reactivity to store
-all the collected events.
+We can see on the \fig{fig:param_time} that performances decrease when we
+reduce the monitoring wakeup interval. When we reach at \SI{40}{ms}
+performances seems to reach the worst level. In addition, the
+\fig{fig:param_evts} shows that at \SI{50}{ms} we can still obtain more than
+\SI{50000}{events} which seems quite reasonable. Finally for this value, a logging
+interval of \SI{0.5}{s} seems to provide a good trade-off  between
+performances and precision.
 These two values have been chosen as default values in \Moca.
+
+
 
 \subsection{Comparison with existing tools}
 \label{sec:expe-ovh}
 
-We evaluate \Moca by comparing it to several state of the art tools: \Mitos
-the tracing tool from MemAxes~\cite{Gimenez14Dissecting} which relies on Intel
-PEBS technology, the pin instrumentation from
-\TABARNAC~\cite{Beniamine15TABARNAC} and MemProf~\cite{Lachaize12MemProf}
-which relies on AMD IBS. Every tool is evaluate with its default parameters,
-except MemProf which requires\footnote{see
-    \url{https://github.com/Memprof/scripts/issues/1}} to increase its
-    sampling frequency to work from $0xFFF0$ to $0x8FFF0$.
-    \DB{Mitos et MemProf => default + tuné pour nombre d'evenements
-    comparable. Conclure Moca seul designé et efficace pour cartographie}
-We include two version of \Moca in our evaluation: the default version and
+As preliminary experiments shows that \Mitos capture by
+default way less events than \TABARNAC and \Moca, we also compare our tool to
+\Mitos with a sampling period chosen to increase the number of pages
+captured, We call this version \MitosTun.
+
+Due to technical limitations \MemProf default sampling period have been
+increased from  $0x8FFF0$ to $0x1FFFF0$ and the library used for retrieving
+data structure information was disabled.
+%\footnote{see \url{https://github.com/Memprof/scripts/issues/1}}
+
+Finally our evaluation also includes two version of \Moca: the default version and
 \MocaPin which also retrieve the data structure information using a pin
-instrumentation.
-The \tbl{tab:tools-comp} summarizes the main differences between \Moca and the
-other memory profiling tools.
+instrumentation, we do this differentiation to evaluate the additional
+overhead induced by the instrumentation.
 
-\begin{table}[htb]
-    \centering
-    \begin{tabular}{p{1.4cm}lC{2.5cm}C{2.5cm}}
-        \toprule
-        & & Mechanisms* & Architecture \\
-        \cmidrule(lr){3-4}
-        \multirow{4}{.8cm}{Portability}
-        & Tabarnac & Inst & Intel, AMD \\
-        \addlinespace
-        & Mitos & PEBS + Inst & Intel \\
-        \addlinespace
-        & MemProf & IBS & AMD \\
-        \addlinespace
-        & \Moca & PfI (+ Inst) & Any\\
-        \midrule
-        & & Granularity & superset \\
-        \cmidrule(lr){3-4}
-        \multirow{4}{.8cm}{Trace precision}
-        & Tabarnac & Page & Page \\
-        & Mitos & Address & None \\
-        & MemProf & Address & None \\
-        & \Moca & Address & Page \\
-        \midrule
-        & & \multicolumn{2}{C{5cm}}{Time, Thread sharing, CPU**} \\
-        \cmidrule(lr){3-4}
-        \multirow{4}{.8cm}{Additional information}
-        & Tabarnac & \multicolumn{2}{C{5cm}}{Thread sharing} \\
-        \addlinespace
-        & Mitos & \multicolumn{2}{C{5cm}}{Time + CPU} \\
-        \addlinespace
-        & MemProf & \multicolumn{2}{C{5cm}}{All}  \\
-        \addlinespace
-        & \Moca & \multicolumn{2}{C{5cm}}{All} \\
-        \bottomrule
-    \end{tabular}
-    \caption{Comparison of different memory accesses collection
-        tools: Tabarnac~\cite{Beniamine15TABARNACRR},
-        Mitos~\cite{Gimenez14Dissecting},
-        MemProf~\cite{Lachaize12MemProf} and \Moca.\\
-        \emph{*~Inst: Binary instrumentation, PfI: Pagefault Interception}\\
-        \emph{**~CPU on which the access occured}}
-        \label{tab:tools-comp}
-\end{table}
-
-For our evaluation, we compare the different tools on two aspect: trace
+We compare the different tools on two aspect: trace
 precision and induced slowdown. The first experiment shows the number of pages
 and unique addresses captured during the analysis. The second one compare the
 tools in terms of slowdown factor:
 $slowdown\_factor(tool,bench)=\frac{execution\_time(bench,tool)}{execution\_time(bench)}$.
 All these experiments have been run on all the \NPB on class A.
 
-
-\begin{figure*}[htb]
+\begin{figure}[htb]
     \centering
-    \begin{subfigure}{.49\linewidth}
+    \begin{subfigure}{\linewidth}
         \includegraphics[width=\linewidth]{moca_pages_intel.pdf}
         \caption{Number of pages.}
         \label{fig:pages}
     \end{subfigure}
-    ~
-    \begin{subfigure}{.49\linewidth}
+    \begin{subfigure}{\linewidth}
         \includegraphics[width=\linewidth]{moca_addr_intel.pdf}
         \caption{Number of unique addresses.}
         \label{fig:addr}
     \end{subfigure}
-    \caption{Number of pages and unique addresses captured by \Moca and Tabarnac
+    \caption{Number of pages and unique addresses captured by \Moca and other
+        state of the art tools
     on the \NPB. Y-axis is in log scale.}
     \label{fig:pages-addr}
-\end{figure*}
+\end{figure}
 
-\DB{Rewritte text:\\
-    + Warning log scale !\\
-    pages:\\
-    + Moca and Tabarnac capture every pages \\
-    + MocaPin have a bit more pages due to pin stuff, but not much => trace
-    still reliable\\
-    + Mitos trace are way insufficient\\
-    + Mitostun ? \\
-    Addr:\\
-    + Moca Better then every tools\\
-}
 
-Then, we have compared the number of pages and unique addresses captured by \Moca
-and Tabarnac during the previous experiment. As expected and as we can see in figure
-\fig{fig:pages}, both methods capture the exact same number of
-pages, which is the superset of all the memory accesses. Furthermore,
-\fig{fig:addr} shows that \Moca also provides a more precise trace than Tabarnac
-regarding the number of unique addresses collected. This can be explained by the 
-radically different designs of the two tools. While \Moca keeps track of all
-the pages accessed during the execution, it also stores, for each triggered page fault, the
-exact address of the memory access. On the contrary, to keep the overhead small,
-a tool like Tabarnac has to work at a coarser granularity: it only counts the number
-of accesses performed by the application for each page address. The result is that Tabarnac
-collects space data with the precision of the page (4096 bytes) while \Moca collects them with
-the precision of the byte.
+\fig{fig:pages} confirms that, as stated previously, only \Moca and \TABARNAC are
+able to provide a super set of the accessed pages during the execution. We can
+also see in this figure that \MocaPin captures slightly more pages which
+correspond to Pin routines. Still this difference is quite small and we can
+thus assume that the Pin instrumentation does not add too much noise to the
+trace. We can also observe that for each benchmarks the other tools miss a
+significant number of pages.
+\fig{fig:addr} shows that in terms of number of unique addresses captured,
+once again \Moca is the most precise with for certain benchmark one order more
+of unique addresses than \Mitos and/or \MemProf.
 
-\begin{figure*}[htb]
+These results proves that \Moca is the only existing tool able to provide a
+trace precise enough to have an overview an application's memory behavior. As
+stated, not only our tool provide a complete trace at the granularity of the
+page but it is also more precise than the other existing tools in term of
+number of unique addresses captured.
+\DB{\MitosTun and \MemProf / Explain \MemProf integration in the plot}
+
+\begin{figure}[htb]
     \centering
-    \begin{subfigure}{.49\linewidth}
+    \begin{subfigure}{\linewidth}
         \includegraphics[width=\linewidth]{moca_overhead_intel.pdf}
-        \caption{Evaluation on Intel machine}
+        \caption{Evaluation on \Edel (Intel)}
         \label{fig:ovh-Intel}
     \end{subfigure}
-    ~
-    \begin{subfigure}{.49\linewidth}
-        \rule{8cm}{7cm}
-        \caption{Evaluation on AMD machine}
+    \begin{subfigure}{\linewidth}
+        \rule{8cm}{6cm}
+        \caption{Evaluation on \Idfreeze (AMD)}
         \label{fig:ovh-AMD}
     \end{subfigure}
-    \caption{Slowdown of \Moca on the \NPB compared to state of the art tools.
+    \caption{Slowdown factor of \Moca on the \NPB compared to state of the art tools.
     Y-axis is in log scale.}
     \label{fig:ovh}
-\end{figure*}
+\end{figure}
 
 \fig{fig:ovh} shows for each of the \NPB, the slowdown factor when
 instrumented by \Moca, \MocaPin and the other existing tools on Intel
-(\fig{fig:ovh-Intel}) and AMD (\fig{fig:ovh-AMD}) Machines.
+(\fig{fig:ovh-Intel}) and AMD (\fig{fig:ovh-AMD}) Machines the Y-axis is in
+log scale.
 
-\DB{Rewritte text:\\
-    + Warning log scale !\\
-    + Mitos almost no overhead => but previous expe show traces are not
-    precise\\
-    + Moca usually significantly bettr then tabarnac except ft dc and mg\\
-    + Pin additional overhead is negligible.
-    + Explain mg\\
-    cncl:\\
-    + Moca overhead is more precise than the most precise tools existing and
-    faster then them => yeay !
-}
-We can classify these results into three groups of
-applications:  for \BT, \DC, \EP, \IS, \LU, \SP and \UA, \Moca is
-significantly faster than Tabarnac. This set of benchmarks is interesting as it is made of varied application profiles.
+From \fig{fig:ovh-intel}, we can see that \Mitos and \MitosTun overhead is
+almost negligible which is not the case for \Moca and \TABARNAC, this
+difference is explained by the results of the previous experiment, as \Mitos
+only collect a few addresses even with some fine tuning, it's overhead is
+necessary low.
+
+We can classify the benchmarks into three groups:
+for \BT, \CG, \EP, \LU, \SP and \UA, \Moca is
+significantly faster than \TABARNAC. This set of benchmarks is interesting as it is made of varied application profiles.
 Indeed, if \EP is mostly doing parallel computation with only a few number of
-memory accesses, \IS is memory intensive with a random memory access pattern and
+memory accesses, \CG is memory intensive and
 \BT, \LU as well as \SP are pseudo applications doing a significant usage of memory.
-And while \DC and \UA are categorised as \emph{unstructured computation,
-parallel I/O and data movement} by the \NPB website
-\footnote{\url{http://www.nas.nasa.gov/publications/npb.html}}, their interaction with memory seems noticeable.
-The second group only contains memory oriented benchmarks (\CG and \FT). For this group,
-\GH{C'est plutôt équilibré calcul / accès mémoire, non ?}
-\DB{Boaf la description CG dit ``irregular memory accesses and communication''
-et \FT ``all to all communications}
-\Moca is as good as Tabarnac or a bit faster, probably because the balance between computations and memory accesses hides the overhead of the instrumentation.
-Finally for \MG, \Moca is
-significantly slower than Tabarnac. This benchmark seems to be a pathological
-case were the execution time with \Moca has a lot a variability. Actually, in this benchmark, the quantity of pages accessed is huge and exceeds the size
-allocated for \Moca data structures. This results in the triggering of \Moca routines that recycle parts of the recent accesses to accept new ones.
-We suspect that this is the cause if its bad beahavior.
-\DB{Je sais pas vraiment comment présenter les resultats de \MG, c'est mauvais
-et variable (sur une centaine de runs ici, la moitié sont très lent et l'autre
-moitié plus proche de tabarnac)}
-\GH{Et les exec avec plus de mémoire dans le module ?}
-\DB{En cours: plus de place dans fpf hashmap + randomization des runs. Au pire
-faire au moins courbe en log scale pour plus de lisibilité}
-Overall, these experiments show that \Moca is significantly faster than a typical tool based on binary instrumentation
-for a majority of benchmarks, and at least as good for most of the others.
+And while \UA is categorised as \emph{unstructured computation,
+parallel I/O and data movement} by the \NPB
+website\footnote{\url{http://www.nas.nasa.gov/publications/npb.html}}, its
+interactions with memory seems noticeable.
+
+The second group only contains memory oriented benchmarks (\DC and \FT and
+\IS). For this group, \Moca is as good as \TABARNAC or a bit faster, probably
+because the balance between computations and memory accesses hides the
+overhead of the instrumentation.
+
+For the last benchmark: \MG, \Moca is significantly slower than \TABARNAC. This benchmark
+seems to be a pathological case were the execution time with \Moca has a lot a
+variability. By looking at our experiment logs, we found that \MG seems to
+generate a lot of conflicts on \Moca false page fault hash map. A solution
+could be to increase the size of this hash map which is quite difficult as
+memory space in the kernel is limited, another solution would consist on
+working on a smaller version of \MG and see if the analysis is still useful.
 
 
+Finally, by comparing \Moca to \MocaPin, we can see that when \Moca slowdown
+factor is low, using Pin does not have a considerable impact on it but when
+\Moca's overhead start to be high, using Pin actually improve the
+performances. While this can seems abnormal it has a very simple explanation:
+as Pin instrumentation function are not memory intensive, every time Pin
+interfere with the normal execution, it gives enough time to \Moca to flush
+its buffers, thus it reduce the number of conflict in \Moca different
+hashmaps.
 
 \subsection{Summary}
 \label{sec:expe-cncl}
 
-
-\DB{Complete rewrite here}
-
 We have tested \Moca with various applications and using several parameters.
-Our experiments, show that \Moca has a good behavior for a wide range of parameter and
-helped us defining their default values. Our experiments also show that, with these
-parameters, \Moca is at worst as slow as comparable tools and in most 
-cases faster. Moreover, \Moca provides more precise traces than comparable tools.
-It is noteworthy that \Moca is the only tool able to provide a detailed trace with temporal,
-spacial and sharing information while providing guarantees on the information
-% \GH{Tu ne parles vraiment de sharing qu'ici !!}
-% \DB{Dans la Table I de design aussi, j'ai modifié un paragraphe pour insister
-% dessus}
-lost during the sampling.
+Our experiments, show that \Moca has a good behavior for a wide range of
+parameter and helped us defining their default values. Our experiments also
+show that, with these parameters, provides significantly more precise traces
+than state of the art tools. Compared to the tools that provide comparable
+(but still less precise traces) \Moca is at worst as slow as these tools and
+often faster.  It is noteworthy that \Moca is the only tool able to provide a
+detailed trace with temporal, spacial and sharing information while providing
+guarantees on the information lost during the sampling.
