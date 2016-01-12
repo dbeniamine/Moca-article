@@ -94,6 +94,33 @@ In this section we present in details how the main components of \Moca
 interact and how \Moca addresses the management of the data it collects
 within the kernel space.
 
+During the execution, \Moca needs to store three types of information:
+\begin{enumerate}
+    \item The set of \emph{tasks} (Linux internal representation of threads and process) which are
+monitored. This is necessary because page faults will also be triggered by other tasks which does not belong to
+the monitored application.
+    \item The set of all page faults which have been triggered by \Moca,
+        required to recognize false page faults.
+    \item The set of addresses recently accessed by each task. This is
+        necessary to re-enable the false page fault at the end of each
+        monitoring interval.  They will be stored until they are transfered to
+        the user space by a dedicated thread.
+\end{enumerate}
+
+The first two types of information are stored in preallocated hashmaps in order to reduce the
+runtime overhead of their management.  The two first hashmaps are read at each page fault but rarely
+written, only when a new task of the monitored application triggers it first page
+fault or when \Moca create some false page faults. We can protect
+them with Linux kernel built-in \emph{rwlocks}.
+\GH{Un peu contradictoire si on sait que les rwlocks favorisent les lecteurs\ldots}
+The third type of information is the actual
+trace, divided, for each task, in a private set of \emph{chunks}. A chunk is the set of
+accesses that have been collected during some configurable time interval. Chunks provide a discretization
+of the time, each chunk embed two timestamp to delimit its beginning and end.
+The accesses are not timestamped but their order in the trace file is their
+order of arrival in the chunk.
+The advantage is that it reduces the volume of information stored for the accesses.
+
 \begin{figure}[htb]
     \centering
     \resizebox{\linewidth}{!}{
@@ -102,29 +129,6 @@ within the kernel space.
     \caption{Interactions betweens \Moca's main component and Linux}
     \label{fig:moca}
 \end{figure}
-
-
-During the execution, \Moca needs to store three types of information:
-\begin{enumerate}
-    \item the set of \emph{tasks} (Linux internal representation of threads and process) which are
-monitored. This is necessary because page faults will also be triggered by other tasks which does not belong to
-the monitored application.
-    \item the set of addresses recently accessed by each task. This is necessary to re-enable the false page
-      fault at the end of each monitoring interval.
-    \item the set of all page faults which have been triggered by \Moca. They will be stored until they are
-      transfered to the user space by a dedicated thread.
-\end{enumerate}
-
-The first two types of information are stored in preallocated hashmaps in order to reduce the
-runtime overhead of their management.  The two first hashmaps are read at each page fault but rarely
-written, only when a new task of the monitored application triggers it first page
-fault or when \Moca create some false page faults. We can protect
-them with Linux kernel built-in \emph{rwlocks}.\GH{Un peu contradictoire si on sait que les rwlocks favorisent les lecteurs\ldots}
-The third type of information is the actual
-trace, divided, for each task, in a private set of \emph{chunks}. A chunk is the set of
-accesses that have been collected during some configurable time interval. Chunks provide a discretization
-of the time, that we use as a timestamp for all the accesses it contains. This is not a limitation as timestamps more
-precise than the sampling frequency would not really make sense. The advantage is that it reduces the volume of information stored for the accesses.
 
 This discretization of the time, materialized as a sequence of chunks, is useful as it let the
 different components of \Moca work concurrently on different chunks.  Indeed the traced
@@ -137,14 +141,13 @@ logging process flush \emph{finished} chunks to the filesystem at a lower
 frequency, and recycle them as empty places for upcoming chunks.  \fig{fig:moca} depicts the interaction between the
 different processes and threads of \Moca, its data structures and Linux.
 
-At the end of the day, \Moca generates one plain text trace file per thread. Each of these files contains three
-types of information: meta data about the task (its pid and \Moca internal id),
-chunks related information (their number of elements, their start and end
-clock) and information on each intercepted accesses (virtual and physical addresses, number of read
-and writes
-%\GH{N'y a-t-il pas une entrée par accès ???}\DB{Si, j'ai fait une petite modif pour clarifier}
-). Moreover for both chunks and accesses a bitmask indicate on which
-CPU the accesses have been detected.
+At the end of the day, \Moca generates one csv file, each line of this file
+describe one access giving its physical and virtual address, the number of
+read and writes captured, a bitmask indicating on which CPU the access
+occurred, the start and end timestamp of its chunk and the
+internal id of the task which triggered it. A set of access sharing the same
+timestamps and task id correspond to a chunk. The order of accesses inside a
+chunk is preserved.
 
 \begin{algorithm}[htb]
     \caption{Monitoring thread algorithm}
@@ -167,16 +170,19 @@ CPU the accesses have been detected.
 
 The monitoring thread, which is a kernel thread that uses the algorithm~\ref{algo:monTh}, is
 in charge of enabling false page faults destined for \Moca. It performs its task by
-removing the \texttt{PRESENT} flags from the \texttt{Page Table Entry} (PTE) that corresponds to each recently
-accessed addresses. Of course, the more frequently this thread can enable page faults, the more
-precise the trace is. This frequency is the sampling frequency of our tools, which is able to collect
-one access per distinct page between two wakeup of the monitoring thread.
-But invalidating all the recently accessed pages takes time and requires
+removing the \texttt{PRESENT} flags from the \texttt{Page Table Entry}
+(\texttt{PTE}) that corresponds to each recently
+accessed addresses. Of course, the 
+shorter is the period between two wakeups, the more
+precise the trace is.
+This period is called \emph{monitor thread wakeup interval} (or \emph{monitor
+interval}).
+But invalidating all the recently accessed pages takes time as it requires
 to take a write lock on the page faults hashmap. This write lock
 delays any pending false page fault in the monitored application. Thus the wakeup frequency of the
 monitoring thread cannot be too high, otherwise its action becomes too intrusive.
 The \texttt{MonitorThreadWakeUpInterval} \Moca parameter lets the user change the default setting
-that we have empirically chosen.
+that we have empirically chosen after a few experiments.
 
 \begin{algorithm}[htb]
     \caption{Logging daemon algorithm. Note that no locks are required to
@@ -231,14 +237,16 @@ Each time a page fault occurs, it is trapped by the \Moca handler that uses
 algorithm~\ref{algo:PageFault}. This algorithm first finds out if the task
 (thread or process) responsible for the page fault is
 monitored or not. If not, it has to check if the task is a child of a monitored
-task, in this case, we have to monitor it as well. We only need a read lock
+task and in this case, start monitoring it. We only need a read lock
 to access to the hashmap containing the monitored tasks in order to answer to these
 two questions.
 If and only if the second answer is yes, it is necessary to take
 a write lock to add the task to the monitored ones.
 This case occurs only at the first page fault of a new monitored
-process or thread which is quite rare. For instance, in the benchmarks used for
+process or thread which is quite rare and usually occurs only at the
+initialization time. For instance, in the benchmarks used for
 the evaluation it happens $8$ times out of $10^6$ accesses.
+\DB{Check these numbers}
 At the end of this phase, if the task is still not monitored, Linux can handle the page fault normally.
 
 When a monitored task triggers a page fault, the access is first added
