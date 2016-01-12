@@ -33,7 +33,7 @@ consists in using sampling mechanisms such as AMD's Instruction Based Sampling
 (IBS)~\cite{Drongowski07Instructionbased} or Intel Precise Event Based
 Sampling (PEBS)~\cite{Levinthal2009} to trace the applications execution. These methods
 provide \emph{incomplete} sampling: some parts of the memory can be accessed without
-being noticed by the tool if none the associated instructions are not part of the sampled
+being noticed by the tool if none of the associated instructions are part of the sampled
 instructions.
 Thus they can ignore some parts of the memory less frequently accessed but in which
 optimization could take place.
@@ -42,21 +42,22 @@ at the time due to hardware limitations (number of available processor
 registers), there is an important number of existing events to reflect the
 complexity of memory hierarchy which make hard to trace every memory
 access with only one analysis.
-One way to lessen the impact of this limitation is to run several times the
+One way to lessen the impact of these limitations is to run several times the
 instrumentation and use advanced methods such as
 folding~\cite{Servat15Towards} to generate a more accurate summary trace.
 Nevertheless, this make the instrumentation cost grow accordingly.
-Still writing (and sometimes) using tools that relies on hardware mechanisms
+Moreover writing (and sometimes) using tools that relies on hardware mechanisms
 requires a deep knowledge of the processor. And as processor evolves,
 such tools are hard to maintain and can quickly become outdated.
-We regard all these limitations as too constraining for a general purpose memory optimization tool.
+We regard all these limitations as too constraining for a general purpose
+memory analysis tool.
 
 Some other studies make use of hardware modification, either actual or
 simulated~\cite{Bao08HMTT,Martonosi92MemSpy}.  Although they are eventually able to collect
 more complete traces efficiently, they are even less usable than sampling technique: to use
 these techniques, one has to have access to exotic hardware prototypes or even build them.
 
-Finally, binary instrumentation can provide accurate information about memory accesses.
+Binary instrumentation can provide accurate information about memory accesses.
 This method is portable and  more precise than the aforementioned ones,
 but it comes at the cost of performances. Fast
 instrumentations usually either rely on a simulator~\cite{DeRose02SIGMA} which is not as realistic as an actual execution
@@ -65,7 +66,7 @@ data~\cite{Beniamine15TABARNAC}.
 
 
 Page fault interception can provide efficient and precise memory traces, it
-have been used online for different tools: parallel garbage
+have been used online for different applications: parallel garbage
 collectors~\cite{Boehm91Mostly}, memory
 checkpointing~\cite{Heo05Spaceefficient} and NUMA mapping
 tools~\cite{Diener13CommunicationBased}. All these tools need to know where a
@@ -74,6 +75,6 @@ short history on a small set of pages that they use online. Tracing the state
 of the whole memory of an application and storing it efficiently is a
 challenge.
 
-In this study we present a new complete memory trace collection system based on page
+In this study we present \Moca, a new complete memory trace collection system based on page
 fault interception. We compare it to other memory trace tools in term of
 performances and collected information details.

@@ -9,27 +9,27 @@ hardware mechanisms such as the memory prefetcher. It gets even more complex wit
 physical memory impacts the accesses latency and contention issues arise~\cite{Drepper07What}.
 
 Most efforts about memory performance optimizations at software level consists
-on tools such as NUMA Balancing~\cite{Corbet2012} have been designed to automatically improve the
-memory usage on NUMA machines. These tools are able to move pages of data in the
-physical memory to keep them as close as possible to the thread that use them, thereby
-reducing the number of remote accesses. While this can provide great performance gains,
-this cannot address all the memory related issues. For instance, if all the
+on tools such as NUMA Balancing~\cite{Corbet2012}.
+These tools automatically moves pages of data in the physical memory, trying
+to keep them as close as possible from the threads that use them. Such
+optimizations can improve significantly the memory performances as it reduces
+the number of remote accesses. Still this cannot address all the memory related issues. For instance, if all the
 threads of an application access to the same memory page, whatever the page mapping is,
-this will result in remote accesses from all the NUMA nodes but one. The only way to fix
+this will result in remote accesses from all NUMA nodes but one. The only way to fix
 this kind of issue is to rewrite a part of the application code in order to take into account these
 unbalanced memory accesses. This is why tools than can help the developer to understand the memory accesses patterns
 of its application are of utter importance for performances optimizations.
 
-Other tools such as Vtune~\cite{Reinders05VTune} and
+Analysis tools such as Vtune~\cite{Reinders05VTune} and
 HPCToolkit~\cite{Adhianto10HPCTOOLKIT} have been developed to help the programmer
 understand and correct performance issues in a multithreaded application. However, these tools
-focus on the CPU and can only provides a global view of events related to the memory: the location of accesses,
+focus on the CPU and can only provides a indirect and incomplete view of events related to the memory: the location of accesses,
 their time or both are usually lost in the process. Thus, they are not able to provide the developer with
 a clear view of memory accesses patterns occurring during the execution. In such situation, fixing
 memory related issues is a matter of trial and error and the eventual code is often suboptimal.
 
 Indeed, to solve memory related issues, the developer needs a detailed trace of memory
-accesses at a sufficiently fine \emph{granularity}. Furthermore, to ensure that a lack of precision
+accesses at a sufficiently fine \emph{granularity}. Moreover, to ensure that a lack of precision
 does not compromise the analysis, such a trace should be \emph{complete}. We say that a trace is
 \emph{complete} at a certain granularity if and only if the events it contains along with their granularity
 form a superset of the actual accesses. Furthermore, memory events in a \emph{complete} trace should
@@ -37,6 +37,8 @@ include information about time, space (at which address the event occurs),
 location (on which CPU it occurs) and nature of access (is this
 a read, a write, by which thread).
 %
+An ideal tool should provide enough data to recreate a cartography view
+of the memory accesses over the time.
 At the time of this writing, existing memory analysis tools are not able to provide such traces. They
 always lack some of the information either by relying on \emph{incomplete}
 sampling~\cite{Liu14Tool,Lachaize12MemProf}, or by
@@ -55,7 +57,7 @@ an efficient memory trace collection system based on page fault interception.
 This mechanism is able to provide a \emph{complete} sampled memory trace at
 the spatial granularity of the page along with a parametrized temporal granularity.
 It also collects detailed information about sampled accesses, including their address and
-precise timestamp. Finally \Moca is able to retrieve date structure
+precise timestamp. Finally \Moca is able to retrieve data structures
 information (address, size and name) using a binary instrumentation.
 
 The remaining of this paper is organised as follow: section~\ref{sec:related}

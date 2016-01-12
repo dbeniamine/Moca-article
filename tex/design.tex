@@ -3,8 +3,8 @@
 
 \Moca consist of a Linux kernel module and a script that loads this module with
 the proper parameters and launch the monitored application on the user behalf.
-It does not rely on architecture specific
-technologies such as AMD IBS or Intel PEBS, or architecture dependent kernel
+It rely neither on architecture specific
+technologies such as AMD IBS or Intel PEBS, nor architecture dependent kernel
 code. Therefore it is highly portable and can be run on any recent Linux kernel
 from the $3.0$. \Moca collects complete traces in the sense that the exact set
 of pages accessed by the application is deduced from the collected events
@@ -18,14 +18,17 @@ interval. The second one is managing somehow the huge quantity of data produced
 by the trace collection within the kernel space in-between regular flushes toward
 the user space. Of course, these two tasks should be as slightly intrusive as possible.
 
-To ease the trace analysis, \Moca is also able to retrieve data structure
-names, addresses and size. This is done (on demand) using a Pin~\cite{Luk05Pin}
+To make the trace more readable, \Moca also retrieve data structure
+names, addresses and size using a Pin~\cite{Luk05Pin}
 instrumentation. When enabled, this instrumentation reads static data
 structures of every executed binary files and store all structure bigger than
 one page. It also intercept every calls to \texttt{malloc} family functions
 and names malloced structures according to their call path. This
-instrumentation adds mainly a constant overhead when pin opens a binary and on
-every allocations. This overhead is evaluated in section~\ref{sec:expe-ovh}
+instrumentation adds a (small) constant overhead when pin opens a binary and on
+every allocations. Still the experiments presented in
+section~\ref{sec:expe-ovh} shows that this overhead is compensated by the fact
+that the noise induced by Pin is not memory intensive, thus it release a part
+of the pressure on \Moca reducing its overhead.
 
 \subsection{Collecting memory accesses}
 
