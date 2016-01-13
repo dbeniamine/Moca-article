@@ -184,9 +184,9 @@ instrumentation, we do this differentiation to evaluate the impact of Pin on
 We compare the different tools on two aspect: trace
 precision and induced slowdown. The first experiment shows the number of pages
 and unique addresses captured during the analysis. The second one compare the
-tools in terms of slowdown factor:
-$slowdown\_factor(tool,bench)=\frac{execution\_time(bench,tool)}{execution\_time(bench)}$.
-All these experiments have been run on all the \NPB on class A.
+slowdown factor of the different tools.
+%$slowdown\_factor(tool,bench)=\frac{exec\_time(bench,tool)}{exec\_time(bench)}$.
+All these experiments have been run on each of the \NPB on class A.
 
 \begin{figure}[htb]
     \centering
@@ -206,24 +206,43 @@ All these experiments have been run on all the \NPB on class A.
     \label{fig:pages-addr}
 \end{figure}
 
+\fig{fig:pages-addr} presents the results of the precision evaluation of the
+different tools. The values used for \Mitos, \MitosTun, \Moca, \MocaPin and
+\TABARNAC comes from runs on \Edel machines, while \MemProf results comes from
+\Idfreeze.
+\DB{Biais + de thread sur \Idfreeze ?}
 
-\fig{fig:pages} confirms that, as stated previously, only \Moca and \TABARNAC are
-able to provide a super set of the accessed pages during the execution. We can
-also see in this figure that \MocaPin captures slightly more pages which
-correspond to Pin routines. Still this difference is quite small and we can
-thus assume that the Pin instrumentation does not add too much noise to the
-trace. We can also observe that for each benchmarks the other tools miss a
-significant number of pages.
-\fig{fig:addr} shows that in terms of number of unique addresses captured,
-once again \Moca is the most precise with for certain benchmark one order more
-of unique addresses than \Mitos and/or \MemProf.
+We can see on \fig{fig:pages} that \Moca and \TABARNAC capture the exact same
+number of pages. As explained earlier these tools are the only one that
+guarantee to capture a superset of the accessed pages. Thus this is the total
+number of pages used during the execution. Furthermore, we can notice that
+\MocaPin captures slightly more pages which correspond to Pin data. Still
+this difference is small compared to the total number of captured pages
+therefore the noise induced in the trace should be negligible.
 
-These results proves that \Moca is the only existing tool able to provide a
+\Mitos often provides one order less pages than \Moca and \TABARNAC, while
+tunning \Mitos sampling period can help improve this number it still miss a
+considerable number of pages.
+
+From \fig{fig:addr} we can see that, as expect, the number of unique address captured by
+\TABARNAC is exactly the number of pages, this is due to the fact that
+\TABARNAC works at the page granularity. For almost half the benchmarks (\BT,
+\EP, \LU, \SP and \UA) \MitosTun provides a number of unique addresses
+comparable to \Moca while \Mitos without tunning is always under these values.
+This means that if \Mitos miss a considerable part of the address-space, it
+provide a fair sampling on the captured pages.
+
+\DB{missing MemProf result}
+
+These results proves that most existing tools can miss a considerable part of
+the address-space while \Moca guarantee to provide a superset of the accessed
+pages. Furthermore they show that \Moca is the only existing tool able to provide a
 trace precise enough to have an overview an application's memory behavior. As
 stated, not only our tool provide a complete trace at the granularity of the
 page but it is also more precise than the other existing tools in term of
-number of unique addresses captured.
-\DB{\MitosTun and \MemProf / Explain \MemProf integration in the plot}
+number of unique addresses captured. Finally, adding a Pin instrumentation to
+\Moca does not seems to disturb considerably the trace quality thus it seems
+safe to use it.
 
 \begin{figure}[htb]
     \centering

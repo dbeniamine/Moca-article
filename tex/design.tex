@@ -25,7 +25,9 @@ structures of every executed binary files and store all structure bigger than
 one page. It also intercept every calls to \texttt{malloc} family functions
 and names malloced structures according to their call path. This
 instrumentation adds a (small) constant overhead when pin opens a binary and on
-every allocations. Still the experiments presented in
+every allocations. Moreover, while Pin generate some additional processes that
+could interfere with the analysis, they can be easily identified by their name
+and are ignored by \Moca.  The experiments presented in
 section~\ref{sec:expe-ovh} shows that this overhead is compensated by the fact
 that the noise induced by Pin is not memory intensive, thus it release a part
 of the pressure on \Moca reducing its overhead.
