@@ -12,7 +12,8 @@ offline usage, highly accurate traces can provides a better understanding of
 the application memory behavior.
 
 To address this challenge, we have proposed \Moca an efficient memory trace
-collection system. While other existing tools rely on \emph{incomplete} sampling to
+collection system. While other existing tools
+rely on \emph{incomplete} hardware sampling to
 provide such traces at an acceptable cost, \Moca provides a \emph{complete}
 trace, that contains all the accessed areas, at the granularity of the page.
 Moreover, \Moca traces not only
@@ -26,13 +27,26 @@ traces collected by instructions sampling. Furthermore \Moca can also detect
 data structure by combining the efficient trace system with a lightweight Pin
 instrumentation.
 
-\DB{Update with final results}
-We evaluated \Moca by comparing it to other existent tools this evaluation
-show that \Moca is faster then tools based on binary instrumentation on
-almost as fast as hardware sampling tools while providing complete and much
-more detailed traces.
-Finally the additional overhead required to detect data structure using a Pin
-instrumentation appears to be quite reasonable.
+State of the art tools are relying on hardware technologies such as Intel PEBS
+or AMD IBS thus embed vendor (or processor) dependent code making them hard
+to maintain and not portable. On the contrary \Moca is based on a simple page
+fault interception mechanism and does not use any architecture dependent code,
+thus it can work on any Linux kernel from $3.0$ without modifications.
+
+We evaluated \Moca by comparing it two state of the art tools: \Mitos and
+\MemProf (with their default parameters and with some fine tunning) and one
+tool from a previous contribution \TABARNAC. For this comparison we evaluated
+two criteria: the precision of the trace and the overhead. We ran our
+evaluation on the \NPB which represent multiple situation from simple kernels
+to realistic applications. Our evaluation exposed the fact the tools
+relying on hardware sampling miss a significant par of the address-space. It
+also shown that \Moca was able to provide a complete trace at the page
+granularity with a more precise sampling at the byte granularity than the
+other tools. Finally \Moca overhead appears to be more important than sampling
+base tools but quite comparable to binary instrumentation  based tools.
+Furthermore we also show that using a pin instrumentation together with \Moca
+to retrieve data structure information can actually improve \Moca
+performances.
 
 Future work will focus on the visualization and exploitation of these memory traces
 which is another challenge mainly due to the volume of the collected data.

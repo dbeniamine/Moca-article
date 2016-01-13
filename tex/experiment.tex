@@ -188,6 +188,7 @@ slowdown factor of the different tools.
 %$slowdown\_factor(tool,bench)=\frac{exec\_time(bench,tool)}{exec\_time(bench)}$.
 All these experiments have been run on each of the \NPB on class A.
 
+\DB{MemProf results are incomplete, check for \UA when available}
 \begin{figure}[htb]
     \centering
     \begin{subfigure}{\linewidth}
@@ -210,7 +211,6 @@ All these experiments have been run on each of the \NPB on class A.
 different tools. The values used for \Mitos, \MitosTun, \Moca, \MocaPin and
 \TABARNAC comes from runs on \Edel machines, while \MemProf results comes from
 \Idfreeze.
-\DB{Biais + de thread sur \Idfreeze ?}
 
 We can see on \fig{fig:pages} that \Moca and \TABARNAC capture the exact same
 number of pages. As explained earlier these tools are the only one that
@@ -224,15 +224,20 @@ therefore the noise induced in the trace should be negligible.
 tunning \Mitos sampling period can help improve this number it still miss a
 considerable number of pages.
 
+Concerning \MemProf, it is important to note that we have increased the
+default sampling period to overpass technical limitations. With this
+modification we can see that \MemProf capture more pages than \Mitos
+and \MitosTun but significantly less than
+\Moca except for two benchmarks (\SP and \LU).
+
 From \fig{fig:addr} we can see that, as expect, the number of unique address captured by
 \TABARNAC is exactly the number of pages, this is due to the fact that
 \TABARNAC works at the page granularity. For half the benchmarks (\BT,
 \EP, \LU, \SP and \UA) \MitosTun provides a number of unique addresses
 comparable to \Moca while \Mitos without tunning is always under these values.
 This means that if \Mitos miss a considerable part of the address-space, it
-provide a fair sampling on the captured pages.
-
-\DB{missing MemProf result}
+provide a fair sampling on the captured pages. We can observe a similar
+behavior for \MemProf.
 
 These results proves that most existing tools can miss a considerable part of
 the address-space while \Moca guarantee to provide a superset of the accessed
@@ -252,7 +257,7 @@ safe to use it.
         \label{fig:ovh-Intel}
     \end{subfigure}
     \begin{subfigure}{\linewidth}
-        \rule{8cm}{6cm}
+        \includegraphics[width=\linewidth]{moca_overhead_amd.pdf}
         \caption{Evaluation on \Idfreeze (AMD)}
         \label{fig:ovh-AMD}
     \end{subfigure}
@@ -311,6 +316,17 @@ slowing \Moca down gives it enough time to flush its chunks before too much
 conflicts start to occurs. In the end this instrumentation provides more
 readable traces and improve the performance, therefore we should use it by
 default.
+
+\fig{fig:ovh-AMD} shows the results of the evaluation on the AMD machine
+(\Idfreeze), it is important to note that this machine have $48$ threads which
+is much more than the $8$ threads of \Edel cluster. This difference explain
+the fact that for most benchmarks, \Moca overhead is way lower than on the
+\Edel machines, and it shows that \Moca scale pretty well.
+As  Pin is an Intel technology, we can see that on the
+AMD machine \MocaPin overhead is often more important than on Intel machines.
+For its part \MemProf exhibit a slowdown factor comparable to \Mitos while
+providing traces a little more precise than this tool but still incomplete and
+not as precise as \Moca traces.
 
 \subsection{Summary}
 \label{sec:expe-cncl}
