@@ -6,7 +6,10 @@ multithreaded applications. This is a key challenge in high performance
 computing as memory is often a performance
 bottleneck. Memory traces can be used at runtime to improve data locality or
 offline by developers to understand and improve their applications memory
-behavior and therefore their performances.
+behavior and therefore their performances. For online analysis the trace precision
+is limited by the number of data that can be analyzed in real time, but for
+offline usage, highly accurate traces can provides a better understanding of
+the application memory behavior.
 
 To address this challenge, we have proposed \Moca an efficient memory trace
 collection system. While other existing tools rely on \emph{incomplete} sampling to
@@ -20,7 +23,7 @@ While \Moca works at the page granularity, it stores the exact
 address of each intercepted accesses. Therefore, it also provide an
 \emph{incomplete} trace at the granularity of the byte, similar to
 traces collected by instructions sampling. Furthermore \Moca can also detect
-data structure by combining the efficient trace system with a lightweight pin
+data structure by combining the efficient trace system with a lightweight Pin
 instrumentation.
 
 \DB{Update with final results}
@@ -28,7 +31,7 @@ We evaluated \Moca by comparing it to other existent tools this evaluation
 show that \Moca is faster then tools based on binary instrumentation on
 almost as fast as hardware sampling tools while providing complete and much
 more detailed traces.
-Finally the additional overhead required to detect data structure using a pin
+Finally the additional overhead required to detect data structure using a Pin
 instrumentation appears to be quite reasonable.
 
 Future work will focus on the visualization and exploitation of these memory traces

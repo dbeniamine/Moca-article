@@ -24,7 +24,7 @@ instrumentation. When enabled, this instrumentation reads static data
 structures of every executed binary files and store all structure bigger than
 one page. It also intercept every calls to \texttt{malloc} family functions
 and names malloced structures according to their call path. This
-instrumentation adds a (small) constant overhead when pin opens a binary and on
+instrumentation adds a (small) constant overhead when Pin opens a binary and on
 every allocations. Moreover, while Pin generate some additional processes that
 could interfere with the analysis, they can be easily identified by their name
 and are ignored by \Moca.  The experiments presented in
@@ -247,8 +247,7 @@ a write lock to add the task to the monitored ones.
 This case occurs only at the first page fault of a new monitored
 process or thread which is quite rare and usually occurs only at the
 initialization time. For instance, in the benchmarks used for
-the evaluation it happens $8$ times out of $10^6$ accesses.
-\DB{Check these numbers}
+the evaluation it happens $8$ times out of $5\times10^6$ accesses.
 At the end of this phase, if the task is still not monitored, Linux can handle the page fault normally.
 
 When a monitored task triggers a page fault, the access is first added
