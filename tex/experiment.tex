@@ -1,8 +1,9 @@
 \section{Experiments}
 \label{sec:expe}
 
-We first evaluate the important parameters of \Moca, then we compare it to the other
-existing memory analysis tools in terms of  trace precision and performances.
+In this part, we compare \Moca to the other existing tools for memory analysis. In a first time, we present their main differences in terms of portability
+and capabilities. Then, we present two sequences of quantitative experiments, one that outlines the importance of the default parameters chosen for our tool
+and the other that compares the precision and performance of all the tools.
 
 \subsection{Methodology}
 \label{sec:exp-methodo}
@@ -106,24 +107,25 @@ reproduce the experiments is available at github.
         \label{tab:tools-comp}
 \end{table}
 
-We evaluate \Moca by comparing it to several state of the art tools: \Mitos
-the tracing tool from MemAxes~\cite{Gimenez14Dissecting} which relies on Intel
+We evaluate \Moca by comparing it to the following state of the art tools. The first one,
+\Mitos, is the tracing tool from MemAxes~\cite{Gimenez14Dissecting} and relies on Intel
 PEBS technology. 
-\TABARNAC~\cite{Beniamine15TABARNACRR}, one of our previous contribution,
-based on a Pin instrumentation which traps all the memory accesses but keeps
-only tracks of the number of time each thread accesses to each page, without
-any other information. Thus it does not require the management of all the data
-structures necessary for \Moca.
-\MemProf~\cite{Lachaize12MemProf} which is designed to analyze NUMA
+The second one, \TABARNAC~\cite{Beniamine15TABARNACRR}, is one of our previous contribution.
+It is based on a Pin instrumentation, which traps all the memory accesses but 
+only counts the number of time each thread accesses to each page.
+Although this is less precise than the information collected by \Moca, this also does not require
+the management of large and complex data structures.
+The third one, \MemProf~\cite{Lachaize12MemProf}, is designed to analyze NUMA
 performance issues and relies on AMD IBS.
 \tbl{tab:tools-comp} summarizes the main differences
-between \Moca and the other memory profiling tools. All the tools are
-evaluated on each of the 10 \NPB~\cite{Jin1999}.
+between \Moca and these other memory profiling tools.
 
+In the following sections, all the tools are
+evaluated on each of the 10 \NPB~\cite{Jin1999}.
 Each point in each plot is the average of at least $30$ executions. Along with each point,
 the error bars represent the standard deviation.
 Except for the experiment about the influence of \Moca's parameters, on each
-experiment, \Moca was run with it's default parameters: a wakeup interval of
+experiment, \Moca has been run with it's default parameters: a wakeup interval of
 \SI{0.5}{s} for the logging process and \SI{50}{ms} for the monitoring thread.
 
 %\subsection{Experiments}
@@ -155,13 +157,13 @@ run on a machine from the \Edel cluster.
     \label{fig:param}
 \end{figure}
 
-We can see on the \fig{fig:param_time} that performances decrease when we
+We can see on the \fig{fig:param_time} that the execution time decreases when we
 reduce the monitoring wakeup interval, at \SI{40}{ms}
-performances seems to reach the worst level. In addition, the
-\fig{fig:param_evts} shows that at \SI{50}{ms} we can still obtain more than
-\SI{50000}{events} which seems quite reasonable. Finally for this value, a logging
+it seems to reach its worst level, thus we should keep it larger. At \SI{50}{ms}, the
+\fig{fig:param_evts} shows that we obtain more than two thirds of the events captured
+at smaller intervals, which seems quite reasonable. Finally for this value, a logging
 interval of \SI{0.5}{s} seems to provide a good trade-off  between
-performances and precision.
+execution time and precision.
 These two values have been chosen as default values in \Moca.
 
 
