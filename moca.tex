@@ -186,6 +186,10 @@ text width=5em,minimum height=2em]
 \newcommand{\tbl}[1]{Table~\ref{#1}}
 
 \hyphenation{over-view}
+% Avoid page break on footnotes:
+\interfootnotelinepenalty=10000
+\clubpenalty=10000
+\widowpenalty=10000
 %==============================================================================
 
 %========================= Titre auteur etc ===================================
