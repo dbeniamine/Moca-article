@@ -26,13 +26,13 @@ under Pin instrumentation and the second time \Moca module is loaded but the
 instrumentation is disabled. This instrumentation reads static data
 structures of every executed binary files and store all structure bigger than
 one page. It also intercept every calls to \texttt{malloc} family functions
-and names malloced structures according to their call path. This
-instrumentation adds a (small) constant overhead when Pin opens a binary and on
-every allocations.
-Running separately \Moca and Pin prevents Pin to interfere
-with the trace quality. Furthermore the instrumentation only adds a small overhead when
-opening a binary file and during the initialization thus the overhead is quite
-similar to \Moca overhead.
+and names malloced structures according to their call path.
+\Moca and Pin are run separately as preliminary shows that combining both
+tools resulted on a degradation of the trace quality. Furthermore our
+instrumentation is lightweight and only  adds a (small) constant overhead when
+Pin opens a binary and on every allocations which usually occurs at
+initialization. Thus the overhead of using \Moca and the Pin instrumentation
+is basically \Moca overhead plus one time the normal execution time.
 
 \subsection{Collecting memory accesses}
 
