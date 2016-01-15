@@ -13,6 +13,7 @@ and the other that compares the precision and performance of all the tools.
 
 Our main experiments were run on  machines from Grid5000 \Edel
 cluster.
+\DB{Stremi from Reims g5k ?}
     As some state of the art tools can only run on AMD machines, we also run
     some of the experiment presented in section~\ref{sec:expe-ovh} on
     \Idfreeze machine from
@@ -31,18 +32,21 @@ cluster.
         \cmidrule(lr){3-6}
         & \Edel  & \multicolumn{2}{c}{Intel} & \multicolumn{2}{c}{Xeon E5520} \\
         & \Idfreeze & \multicolumn{2}{c}{AMD} & \multicolumn{2}{c}{Opteron 6174} \\
+        & \Stremi & \multicolumn{2}{c}{AMD} & \multicolumn{2}{c}{Opteron 6164 HE} \\
         \midrule
         \multirow{3}{.8cm}{System totals}
         & & Nodes & Threads & Freq & Memory \\
         \cmidrule(lr){3-6}
         & \Edel   & $2$ & $8$ & \SI{2.27}{Ghz} & \SI{24}{Gib} \\
         & \Idfreeze & $8$ & $48$ & \SI{2.20}{Ghz} & \SI{256}{Gib}\\
+        & \Stremi & $2$ & $24$ & \SI{1.7}{Ghz} & \SI{48}{Gib}\\
         \midrule
         \multirow{3}{.8cm}{Per node}
         & & Cores & Threads & L3 Cache & Memory \\
         \cmidrule(lr){3-6}
         & \Edel   & $4$ & $4$ & \SI{8}{Mib} & \SI{12}{Gib} \\
         & \Idfreeze & $6$ & $6$  & \SI{12}{Mib} & \SI{32}{Gib} \\
+        & \Stremi & $6$ & $6$  & \SI{12}{Mib} & \SI{24}{Gib} \\
         \bottomrule
     \end{tabular}
     \caption{Hardware configuration of our evaluation system.}
