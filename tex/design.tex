@@ -18,19 +18,21 @@ interval. The second one is managing somehow the huge quantity of data produced
 by the trace collection within the kernel space in-between regular flushes toward
 the user space. Of course, these two tasks should be as slightly intrusive as possible.
 
-To make the trace more readable, \Moca also retrieve data structure
+To make the trace more readable, \Moca can also retrieve data structure
 names, addresses and size using a Pin~\cite{Luk05Pin}
-instrumentation. When enabled, this instrumentation reads static data
+instrumentation. When enabled \Moca runs the application twice with virtual
+address space randomization disabled. The first time the application runs only
+under Pin instrumentation and the second time \Moca module is loaded but the
+instrumentation is disabled. This instrumentation reads static data
 structures of every executed binary files and store all structure bigger than
 one page. It also intercept every calls to \texttt{malloc} family functions
 and names malloced structures according to their call path. This
 instrumentation adds a (small) constant overhead when Pin opens a binary and on
-every allocations. Moreover, while Pin generate some additional processes that
-could interfere with the analysis, they can be easily identified by their name
-and are ignored by \Moca.  The experiments presented in
-section~\ref{sec:expe-ovh} shows that this overhead is compensated by the fact
-that the noise induced by Pin is not memory intensive, thus it release a part
-of the pressure on \Moca reducing its overhead.
+every allocations.
+Running separately \Moca and Pin prevents Pin to interfere
+with the trace quality. Furthermore the instrumentation only adds a small overhead when
+opening a binary file and during the initialization thus the overhead is quite
+similar to \Moca overhead.
 
 \subsection{Collecting memory accesses}
 
