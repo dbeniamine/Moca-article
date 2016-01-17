@@ -13,7 +13,7 @@ and the other that compares the precision and performance of all the tools.
 
 Our main experiments were run on  machines from Grid5000 \Edel
 cluster.
-\DB{\Stremi or \Idfreeze ?}
+\DB{\Stremi or \Idfreeze / OMP\_NUM\_THREADS ?}
     As some state of the art tools can only run on AMD machines, we also run
     some of the experiment presented in section~\ref{sec:expe-ovh} on
     \Idfreeze machine from
@@ -32,21 +32,21 @@ cluster.
         \cmidrule(lr){3-6}
         & \Edel  & \multicolumn{2}{c}{Intel} & \multicolumn{2}{c}{Xeon E5520} \\
         & \Idfreeze & \multicolumn{2}{c}{AMD} & \multicolumn{2}{c}{Opteron 6174} \\
-        & \Stremi & \multicolumn{2}{c}{AMD} & \multicolumn{2}{c}{Opteron 6164 HE} \\
+        %& \Stremi & \multicolumn{2}{c}{AMD} & \multicolumn{2}{c}{Opteron 6164 HE} \\
         \midrule
         \multirow{3}{.8cm}{System totals}
         & & Nodes & Threads & Freq & Memory \\
         \cmidrule(lr){3-6}
         & \Edel   & $2$ & $8$ & \SI{2.27}{Ghz} & \SI{24}{Gib} \\
         & \Idfreeze & $8$ & $48$ & \SI{2.20}{Ghz} & \SI{256}{Gib}\\
-        & \Stremi & $2$ & $24$ & \SI{1.7}{Ghz} & \SI{48}{Gib}\\
+        %& \Stremi & $2$ & $24$ & \SI{1.7}{Ghz} & \SI{48}{Gib}\\
         \midrule
         \multirow{3}{.8cm}{Per node}
         & & Cores & Threads & L3 Cache & Memory \\
         \cmidrule(lr){3-6}
         & \Edel   & $4$ & $4$ & \SI{8}{Mib} & \SI{12}{Gib} \\
         & \Idfreeze & $6$ & $6$  & \SI{12}{Mib} & \SI{32}{Gib} \\
-        & \Stremi & $6$ & $6$  & \SI{12}{Mib} & \SI{24}{Gib} \\
+        %& \Stremi & $6$ & $6$  & \SI{12}{Mib} & \SI{24}{Gib} \\
         \bottomrule
     \end{tabular}
     \caption{Hardware configuration of our evaluation system.}
@@ -70,15 +70,15 @@ disabled.
         \addlinespace
         & \MemProf & IBS & AMD \\
         \addlinespace
-        & \Moca & PfI (+ Inst) & Any\\
+        & \Moca & PfI (+ Inst) & \textbf{Any}\\
         \midrule
         & & Granularity & superset \\
         \cmidrule(lr){3-4}
         \multirow{4}{.8cm}{Trace precision}
-        & \TABARNAC & Page & Page \\
-        & \Mitos & Address & None \\
-        & \MemProf & Address & None \\
-        & \Moca & Address & Page \\
+        & \TABARNAC & Page & \textbf{Page} \\
+        & \Mitos & \textbf{Address} & None \\
+        & \MemProf & \textbf{Address} & None \\
+        & \Moca & \textbf{Address} & \textbf{Page} \\
         \midrule
         & & \multicolumn{2}{C{5cm}}{Time, Thread sharing, CPU**} \\
         \cmidrule(lr){3-4}
@@ -87,9 +87,9 @@ disabled.
         \addlinespace
         & \Mitos & \multicolumn{2}{C{5cm}}{Time + CPU} \\
         \addlinespace
-        & \MemProf & \multicolumn{2}{C{5cm}}{All}  \\
+        & \MemProf & \multicolumn{2}{C{5cm}}{\textbf{All}}  \\
         \addlinespace
-        & \Moca & \multicolumn{2}{C{5cm}}{All} \\
+        & \Moca & \multicolumn{2}{C{5cm}}{\textbf{All}} \\
         \bottomrule
     \end{tabular}
     \caption{Comparison of different memory accesses collection
@@ -109,7 +109,7 @@ PEBS technology.
 The second one, \TABARNAC~\cite{Beniamine15TABARNACRR}, is one of our previous contribution.
 It is based on a Pin instrumentation, which traps all the memory accesses but 
 only counts the number of time each thread accesses to each page.
-Although this is less precise than the information collected by \Moca, this also does not require
+Although this is less precise than the information collected by \Moca, it does not require
 the management of large and complex data structures.
 The third one, \MemProf~\cite{Lachaize12MemProf}, is designed to analyze NUMA
 performance issues and relies on AMD IBS.
@@ -119,30 +119,28 @@ between \Moca and these other memory profiling tools.
 In the following sections, all the tools are
 evaluated on each of the 10 \NPB~\cite{Jin1999}.
 Each point in each plot is the average of at least $30$ executions. Along with each point,
-the error bars represent the standard deviation.
+the error bars represent the standard error.
 Except for the experiment about the influence of \Moca's parameters, on each
 experiment, \Moca has been run with it's default parameters: a wakeup interval of
 \SI{0.5}{s} for the logging process and \SI{50}{ms} for the monitoring thread.
 
 
 We consider experimental reproducibility as an important matter, therefore we
-distribute every file needed to reproduce our experiments at three different
-levels:
-\DB{Add links}
+distribute\footnote{The three distribution are available on github:\\
+    \url{https://github.com/dbeniamine/hpdc_expe}}
+every file needed to reproduce our experiments at three different levels:
 \begin{enumerate}
     \item \textbf{Statistic analysis:} To reproduce our statistic analysis we provide
-        the filtered results from the experiment along with the
+        the filtered results (csv files) from the experiment along with the
         \texttt{R-markdown} scripts that generated the plots presented in this
-        article\footnote{\url{link TODO}}.
-    \item \textbf{Raw analysis:} We also distribute the full raw
-        traces\footnote{\url{link TODO}} generated by
-        our experiments with the scripts used to extract the filtered traces
-        and the analysis scripts.
+        article.
+    \item \textbf{Raw analysis:} We also distribute the full raw traces
+        generated by our experiments with the scripts used to extract the
+        filtered traces and the analysis scripts.
     \item \textbf{Experiment reproducibility:} Finally we provide a git
-        repository\footnote{\url{https://github.com/dbeniamine/hpdc_expe}}
-        including our deployment environment, dependencies to each tools and
-        every files needed for the experiments and instruction on how to
-        reproduce the experiments with and without access to grid5000.
+        repository including our deployment environment, dependencies to each
+        tools and every files needed for the experiments and instruction on
+        how to reproduce the experiments with and without access to grid5000.
 \end{enumerate}
 
 
@@ -261,7 +259,7 @@ tools uses two different methods to capture every page and provide the exact
 same number of pages, we can guess that for \SP, which is not a memory
 intensive benchmark, \MemProf capture some system noise in the trace.
 
-From \fig{fig:addr} we can see that, as expect, for almost every benchmarks
+From \fig{fig:addr} we can see that, as expected, for almost every benchmarks
 \Moca collects significantly more events than the other tools.  The only
 benchmark for which \Moca is not the more precise tool is \EP which is an
 Embarrassingly Parallel application with very few memory accesses.  For almost
@@ -329,7 +327,7 @@ seems to be a pathological case were the execution time with \Moca has a lot a
 variability. By looking at our experiment logs, we found that \MG seems to
 generate a lot of conflicts on \Moca false page fault hash map. A solution
 could be to increase the size of this hash map which is quite difficult as
-memory space in the kernel is limited, another solution would consist on
+memory space in the kernel is limited, another easier solution would consist on
 working on a smaller version of \MG and see if the analysis is still useful.
 
 \DB{Update with new expe results}
@@ -340,7 +338,7 @@ the fact that for most benchmarks, \Moca overhead is way lower than on the
 \Edel machines, and it shows that \Moca scale pretty well.
 For its part \MemProf exhibit a slowdown factor comparable to \Mitos while
 providing traces a little more precise than this tool but still incomplete and
-not as precise as \Moca traces.
+way less precise as \Moca traces.
 
 \subsection{Summary}
 \label{sec:expe-cncl}

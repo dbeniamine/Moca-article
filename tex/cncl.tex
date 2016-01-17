@@ -27,23 +27,23 @@ traces collected by instructions sampling. Furthermore \Moca can also detect
 data structure by combining the efficient trace system with a lightweight Pin
 instrumentation.
 
-State of the art tools are relying on hardware technologies such as Intel PEBS
+Most state of the art tools are relying on hardware technologies such as Intel PEBS
 or AMD IBS thus embed vendor (or processor) dependent code making them hard
 to maintain and not portable. On the contrary \Moca is based on a simple page
 fault interception mechanism and does not use any architecture dependent code,
 thus it can work on any Linux kernel from $3.0$ without modifications.
 
-We evaluated \Moca by comparing it two state of the art tools: \Mitos and
+We evaluated \Moca by comparing it to two state of the art tools: \Mitos and
 \MemProf (with their default parameters and with some fine tunning) and one
 tool from a previous contribution \TABARNAC. For this comparison we evaluated
 two criteria: the precision of the trace and the overhead. We ran our
 evaluation on the \NPB which represent multiple situation from simple kernels
 to realistic applications. Our evaluation exposed the fact the tools
-relying on hardware sampling miss a significant par of the address-space. It
+relying on hardware sampling miss a significant part of the address-space. It
 also shown that \Moca was able to provide a complete trace at the page
-granularity with a more precise sampling at the byte granularity than the
+granularity with a significantly more precise sampling at the byte granularity than the
 other tools. Finally \Moca overhead appears to be more important than sampling
-base tools but quite comparable to binary instrumentation  based tools.
+base tools but usually lower than to binary instrumentation  based tools.
 
 Future work will focus on the visualization and exploitation of these memory traces
 which is another challenge mainly due to the volume of the collected data.

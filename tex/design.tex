@@ -1,14 +1,16 @@
 \section{Design}
 \label{sec:design}
 
-\Moca consist of a Linux kernel module and a script that loads this module with
-the proper parameters and launch the monitored application on the user behalf.
+\Moca consist of a Linux kernel module, a script that loads this module with
+the proper parameters and launch the monitored application on the user behalf
+and an optional Pintool (c++ library based on Intel Pin) to retrieve data
+structure informations.
 It rely neither on architecture specific
 technologies such as AMD IBS or Intel PEBS, nor architecture dependent kernel
 code. Therefore it is highly portable and can be run on any recent Linux kernel
-from the $3.0$. \Moca collects complete traces in the sense that the exact set
+from the $3.0$. \Moca collects \emph{complete} traces in the sense that the exact set
 of pages accessed by the application is deduced from the collected events
-at all times during the execution. Thus, it is complete at the page granularity.
+at all times during the execution. Thus, it is \emph{complete} at the page granularity.
 Other information such as exact addresses and access times are a sample of
 the set of all the accesses.
 
@@ -20,14 +22,14 @@ the user space. Of course, these two tasks should be as slightly intrusive as po
 
 To make the trace more readable, \Moca can also retrieve data structure
 names, addresses and size using a Pin~\cite{Luk05Pin}
-instrumentation. When enabled \Moca runs the application twice with virtual
-address space randomization disabled. The first time the application runs only
+instrumentation. When enabled \Moca runs the application twice with \texttt{virtual
+address space randomization} disabled. The first time the application runs only
 under Pin instrumentation and the second time \Moca module is loaded but the
 instrumentation is disabled. This instrumentation reads static data
 structures of every executed binary files and store all structure bigger than
 one page. It also intercept every calls to \texttt{malloc} family functions
 and names malloced structures according to their call path.
-\Moca and Pin are run separately as preliminary shows that combining both
+\Moca and Pin are run separately as preliminary experiments show that combining both
 tools resulted on a degradation of the trace quality. Furthermore our
 instrumentation is lightweight and only  adds a (small) constant overhead when
 Pin opens a binary and on every allocations which usually occurs at
@@ -62,7 +64,7 @@ of all the memory accesses and, because it is designed to manage large chunks of
 within the kernel space, it stores all the details about these samples in the collected trace.
 
 \Moca differs from instruction sampling because it is not necessary to increase the monitoring
-frequency of \Moca to collect a complete trace. On the contrary, when using instruction sampling,
+frequency of \Moca to collect a \emph{complete} trace. On the contrary, when using instruction sampling,
 if the pages of the application are accessed in an unbalanced manner, it is necessary to increase
 the sampling frequency to get a precise picture of the memory working set of the application.
 Nevertheless, there can be no guarantee that a chosen sampling frequency will result in a trace
@@ -112,7 +114,7 @@ the monitored application.
 \end{enumerate}
 
 The first two types of information are stored in preallocated hashmaps in order to reduce the
-runtime overhead of their management.  The two first hashmaps are read at each page fault but rarely
+runtime overhead of their management.  These hashmaps are read at each page fault but rarely
 written, only when a new task of the monitored application triggers it first page
 fault or when \Moca create some false page faults. We can protect
 them with Linux kernel built-in \emph{rwlocks}.
@@ -120,7 +122,7 @@ them with Linux kernel built-in \emph{rwlocks}.
 The third type of information is the actual
 trace, divided, for each task, in a private set of \emph{chunks}. A chunk is the set of
 accesses that have been collected during some configurable time interval. Chunks provide a discretization
-of the time, each chunk embed two timestamp to delimit its beginning and end.
+of the time, each chunk embed two timestamp to delimit its temporal bounds.
 The accesses are not timestamped but their order in the trace file is their
 order of arrival in the chunk.
 The advantage is that it reduces the volume of information stored for the accesses.
@@ -137,7 +139,7 @@ The advantage is that it reduces the volume of information stored for the access
 This discretization of the time, materialized as a sequence of chunks, is useful as it let the
 different components of \Moca work concurrently on different chunks.  Indeed the traced
 program will always work on \emph{current} chunks, one for each core, while the logging daemon,
-which flushes the trace from memory to disc works on \emph{completed} chunks. A
+which flushes the trace from memory to disc works on \emph{finished} chunks. A
 monitoring kernel thread, manage the progressing of this logical time. It periodically wakes up, marks the current chunks as
 \emph{ending} and invalidate all the pages they reference. Once all pages of the \emph{ending}
 chunks have been invalidated, it marks the chunk as \emph{finished}. Finally, the
@@ -149,8 +151,8 @@ At the end of the day, \Moca generates one csv file, each line of this file
 describe one access giving its physical and virtual address, the number of
 read and writes captured, a bitmask indicating on which CPU the access
 occurred, the start and end timestamp of its chunk and the
-internal id of the task which triggered it. A set of access sharing the same
-timestamps and task id correspond to a chunk. The order of accesses inside a
+internal identifier of the task which triggered it. A set of access sharing the same
+timestamps and task identifier correspond to a chunk. The order of accesses inside a
 chunk is preserved.
 
 \begin{algorithm}[htb]
@@ -249,7 +251,7 @@ a write lock to add the task to the monitored ones.
 This case occurs only at the first page fault of a new monitored
 process or thread which is quite rare and usually occurs only at the
 initialization time. For instance, in the benchmarks used for
-the evaluation it happens $8$ times out of $5\times10^6$ accesses.
+the evaluation it happens $8$ times for $5\times10^6$ accesses.
 At the end of this phase, if the task is still not monitored, Linux can handle the page fault normally.
 
 When a monitored task triggers a page fault, the access is first added
@@ -258,10 +260,10 @@ or write) and the CPU on which the fault occurred.  Then, it checks if the page
 fault was triggered by \Moca or if this is a legitimate page fault.
 
 In the first
-case, \Moca \emph{fixes} it by setting the present flag on the \texttt{PTE}.
+case, \Moca \emph{fixes} it by setting the \texttt{PRESENT} flag on the \texttt{PTE}.
 The hashmap entry indicating that the fault was triggered by \Moca should then
 be removed, but this would required a write lock, so we only mark the hashmap
-entry as \emph{BAD}. \emph{BAD} entries are removed if required when the
+entry as \texttt{BAD}. \texttt{BAD} entries are removed if required when the
 monitor thread calls \texttt{AddFalsePF} as this function already holds the
 write lock.
 

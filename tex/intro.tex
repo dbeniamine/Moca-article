@@ -16,8 +16,8 @@ optimizations can improve significantly the memory performances as it reduces
 the number of remote accesses. Still this cannot address all the memory related issues. For instance, if all the
 threads of an application access to the same memory page, whatever the page mapping is,
 this will result in remote accesses from all NUMA nodes but one. The only way to fix
-this kind of issue is to rewrite a part of the application code in order to take into account these
-unbalanced memory accesses. This is why tools than can help the developer to understand the memory accesses patterns
+this kind of issues is to rewrite a part of the application code in order to take into account these
+unbalanced memory accesses. This is why tools that can help the developer to understand the memory accesses patterns
 of its application are of utter importance for performances optimizations.
 
 Analysis tools such as Vtune~\cite{Reinders05VTune} and
@@ -28,17 +28,17 @@ their time or both are usually lost in the process. Thus, they are not able to p
 a clear view of memory accesses patterns occurring during the execution. In such situation, fixing
 memory related issues is a matter of trial and error and the eventual code is often suboptimal.
 
-Indeed, to solve memory related issues, the developer needs a detailed trace of memory
-accesses at a sufficiently fine \emph{granularity}. Moreover, to ensure that a lack of precision
+To solve memory related issues, the developer needs a detailed trace of memory
+accesses at a sufficiently fine \emph{granularity}.
+An ideal tool should provide enough data to recreate a cartography view
+of the memory accesses over the time.
+Moreover, to ensure that a lack of precision
 does not compromise the analysis, such a trace should be \emph{complete}. We say that a trace is
 \emph{complete} at a certain granularity if and only if the events it contains along with their granularity
 form a superset of the actual accesses. Furthermore, memory events in a \emph{complete} trace should
 include information about time, space (at which address the event occurs),
 location (on which CPU it occurs) and nature of access (is this
 a read, a write, by which thread).
-%
-An ideal tool should provide enough data to recreate a cartography view
-of the memory accesses over the time.
 At the time of this writing, existing memory analysis tools are not able to provide such traces. They
 always lack some of the information either by relying on \emph{incomplete}
 sampling~\cite{Liu14Tool,Lachaize12MemProf}, or by

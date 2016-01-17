@@ -25,7 +25,8 @@ Overall, a lot of studies provide a memory analysis solely based
 on information collected through hardware performance counters~\cite{Majo13(Mis)understanding,
 Jiang14Understanding,Bosch00Rivet,Weyers14Visualization,Tao01Visualizing,DeRose01Hardware}.
 Despite providing a good global summary about memory performance figures, these counters only provide a partial view of the execution. They
-account for memory related events from the point of view of one processor, but do not give any hints about the place and the cause of these events.
+account for memory related events from the point of view of one processor, but
+do not give precise insight about the place and the cause of these events.
 
 Another approach used by several
 tools~\cite{Lachaize12MemProf,McCurdy10Memphis,Liu14Tool,Gimenez14Dissecting}
@@ -54,8 +55,10 @@ memory analysis tool.
 
 Some other studies make use of hardware modification, either actual or
 simulated~\cite{Bao08HMTT,Martonosi92MemSpy}.  Although they are eventually able to collect
-more complete traces efficiently, they are even less usable than sampling technique: to use
-these techniques, one has to have access to exotic hardware prototypes or even build them.
+more precise traces efficiently, they are even less usable than sampling technique: to use
+these techniques, one has to have access either to exotic hardware prototypes
+(or even build them) or rely on a simulator which might not be realistic
+enough.
 
 Binary instrumentation can provide accurate information about memory accesses.
 This method is portable and  more precise than the aforementioned ones,
@@ -75,6 +78,6 @@ short history on a small set of pages that they use online. Tracing the state
 of the whole memory of an application and storing it efficiently is a
 challenge.
 
-In this study we present \Moca, a new complete memory trace collection system based on page
+In this study we present \Moca, a new \emph{complete} memory trace collection system based on page
 fault interception. We compare it to other memory trace tools in term of
 performances and collected information details.
