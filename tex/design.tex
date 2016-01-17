@@ -107,10 +107,12 @@ monitored. This is necessary because page faults will also be triggered by other
 the monitored application.
     \item The set of all page faults which have been triggered by \Moca,
         required to recognize false page faults.
-    \item The set of addresses recently accessed by each task. This is
-        necessary to re-enable the false page fault at the end of each
-        monitoring interval.  They will be stored until they are transfered to
-        the user space by a dedicated thread.
+    \item The set of addresses recently accessed by each task, this set
+        correspond to the actual memory trace. It is required to keep it in
+        userspace as we need the list of recently accessed addresses to
+        re-enable page fault at the end of each monitoring interval. After
+        this is done, the trace will be eventually transfered to
+        the user space by a dedicated process.
 \end{enumerate}
 
 The first two types of information are stored in preallocated hashmaps in order to reduce the

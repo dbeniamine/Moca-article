@@ -5,6 +5,8 @@ In this part, we compare \Moca to the other existing tools for memory analysis. 
 and capabilities. Then, we present two sequences of quantitative experiments, one that outlines the importance of the default parameters chosen for our tool
 and the other that compares the precision and performance of all the tools.
 
+\newpage
+
 \subsection{Methodology}
 \label{sec:exp-methodo}
 
@@ -92,8 +94,7 @@ disabled.
         & \Moca & \multicolumn{2}{C{5cm}}{\textbf{All}} \\
         \bottomrule
     \end{tabular}
-    \caption{Comparison of different memory accesses collection
-        tools.
+    \caption{Comparison of different memory traces tools.
         %\TABARNAC~\cite{Beniamine15TABARNACRR},
         %\Mitos~\cite{Gimenez14Dissecting},
         %\MemProf~\cite{Lachaize12MemProf} and \Moca.
@@ -129,6 +130,15 @@ We consider experimental reproducibility as an important matter, therefore we
 distribute\footnote{The three distribution are available on github:\\
     \url{https://github.com/dbeniamine/hpdc_expe}}
 every file needed to reproduce our experiments at three different levels:
+%First we distribute the filtered results (csv files) along with
+%\texttt{R-markdown} scripts that generated the plots presented in this article
+%to allow reproduction of our statistic analysis. The second level contains the
+%full raw traces along with the script required to generate the filtered files
+%of the first level and the analysis scripts. Finally we provide a git
+%repository including our deployment  environment, dependencies to each tools
+%and every files needed for the experiments and instruction on how to reproduce
+%the experiments with and without access to grid5000.
+
 \begin{enumerate}
     \item \textbf{Statistic analysis:} To reproduce our statistic analysis we provide
         the filtered results (csv files) from the experiment along with the
@@ -183,6 +193,7 @@ execution time and precision.
 These two values have been chosen as default values in \Moca.
 
 
+% \newpage
 
 \subsection{Comparison with existing tools}
 \label{sec:expe-ovh}
