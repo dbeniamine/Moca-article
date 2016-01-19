@@ -149,7 +149,7 @@ logging process flush \emph{finished} chunks to the filesystem at a lower
 frequency, and recycle them as empty places for upcoming chunks.  \fig{fig:moca} depicts the interaction between the
 different processes and threads of \Moca, its data structures and Linux.
 
-At the end of the day, \Moca generates one csv file, each line of this file
+Eventually, \Moca generates one csv file, each line of this file
 describe one access giving its physical and virtual address, the number of
 read and writes captured, a bitmask indicating on which CPU the access
 occurred, the start and end timestamp of its chunk and the
