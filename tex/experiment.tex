@@ -15,7 +15,6 @@ and the other that compares the precision and performance of all the tools.
 
 Our main experiments were run on  machines from Grid5000 \Edel
 cluster.
-\DB{\Stremi or \Idfreeze / OMP\_NUM\_THREADS ?}
     As some state of the art tools can only run on AMD machines, we also run
     some of the experiment presented in section~\ref{sec:expe-ovh} on
     \Idfreeze machine from
@@ -350,6 +349,12 @@ the fact that for most benchmarks, \Moca overhead is way lower than on the
 For its part \MemProf exhibit a slowdown factor comparable to \Mitos while
 providing traces a little more precise than this tool but still incomplete and
 way less precise as \Moca traces.
+
+% TODO: uncomment me if ok
+% Finally, we can see that as expected, adding one execution under a Pin
+% instrumentation to retrieve data structures information add a small overhead
+% to \Moca. For several benchmarks this difference is so small that we cannot
+% differentiate it from \Moca usual overhead.
 
 \subsection{Summary}
 \label{sec:expe-cncl}
