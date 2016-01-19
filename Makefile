@@ -22,6 +22,8 @@ ifeq ($(OS),Windows_NT)
 	SHELL = C:/Windows/System32/cmd.exe
 endif
 
+.PRECIOUS: *.tdo *.idx *.nlo *.bbl *.blg *.pdf *.aux *.toc *.out
+
 all : all-bib-default
 
 
