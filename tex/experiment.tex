@@ -5,7 +5,7 @@ In this part, we compare \Moca to the other existing tools for memory analysis. 
 and capabilities. Then, we present two sequences of quantitative experiments, one that outlines the importance of the default parameters chosen for our tool
 and the other that compares the precision and performance of all the tools.
 
-\newpage
+%\newpage
 
 \subsection{Methodology}
 \label{sec:exp-methodo}
@@ -17,12 +17,12 @@ Our main experiments were run on  machines from Grid5000 \Edel
 cluster.
     As some state of the art tools can only run on AMD machines, we also run
     some of the experiment presented in section~\ref{sec:expe-ovh} on
-    \Idfreeze machine from
-    Digitalis.
+    \Stremi machine from grid5000 grenoble.
     These machines hardware specification is summarized in
-    \tbl{tab:hw}\footnote{Both platforms provides an online hardware description:\\
+    \tbl{tab:hw}\footnote{Grid5000 provides an online hardware description:\\
         \url{https://www.grid5000.fr/mediawiki/index.php/Grenoble:Hardware\#Edel}
-     \\\url{http://digitalis.inria.fr/index.php/Idfreeze}}.
+        \\\url{https://www.grid5000.fr/mediawiki/index.php/Reims:Hardware\#Stremi}}.
+%     \\\url{http://digitalis.inria.fr/index.php/Idfreeze}}.
 
 \begin{table}[htb]
     \centering
@@ -32,22 +32,22 @@ cluster.
         &  & \multicolumn{2}{c}{Vendor} & \multicolumn{2}{c}{Model} \\
         \cmidrule(lr){3-6}
         & \Edel  & \multicolumn{2}{c}{Intel} & \multicolumn{2}{c}{Xeon E5520} \\
-        & \Idfreeze & \multicolumn{2}{c}{AMD} & \multicolumn{2}{c}{Opteron 6174} \\
-        %& \Stremi & \multicolumn{2}{c}{AMD} & \multicolumn{2}{c}{Opteron 6164 HE} \\
+        % & \Idfreeze & \multicolumn{2}{c}{AMD} & \multicolumn{2}{c}{Opteron 6174} \\
+        & \Stremi & \multicolumn{2}{c}{AMD} & \multicolumn{2}{c}{Opteron 6164 HE} \\
         \midrule
         \multirow{3}{.8cm}{System totals}
         & & Nodes & Threads & Freq & Memory \\
         \cmidrule(lr){3-6}
         & \Edel   & $2$ & $8$ & \SI{2.27}{Ghz} & \SI{24}{Gib} \\
-        & \Idfreeze & $8$ & $48$ & \SI{2.20}{Ghz} & \SI{256}{Gib}\\
-        %& \Stremi & $2$ & $24$ & \SI{1.7}{Ghz} & \SI{48}{Gib}\\
+        %& \Idfreeze & $8$ & $48$ & \SI{2.20}{Ghz} & \SI{256}{Gib}\\
+        & \Stremi & $2$ & $24$ & \SI{1.7}{Ghz} & \SI{48}{Gib}\\
         \midrule
         \multirow{3}{.8cm}{Per node}
         & & Cores & Threads & L3 Cache & Memory \\
         \cmidrule(lr){3-6}
         & \Edel   & $4$ & $4$ & \SI{8}{Mib} & \SI{12}{Gib} \\
-        & \Idfreeze & $6$ & $6$  & \SI{12}{Mib} & \SI{32}{Gib} \\
-        %& \Stremi & $6$ & $6$  & \SI{12}{Mib} & \SI{24}{Gib} \\
+        %& \Idfreeze & $6$ & $6$  & \SI{12}{Mib} & \SI{32}{Gib} \\
+        & \Stremi & $6$ & $6$  & \SI{12}{Mib} & \SI{24}{Gib} \\
         \bottomrule
     \end{tabular}
     \caption{Hardware configuration of our evaluation system.}
@@ -56,7 +56,10 @@ cluster.
 
 For every experiment, we deployed the same \emph{Debian} \emph{Jessie}
 environment running a \texttt{Linux 3.16.0-4} with hyper threading was
-disabled.
+disabled. We disabled address space randomization to produce memory trace as
+comparable as possible.  As our two evaluation machines are not equivalent in
+terms of hardware, we limited the number of threads used by openMP to $8$
+which is the number of threads available on \Edel machines.
 
 \begin{table}[htb]
     \centering
@@ -105,7 +108,7 @@ disabled.
 
 We evaluate \Moca by comparing it to the following state of the art tools. The first one,
 \Mitos, is the tracing tool from MemAxes~\cite{Gimenez14Dissecting} and relies on Intel
-PEBS technology. 
+PEBS technology.
 The second one, \TABARNAC~\cite{Beniamine15TABARNACRR}, is one of our previous contribution.
 It is based on a Pin instrumentation, which traps all the memory accesses but 
 only counts the number of time each thread accesses to each page.
@@ -129,14 +132,6 @@ We consider experimental reproducibility as an important matter, therefore we
 distribute\footnote{The three distribution are available on github:\\
     \url{https://github.com/dbeniamine/hpdc_expe}}
 all the files needed to reproduce our experiments at three different levels:
-%First we distribute the filtered results (csv files) along with
-%\texttt{R-markdown} scripts that generated the plots presented in this article
-%to allow reproduction of our statistic analysis. The second level contains the
-%full raw traces along with the script required to generate the filtered files
-%of the first level and the analysis scripts. Finally we provide a git
-%repository including our deployment  environment, dependencies to each tools
-%and every files needed for the experiments and instruction on how to reproduce
-%the experiments with and without access to grid5000.
 
 \begin{enumerate}
     \item \textbf{Statistic analysis:} To reproduce our statistic analysis we provide
@@ -205,15 +200,16 @@ we call this version \MitosTun. Surprisingly, its behavior regarding this sampli
 is not monotonous, we had to try many different periods to find the proper one.
 
 The default \MemProf distribution did not work with our experimental setup. With the help
-of their support team\footnote{see issue at\\\url{https://github.com/Memprof/scripts/issues/1}}, we managed to make it work by increasing the sampling period
-from  $0x8FFF0$ to $0x1FFFF0$ and by disabling the library used to retrieve
-data structures names.
+of their support team\footnote{see issue at\\\url{https://github.com/Memprof/scripts/issues/1}}, we managed to make it work  disabling the library used to retrieve
+data structures names. For the same reason as for \Mitos our study includes
+two version of \MemProf: the default version and \MemProfTun for which we have
+increased the sampling rate as much as possible (from $0x8FFF0$ to
+$0xFFFFFFF$).
 
-\DB{If new \MocaPin expe ok, update here}
-% Finally our evaluation also differentiate \Moca (kernel module only) from
-% \MocaPin which also retrieve the data structure information using a Pin
-% instrumentation, we do this differentiation to evaluate the impact of Pin on
-% \Moca performances.
+Finally our evaluation also differentiate \Moca (kernel module only) from
+\MocaPin which also retrieve the data structure information using a Pin
+instrumentation, we do this differentiation to evaluate the impact of Pin on
+\Moca performances.
 
 We compare the different tools on two aspect: trace precision and induced slowdown. The first experiment compares the tools regarding two criteria:  the
 percentage of pages and the number of events captured during the analysis.  We use \TABARNAC as a reference to compute the percentage of captured pages,
@@ -246,17 +242,19 @@ slowdown factor of the different tools.  All these experiments have been run on 
 \fig{fig:pages-addr} presents the results of the precision evaluation of the
 different tools. The values used for \Mitos, \MitosTun, \Moca and
 \TABARNAC comes from runs on \Edel machines, while \MemProf results comes from
-\Idfreeze.
+\Stremi.
 
 We can see on \fig{fig:pages} that \Moca captures almost as many pages as \TABARNAC.
 Regarding their design they should capture as many pages. Nevertheless, there is a slight
 bump in the number of pages used by applications monitored by \TABARNAC due to the Pin instrumentation.
 Indeed, its JIT instrumentation recompiles the executable on the fly and changes the memory footprint
 (of the stack, mainly). Thus, we can safely ignore these differences and take \Moca as reference.
+\DB{Pin indeed modify addresspace, weird stuff: no differences on wheezy}
 
 \Mitos usually collect less than \SI{12.5}{\%} of the pages, adding some fine tunning
 can almost double this number but it still misses most of the address space.
 
+\DB{Update two next par when MemProfTun ok}
 Concerning \MemProf, it is important to note that we have increased the
 default sampling period to overcome technical limitations. With this
 modification we can see that \MemProf captures significantly more pages than
@@ -299,7 +297,7 @@ page but it is also significantly more precise than the other existing tools.
     \end{subfigure}
     \begin{subfigure}{\linewidth}
         \includegraphics[width=\linewidth]{moca_overhead_amd.pdf}
-        \caption{Evaluation on \Idfreeze (AMD)}
+        \caption{Evaluation on \Stremi (AMD)}
         \label{fig:ovh-AMD}
     \end{subfigure}
     \caption{Slowdown factor of \Moca on the \NPB compared to state of the art tools.
@@ -344,7 +342,7 @@ working on a smaller version of \MG and see if the analysis is still useful.
 
 \DB{Update with new expe results}
 \fig{fig:ovh-AMD} shows the results of the evaluation on the AMD machine
-(\Idfreeze), it is important to note that this machine has $48$ threads which
+(\Stremi), it is important to note that this machine has $48$ threads which
 is much more than the $8$ threads of \Edel cluster. This difference explain
 the fact that for most benchmarks, \Moca overhead is way lower than on the
 \Edel machines, and it shows that \Moca scale pretty well.
@@ -352,11 +350,10 @@ For its part \MemProf exhibit a slowdown factor comparable to \Mitos while
 providing traces a little more precise. Nevertheless, they are still \emph{incomplete} and
 way less precise than \Moca traces.
 
-% TODO: uncomment me if ok
-% Finally, we can see that as expected, adding one execution under a Pin
-% instrumentation to retrieve data structures information add a small overhead
-% to \Moca. For several benchmarks this difference is so small that we cannot
-% differentiate it from \Moca usual overhead.
+Finally, we can see that as expected, adding one execution under a Pin
+instrumentation to retrieve data structures information (\MocaPin) add a small overhead
+to \Moca. For several benchmarks this difference is so small that we cannot
+differentiate it from \Moca usual overhead.
 
 \subsection{Summary}
 \label{sec:expe-cncl}
