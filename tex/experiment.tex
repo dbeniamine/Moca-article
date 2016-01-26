@@ -254,10 +254,8 @@ Indeed, its JIT instrumentation recompiles the executable on the fly and changes
 \Mitos usually collect less than \SI{12.5}{\%} of the pages, adding some fine tunning
 can almost double this number but it still misses most of the address space.
 
-\DB{Update two next par when MemProfTun ok}
-Concerning \MemProf, it is important to note that we have increased the
-default sampling period to overcome technical limitations. With this
-modification we can see that \MemProf captures significantly more pages than
+Concerning \MemProf, changing the default sampling rate does not seems to
+change anything. Both \MemProf and \MemProfTun captures significantly more pages than
 \Mitos and \MitosTun. For half of the studied applications it does
 not see more than \SI{50}{\%} of the addresses space. Only for, \BT, \LU and \UA,
 which are not the most memory intensive \NPB, 
@@ -340,7 +338,6 @@ could be to increase the size of this hash map which is quite difficult as
 memory space in the kernel is limited, another easier solution would consist on
 working on a smaller version of \MG and see if the analysis is still useful.
 
-\DB{Update with new expe results}
 \fig{fig:ovh-AMD} shows the results of the evaluation on the AMD machine
 (\Stremi), it is important to note that this machine has $48$ threads which
 is much more than the $8$ threads of \Edel cluster. This difference explain
@@ -348,7 +345,8 @@ the fact that for most benchmarks, \Moca overhead is way lower than on the
 \Edel machines, and it shows that \Moca scale pretty well.
 For its part \MemProf exhibit a slowdown factor comparable to \Mitos while
 providing traces a little more precise. Nevertheless, they are still \emph{incomplete} and
-way less precise than \Moca traces.
+way less precise than \Moca traces. Obviously \MemProfTun have the same
+overhead than \MemProf as it capture the same amount of data.
 
 Finally, we can see that as expected, adding one execution under a Pin
 instrumentation to retrieve data structures information (\MocaPin) add a small overhead
