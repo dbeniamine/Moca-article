@@ -203,8 +203,7 @@ The default \MemProf distribution did not work with our experimental setup. With
 of their support team\footnote{see issue at\\\url{https://github.com/Memprof/scripts/issues/1}}, we managed to make it work  disabling the library used to retrieve
 data structures names. For the same reason as for \Mitos our study includes
 two version of \MemProf: the default version and \MemProfTun for which we have
-increased the sampling rate as much as possible (from $0x8FFF0$ to
-$0xFFFFFFF$).
+increased the sampling rate to its maximum.
 
 Finally our evaluation also differentiate \Moca (kernel module only) from
 \MocaPin which also retrieve the data structure information using a Pin
@@ -257,14 +256,14 @@ can almost double this number but it still misses most of the address space.
 Concerning \MemProf, changing the default sampling rate does not seems to
 change anything. Both \MemProf and \MemProfTun captures significantly more pages than
 \Mitos and \MitosTun. For half of the studied applications it does
-not see more than \SI{50}{\%} of the addresses space. Only for, \BT, \LU and \UA,
+not see more than \SI{50}{\%} of the addresses space. Only for, \BT, \LU, \SP and \UA,
 which are not the most memory intensive \NPB, 
-\MemProf manage capture around \SI{75}{\%} of the accessed pages. Finally, for
-\SP it seems to capture more pages than \TABARNAC and \Moca. As these two reference
-tools uses two different methods to capture all the pages and provide the 
-same number of pages, we can guess that for \SP, which is not a memory
-intensive benchmark, \MemProf capture some system noise in the trace (accesses out
-of the memory space of the process).
+\MemProf manage capture around \SI{75}{\%} of the accessed pages.
+%Finally, for \SP it seems to capture more pages than \TABARNAC and \Moca. As these two reference
+%tools uses two different methods to capture all the pages and provide the 
+% same number of pages, we can guess that for \SP, which is not a memory
+% intensive benchmark, \MemProf capture some system noise in the trace (accesses out
+% of the memory space of the process).
 
 From \fig{fig:addr} we can see that, as expected, for almost every benchmarks,
 \Moca collects significantly more events than the other tools.  The only
@@ -315,17 +314,17 @@ tools usually collects less than \SI{10}{\%} of the accesses collected by \Moca 
 miss a significant part of the address space.
 
 We can classify the benchmarks into three groups:
-for \BT, \CG, \EP, \LU, \SP and \UA, \Moca is
+for \BT, \CG, \DC,  \EP, \LU, \SP and \UA, \Moca is
 significantly faster than \TABARNAC. This set of benchmarks is interesting as it is made of varied application profiles.
 Indeed, if \EP is mostly doing parallel computation with only a few number of
-memory accesses, \CG is memory intensive and
+memory accesses, \CG and \DC are memory intensive and
 \BT, \LU as well as \SP are pseudo applications doing a significant usage of memory.
 And while \UA is categorised as \emph{unstructured computation,
 parallel I/O and data movement} by the \NPB
 website\footnote{\url{http://www.nas.nasa.gov/publications/npb.html}}, its
 interactions with memory seems noticeable.
 
-The second group only contains memory oriented benchmarks (\DC and \FT and
+The second group only contains memory oriented benchmarks (\FT and
 \IS). For this group, \Moca is as good as \TABARNAC or a bit faster, probably
 because the balance between computations and memory accesses hides the
 overhead of the instrumentation.
@@ -339,10 +338,8 @@ memory space in the kernel is limited, another easier solution would consist on
 working on a smaller version of \MG and see if the analysis is still useful.
 
 \fig{fig:ovh-AMD} shows the results of the evaluation on the AMD machine
-(\Stremi), it is important to note that this machine has $48$ threads which
-is much more than the $8$ threads of \Edel cluster. This difference explain
-the fact that for most benchmarks, \Moca overhead is way lower than on the
-\Edel machines, and it shows that \Moca scale pretty well.
+(\Stremi). On this machine, \Moca overhead is quite comparable to the results
+obtained on \Edel.
 For its part \MemProf exhibit a slowdown factor comparable to \Mitos while
 providing traces a little more precise. Nevertheless, they are still \emph{incomplete} and
 way less precise than \Moca traces. Obviously \MemProfTun have the same
