@@ -1,6 +1,6 @@
 %!TEX encoding=UTF-8 Unicode
 
-\documentclass{sty/acm_proc_article-sp}
+\documentclass[10pt, conference, compsocconf,usletter]{sty/IEEEtran}
 
 %========================= Encodage fontes et langues =========================
 
@@ -195,21 +195,13 @@ text width=5em,minimum height=2em]
 %==============================================================================
 
 %========================= Titre auteur etc ===================================
-\def\sharedaffiliation{%
-\end{tabular}
-\begin{tabular}{c}}
-
-\title{Moca: An Efficient Memory Trace Collection System}
-\numberofauthors{2}
-\author{
-\alignauthor David Beniamine\\
-    \email{David.Beniamine@Imag.fr}
-\alignauthor Guillaume Huard\\
-    \email{Guillaume.Huard@Imag.fr}
-    \sharedaffiliation
-       \affaddr{Univ. Grenoble Alpes, LIG, F-38000 Grenoble, France}\\
-       \affaddr{CNRS, LIG, F-38000 Grenoble, France}\\
-       \affaddr{Inria}\\
+\title{Moca: An efficient Memory trace collection system}
+\author{\IEEEauthorblockN{David Beniamine, Guillaume Huard}
+\IEEEauthorblockA{Univ. Grenoble Alpes, LIG, F-38000 Grenoble, France\\
+CNRS, LIG, F-38000 Grenoble, France\\
+Inria\\
+%<firstname>.<lastname>@imag.fr}
+\{David.Beniamine,Guillaume.Huard\}@Imag.fr}
 }
 
 
@@ -237,6 +229,7 @@ text width=5em,minimum height=2em]
 
 \end{abstract}
 
+\DB{8 pages !!}
 %\listoftodos
 \Input{intro.tex}
 \Input{related.tex}
