@@ -1,9 +1,6 @@
 \section{Experiments}
 \label{sec:expe}
 
-\DB{Explain more experiments}
-\DB{More data on NPB (maybe a table, characterization, Memory usage \ldots)}
-
 In this part, we compare \Moca to the other existing tools for memory analysis. In a first time, we present their main differences in terms of portability
 and capabilities. Then, we present two sequences of quantitative experiments, one that outlines the importance of the default parameters chosen for our tool
 and the other that compares the precision and performance of all the tools.
@@ -122,14 +119,46 @@ performance issues and relies on AMD IBS.
 \tbl{tab:tools-comp} summarizes the main differences
 between \Moca and these other memory profiling tools.
 
+\begin{table}[htb]
+    \centering
+    \begin{tabular}{p{1.5cm}lcp{3.3cm}}
+        \toprule
+        Group & Name & Footprints* & Description \\
+        \midrule
+        \multirow{4}{1.5cm}{Memory Intensive}
+        & \IS & \SI{132}{Mib} & Integer Sort \\
+        & \CG & \si{125}{Mib} & Conjugate Gradient \\
+        & \MG & \si{508}{Mib}& Multi-grid \\
+        & \FT & \si{398}{Mib}& Discrete 3D fast Fourier Transform \\
+        \midrule
+        \multirow{3}{1.5cm}{Pseudo Applications (solvers)}
+        & \BT & \si{120}{Mib}& Block Tri-diagonal \\
+        & \SP & \si{?}{Mib}& Scalar Penta-diagonal \\
+        & \LU & \si{?}{Mib}& Lower-Upper Gauss-Seidel \\
+        \midrule
+        \multirow{2}{1.5cm}{Unstructured}
+        & \UA & \si{?}{Mib}& Unstructured Adaptive mesh \\
+        & \DC & \si{?}{Mib}& Data Cube \\
+        \midrule
+        CPU bound & \EP & \si{?}{Mib}& Embarrassingly parallel \\
+        \bottomrule
+    \end{tabular}
+    \caption{Description of the \NPB.\\
+        *\emph{Footprints: maximum memory used, measure with Valgrind}.}
+    \label{tab:NPB}
+\end{table}
+
+\DB{Finish valgrind runs}
+
 In the following sections, all the tools are
-evaluated on each of the 10 \NPB~\cite{Jin1999}.
+evaluated on each of the 10 \NPB~\cite{Jin1999}, these benchmarks are
+presented in \tbl{tab:NPB}, more precise description are available online\footnote{\url{http://www.nas.nasa.gov/publications/npb.html}}.
+
 Each point in each plot is the average of at least $30$ executions. Along with each point,
 the error bars represent the standard error.
 Except for the experiment about the influence of \Moca's parameters, on each
 experiment, \Moca has been run with it's default parameters: a wakeup interval of
 \SI{0.5}{s} for the logging process and \SI{50}{ms} for the monitoring thread.
-
 
 We consider experimental reproducibility as an important matter, therefore we
 distribute\footnote{The three distribution are available on github:\\
@@ -251,7 +280,6 @@ Regarding their design they should capture as many pages. Nevertheless, there is
 bump in the number of pages used by applications monitored by \TABARNAC due to the Pin instrumentation.
 Indeed, its JIT instrumentation recompiles the executable on the fly and changes the memory footprint
 (of the stack, mainly). Thus, we can safely ignore these differences and take \Moca as reference.
-\DB{Pin indeed modify addresspace, weird stuff: no differences on wheezy}
 
 \Mitos usually collect less than \SI{12.5}{\%} of the pages, adding some fine tunning
 can almost double this number but it still misses most of the address space.
@@ -316,15 +344,17 @@ difference is explained by the results of the previous experiment, as these
 tools usually collects less than \SI{10}{\%} of the accesses collected by \Moca and
 miss a significant part of the address space.
 
+\DB{Rewrite with ref to \tbl{tbl:NPB}}
+
 We can classify the benchmarks into three groups:
 for \BT, \CG, \DC,  \EP, \LU, \SP and \UA, \Moca is
-significantly faster than \TABARNAC. This set of benchmarks is interesting as it is made of varied application profiles.
+significantly faster than \TABARNAC. This set of benchmarks is interesting as
+it is made of varied application profiles as we can see in \tbl{tbl:NPB}.
 Indeed, if \EP is mostly doing parallel computation with only a few number of
 memory accesses, \CG and \DC are memory intensive and
 \BT, \LU as well as \SP are pseudo applications doing a significant usage of memory.
 And while \UA is categorised as \emph{unstructured computation,
-parallel I/O and data movement} by the \NPB
-website\footnote{\url{http://www.nas.nasa.gov/publications/npb.html}}, its
+parallel I/O and data movement}, its
 interactions with memory seems noticeable.
 
 The second group only contains memory oriented benchmarks (\FT and

@@ -32,6 +32,7 @@ Indeed, to solve memory related issues, the developer needs a detailed trace of 
 accesses at a sufficiently fine \emph{granularity}.
 An ideal tool should provide enough data to recreate a cartography view
 of the memory accesses over the time.
+\DB{Add sketch of visu ?}
 Moreover, to ensure that a lack of precision
 does not compromise the analysis, such a trace should be \emph{complete}. We say that a trace is
 \emph{complete} at a certain granularity if and only if the events it contains along with their granularity
@@ -39,10 +40,11 @@ form a superset of the actual accesses. Furthermore, memory events in a \emph{co
 include information about time, space (at which address the event occurs),
 location (on which CPU it occurs) and nature of access (is this
 a read, a write, by which thread).
-At the time of this writing, existing memory analysis tools are not able to provide such traces. They
-always lack some of the information either by relying on \emph{incomplete}
-sampling~\cite{Liu14Tool,Lachaize12MemProf}, or by
-removing temporal information~\cite{Beniamine15TABARNACRR}.
+At the time of this writing, existing memory analysis tools are not able to provide such traces.
+Either they rely on \emph{incomplete} sampling~\cite{Liu14Tool,Lachaize12MemProf}
+mechanisms and thus only provide a very small subset of the trace, or they
+ignore temporal information to reduce their
+overhead~\cite{Beniamine15TABARNACRR}.
 
 Generating such traces is a challenge: there is no hardware mechanism
 comparable to CPU performance counters to collect a detailed trace of memory accesses, and the volume
@@ -53,7 +55,8 @@ to provide all the information that constitute a \emph{complete} trace.
 In this study, we present \emph{Memory Organisation Cartography and Analysis}
 \footnote{\Moca is distributed under GPL licence:\\
     \url{https://github.com/dbeniamine/MOCA}}
-an efficient memory trace collection system based on page fault interception.
+an efficient memory trace collection system based on page fault interception
+and false page fault generation.
 This mechanism is able to provide a \emph{complete} sampled memory trace at
 the spatial granularity of the page along with a parametrized temporal granularity.
 It also collects detailed information about sampled accesses, including their address and

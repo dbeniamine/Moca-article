@@ -1,9 +1,6 @@
 \section{Conclusions}
 \label{sec:cncl}
 
-\DB{Insist: complete sampling != sampling}
-\DB{Insist: mechanism already existing, novelty usage for offline analysis}
-
 In this study, we addressed the issue of memory accesses collection for
 multithreaded applications. This is a key challenge in high performance
 computing as memory is often a performance
@@ -34,7 +31,17 @@ Most state of the art tools are relying on hardware technologies such as Intel P
 or AMD IBS, thus, embed vendor (or processor) dependent code making them hard
 to maintain and not portable. On the contrary, \Moca is based on a simple page
 fault interception mechanism and does not use any architecture dependent code.
-It can work on any Linux kernel from $3.0$ without modifications.
+It can work on any Linux kernel from $3.0$ only by loading a module and
+without any kernel modifications.
+
+Several tools uses page fault interception to retrieve information on memory
+behavior. As the information provided by only intercepting regular page fault
+is not always precise enough, a few tools also generate false page fault
+regularly to increase the trace precision. Still at our knowledge, all the
+existing tools relying on these mechanisms uses the collected data online and
+thus does not have to manage and store large amount of data while \Moca is the
+first tool capable of generating \emph{complete} memory traces for offline
+analysis.
 
 We evaluated \Moca by comparing it to two state of the art tools: \Mitos and
 \MemProf (with their default parameters and with some fine tunning) and one
