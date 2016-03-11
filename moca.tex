@@ -184,8 +184,8 @@ text width=5em,minimum height=2em]
 \newcommand{\Idfreeze}{\texttt{Idfreeze}\xspace}
 \newcommand{\Stremi}{\texttt{St~Remi}\xspace}
 % Figures and tables
-\newcommand{\fig}[1]{Figure~\ref{#1}}
-\newcommand{\tbl}[1]{Table~\ref{#1}}
+\newcommand{\fig}[1]{Figure~\ref{fig:#1}}
+\newcommand{\tbl}[1]{Table~\ref{tab:#1}}
 
 \hyphenation{over-view}
 % Avoid page break on footnotes:
@@ -212,6 +212,7 @@ Inria\\
 
 \maketitle
 
+\DB{Keep title ? same since IPDPS}
 \begin{abstract}
 
     In modern \emph{High Performance Computing} architectures, the memory subsystem

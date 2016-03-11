@@ -1,4 +1,4 @@
-AirlineTablineRefreshAirlineTablineRefresh\section{Design}
+\section{Design}
 \label{sec:design}
 
 \Moca consist of a Linux kernel module that can be loaded at runtime,  a script
@@ -151,7 +151,7 @@ monitoring kernel thread, manage the progressing of this logical time. It period
 \emph{ending} and invalidate all the pages they reference. Once all pages of the \emph{ending}
 chunks have been invalidated, it marks the chunk as \emph{finished}. Finally, the
 logging process flush \emph{finished} chunks to the filesystem at a lower
-frequency, and recycle them as empty places for upcoming chunks.  \fig{fig:moca} depicts the interaction between the
+frequency, and recycle them as empty places for upcoming chunks.  \fig{moca} depicts the interaction between the
 different processes and threads of \Moca, its data structures and Linux.
 
 Eventually, \Moca generates one csv file, each line of this file
