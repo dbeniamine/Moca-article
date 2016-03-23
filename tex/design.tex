@@ -2,13 +2,13 @@
 \label{sec:design}
 
 \Moca consist of a Linux kernel module that can be loaded at runtime,  a script
-responsible to load Moca kernel with the proper parameters and launch the
+in charge of both loading this module with the proper parameters and launching the
 monitored application on the user behalf
 and an optional Pintool (c++ library based on Intel Pin) to retrieve data
 structure informations.
-It rely neither on architecture specific
-technologies such as AMD IBS or Intel PEBS, nor architecture dependent kernel
-code nor kernel patch or modifications.
+It relies neither on architecture specific
+technologies such as AMD IBS or Intel PEBS, nor on architecture dependent kernel
+code, nor on kernel patch or modifications.
 Therefore it is highly portable and can be run on any recent Linux kernel
 from the $3.0$.
 
@@ -83,7 +83,7 @@ in order to restrain their naturally high overhead.
 
 In short, \Moca collects complete traces at the granularity of the page, whereas instruction
 sampling cannot guarantee any completeness of the collected trace. And \Moca is 
-more efficient than binary instrumentation as it rely on hardware mechanisms
+more efficient than binary instrumentation (such as Pin) as it relies on hardware mechanisms
 to intercept page faults and does not have to trap all the memory instructions.
 Furthermore \Moca traces provides information on time, thread sharing and CPU
 location of each captured accesses.

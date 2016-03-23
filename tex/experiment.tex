@@ -236,8 +236,8 @@ we call this version \MitosTun. Surprisingly, its behavior regarding this sampli
 is not monotonous, we had to try many different periods to find the proper one.
 
 The default \MemProf distribution did not work with our experimental setup. With the help
-of their support team\footnote{see issue at\\\url{https://github.com/Memprof/scripts/issues/1}}, we managed to make it work  disabling the library used to retrieve
-data structures names. For the same reason as for \Mitos our study includes
+of their support team\footnote{see issue at\\\url{https://github.com/Memprof/scripts/issues/1}}, we managed to make it work with the library used to retrieve
+data structures names disabled. For the same reason as in the case of \Mitos, our study includes
 two version of \MemProf: the default version and \MemProfTun for which we have
 increased the sampling rate to its maximum.
 
@@ -290,11 +290,11 @@ Indeed, its JIT instrumentation recompiles the executable on the fly and changes
 can almost double this number but it still misses most of the address space.
 
 Concerning \MemProf, changing the default sampling rate does not seems to
-change anything. Both \MemProf and \MemProfTun captures significantly more pages than
+have any noticeable impact on the end result. Both \MemProf and \MemProfTun captures significantly more pages than
 \Mitos and \MitosTun. For half of the studied applications it does
 not see more than \SI{50}{\%} of the addresses space. Only for, \BT, \LU, \SP and \UA,
-\MemProf manage capture around \SI{75}{\%} of the accessed pages, all these
-benchmarks are using most of their addresspace in a mostly balanced way. Thus
+\MemProf manage capture around \SI{75}{\%} of the accessed pages. This is explained by the fact that all these
+benchmarks are using uniformly most of their address space. Thus
 we can conclude that \MemProf only sees the most accesses pages.
 
 From \fig{addr} we can see that, as expected, for almost every benchmarks,
@@ -364,13 +364,13 @@ because the balance between computations and memory accesses hides the
 overhead of the instrumentation.
 
 For the last benchmark: \MG, \Moca is significantly slower than \TABARNAC. This benchmark
-seems to be a pathological case, it is important to note that \MG is not the
-benchmark using the hugest set of addresses thus the issue comes more from a
-bad thread scheduling than from the size of the benchmark. By looking at our
-experiment logs, we found that \MG seems to generate a lot of conflicts on
-\Moca false page fault hash map.A solution could be to increase the size of
-this hash map which is quite difficult as memory space in the kernel is
-limited, another easier solution would consist on working on a smaller version
+seems to be a pathological case. It is important to note that \MG is not the
+benchmark using the largest set of addresses, therefore, the poor performance likely comes from a
+thread scheduling issue rather than from the size of the benchmark. By looking at our
+experiment logs, we found that \MG generates a lot of conflicts in the hash map used by
+\Moca to store false page fault. A solution could be to increase the size of
+this hash map, which is quite difficult as memory space in the kernel is
+limited. Another easier solution would consist in working on a smaller version
 of \MG and see if the trace is still useful.
 \DB{Experiment in progress: \MG smaller size, not to add a plot in the paper
 but to be more confident on what we are saying}
@@ -380,13 +380,13 @@ but to be more confident on what we are saying}
 obtained on \Edel.
 For its part \MemProf exhibit a slowdown factor comparable to \Mitos while
 providing traces a little more precise. Nevertheless, they are still \emph{incomplete} and
-way less precise than \Moca traces. Obviously \MemProfTun have the same
+way less precise than \Moca traces. Obviously \MemProfTun has the same
 overhead than \MemProf as it capture the same amount of data.
 
-Finally, we can see that as expected, adding one execution under a Pin
-instrumentation to retrieve data structures information (\MocaPin) add a small overhead
-to \Moca. For several benchmarks this difference is so small that we cannot
-differentiate it from \Moca usual overhead.
+Finally, we can see, as expected, that adding one execution with a Pin
+instrumentation to retrieve data structures information (\MocaPin) only adds a small overhead
+to the whole \Moca execution. For several benchmarks this difference is so small that we cannot
+distinguish it from \Moca usual overhead.
 
 \subsection{Summary}
 \label{sec:expe-cncl}

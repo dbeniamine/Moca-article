@@ -67,21 +67,24 @@ or collect data at a coarser granularity and gives up temporal
 data~\cite{Beniamine15TABARNAC}.
 
 
-Page fault interception can provide useful information on memory usage,
-such mechanism have been used online for several applications: parallel
-garbage collectors~\cite{Boehm91Mostly}, memory
+Page fault interception can provide useful online information about memory usage,
+a such mechanism has been used in several existing works : in parallel
+garbage collectors~\cite{Boehm91Mostly}, in memory
 checkpointing~\cite{Heo05Spaceefficient} or in the domain of virtualization to
-provide the hypervisor information about the memory usage of the guest
-OS~\cite{Jones06Geiger}. During a normal page faults occurs only on certain
-events, thus intercepting page faults provide only a coarse grain view of the
+provide the hypervisor with information about the memory usage of the guest
+OS~\cite{Jones06Geiger}. Nevertheless, page faults occurs only on certain
+events in the system, thus, intercepting page faults only provides a coarse grained view of the
 memory behavior. To reach a deeper understanding of the memory behavior,
-several tools also generate false page
-faults~\cite{Bae12Dynamic,Diener13CommunicationBased} at a regular interval.
-All these tools need to know where a memory page is and which threads are
-accessing it, still they only keep a short history on a small set of pages that
-they use online. Tracing the state of the whole memory of an application and
-storing it efficiently is a challenge.
+it is also possible to fake invalid pages at regular intervals in order to generate false faults~\cite{Bae12Dynamic,Diener13CommunicationBased}.
+These false page faults are just triggered during regular memory accesses that would not have 
+caused a page fault if the page were not faked as invalid. The advantage is that they create additional
+events for the monitoring tool to collect.
+Whatever the level of detail, all these tools collect the same kind of information : the location of memory pages and the threads that access them.
+As a consequence, they only need to store a relatively small data structure in memory for their own usage.
+As far as we know, no existing tool stores in memory a sufficient information to produce a trace containing the temporal evolution of memory
+accesses during the course of the whole execution of the monitored application. In this case, we argue that this is a challenge to
+manage and output efficiently this large volume of information.
 
-In this study we present \Moca, a new \emph{complete} memory trace collection system based on page
-fault interception. We compare it to other memory trace tools in term of
+In this study we present \Moca, a new \emph{complete} memory trace collection system, based on page
+fault interception, able to capture the temporal evolution of multithreaded applications memory accesses. We compare it to other memory trace tools in term of
 performances and collected information details.
