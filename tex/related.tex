@@ -58,11 +58,13 @@ more precise traces efficiently, they are even less usable than sampling techniq
 these techniques, one has to have access either to exotic hardware prototypes
 (or even build them) or rely on a simulator which might not be realistic
 enough.
+\GH{Il faut un peu dégrossir cet argument de simulation pas réaliste. La simulation réaliste existe mais est lente.}
 
 Binary instrumentation can provide accurate information about memory accesses.
 This method is portable and  more precise than the aforementioned ones,
 but it comes at the cost of performances. Fast
 instrumentations usually either rely on a simulator~\cite{DeRose02SIGMA} which is not as realistic as an actual execution
+\GH{simulation ou emulation ? Pas réaliste ? il faut un peu argumenter..}
 or collect data at a coarser granularity and gives up temporal
 data~\cite{Beniamine15TABARNAC}.
 
@@ -78,13 +80,12 @@ memory behavior. To reach a deeper understanding of the memory behavior,
 it is also possible to fake invalid pages at regular intervals in order to generate false faults~\cite{Bae12Dynamic,Diener13CommunicationBased}.
 These false page faults are just triggered during regular memory accesses that would not have 
 caused a page fault if the page were not faked as invalid. The advantage is that they create additional
-events for the monitoring tool to collect.
-Whatever the level of detail, all these tools collect the same kind of information : the location of memory pages and the threads that access them.
-As a consequence, they only need to store a relatively small data structure in memory for their own usage.
-As far as we know, no existing tool stores in memory a sufficient information to produce a trace containing the temporal evolution of memory
-accesses during the course of the whole execution of the monitored application. In this case, we argue that this is a challenge to
-manage and output efficiently this large volume of information.
+events for the monitoring tool to collect, but the set of faked invalid pages has to be known by the monitoring tool.
 
+As a final note, most tools close to our proposal collect the same kind of information : the location of memory pages and the threads that access them.
+As a consequence, they only need to store a relatively small data structure in memory for their own usage.
 In this study we present \Moca, a new \emph{complete} memory trace collection system, based on page
-fault interception, able to capture the temporal evolution of multithreaded applications memory accesses. We compare it to other memory trace tools in term of
-performances and collected information details.
+fault interception, able to capture the temporal evolution of multithreaded applications memory accesses.
+To be able to capture this temporal evolution of memory accesses, our tool has to maintain in memory both the trace data and
+the set of faked invalid pages. Overall, storing and exploiting efficiently these data within the kernel space and outputting it in real time to the user space
+is a challenge and is the main contribution of our work.
