@@ -18,13 +18,13 @@ cluster.
     As some state of the art tools can only run on AMD machines, we also run
     some of the experiment presented in section~\ref{sec:expe-ovh} on
     \Stremi machine from grid5000 grenoble.
-    These machines hardware specification\footnote{Grid5000 provides an online hardware description:\\
-        \url{https://www.grid5000.fr/mediawiki/index.php/Grenoble:Hardware\#Edel}
-        \\\url{https://www.grid5000.fr/mediawiki/index.php/Reims:Hardware\#Stremi}} is summarized in
-    \tbl{hw}.
-%     \\\url{http://digitalis.inria.fr/index.php/Idfreeze}}.
+    These machines hardware specification
+   \footnote{Grid5000 provides an online hardware description:\\
+       \url{https://www.grid5000.fr/mediawiki/index.php/Grenoble:Hardware\#Edel}
+       \\\url{https://www.grid5000.fr/mediawiki/index.php/Reims:Hardware\#Stremi}}
+    is summarized in \tbl{hw}.
 
-\begin{table}[htb]
+\begin{table}[t]
     \centering
     \begin{tabular}{lp{1.1cm}rrp{1.35cm}p{1.1cm}}
         \toprule
@@ -63,46 +63,33 @@ which is the number of threads available on \Edel machines.
 
 \begin{table}[htb]
     \centering
-    \begin{tabular}{p{1.3cm}lcc}
+    \begin{tabular}{lccccc}
         \toprule
-        & & Mechanisms* & Architecture \\
-        \cmidrule(lr){3-4}
-        \multirow{4}{.8cm}{Portability}
-        & \TABARNAC & Inst & Intel, AMD \\
-        \addlinespace
-        & \Mitos & PEBS + Inst & Intel \\
-        \addlinespace
-        & \MemProf & IBS & AMD \\
-        \addlinespace
-        & \Moca & PfI (+ Inst) & \textbf{Any}\\
+        & \multicolumn{5}{c}{Design} \\
+        \cmidrule{2-6}
+        & \multicolumn{3}{c}{Mechanisms} & \multicolumn{2}{c}{Architecture} \\
+        \cmidrule{2-6}
+        \TABARNAC   & \multicolumn{3}{c}{Instrumentation}
+        & \multicolumn{2}{c}{Intel, AMD} \\
+        \Mitos      & \multicolumn{3}{c}{PEBS + Instrumentation}
+        & \multicolumn{2}{c}{Intel} \\
+        \MemProf    & \multicolumn{3}{c}{IBS}
+        & \multicolumn{2}{c}{AMD} \\
+        \Moca       & \multicolumn{3}{c}{Page faults (+Instrumentation)}
+        & \multicolumn{2}{c}{\textbf{Any}}\\
         \midrule
-        & & Granularity & superset \\
-        \cmidrule(lr){3-4}
-        \multirow{4}{.8cm}{Trace precision}
-        & \TABARNAC & Page & \textbf{Page} \\
-        & \Mitos & \textbf{Address} & None \\
-        & \MemProf & \textbf{Address} & None \\
-        & \Moca & \textbf{Address} & \textbf{Page} \\
-        \midrule
-        & & \multicolumn{2}{C{5cm}}{Time, Thread sharing, CPU**} \\
-        \cmidrule(lr){3-4}
-        \multirow{4}{.8cm}{Additional information}
-        & \TABARNAC & \multicolumn{2}{C{5cm}}{Thread sharing} \\
-        \addlinespace
-        & \Mitos & \multicolumn{2}{C{5cm}}{Time + CPU} \\
-        \addlinespace
-        & \MemProf & \multicolumn{2}{C{5cm}}{\textbf{All}}  \\
-        \addlinespace
-        & \Moca & \multicolumn{2}{C{5cm}}{\textbf{All}} \\
+        & \multicolumn{5}{c}{Trace precision} \\
+        \cmidrule{2-6}
+        & Granularity & Superset & Time &
+        Thread sharing & CPU\\
+        \cmidrule{2-6}
+        \TABARNAC   & Page & \textbf{Page} & no & \textbf{yes} & no\\
+        \Mitos      & \textbf{Address} & None  & \textbf{yes} & no & \textbf{yes}\\
+        \MemProf    & \textbf{Address} & None & \textbf{yes} & \textbf{yes} & \textbf{yes}\\
+        \Moca       & \textbf{Address} & \textbf{Page} & \textbf{yes} & \textbf{yes} & \textbf{yes}\\
         \bottomrule
     \end{tabular}
-    \caption{Comparison of different memory traces tools.
-        %\TABARNAC~\cite{Beniamine15TABARNACRR},
-        %\Mitos~\cite{Gimenez14Dissecting},
-        %\MemProf~\cite{Lachaize12MemProf} and \Moca.
-        \\
-        \emph{*~Inst: Binary instrumentation, PfI: Pagefault Interception}\\
-        \emph{**~CPU on which the access occured}}
+    \caption{Comparison of different memory traces tools.}
         \label{tab:tools-comp}
 \end{table}
 
@@ -131,7 +118,7 @@ between \Moca and these other memory profiling tools.
         & \IS & \SI{132}{Mib} & Integer Sort \\
         & \CG & \si{125}{Mib} & Conjugate Gradient \\
         & \MG & \si{508}{Mib}& Multi-grid \\
-        & \FT & \si{398}{Mib}& Discrete 3D fast Fourier Transform \\
+        & \FT & \si{398}{Mib}& Discrete 3D FFT \\
         \midrule
         \multirow{2}{1.5cm}{Unstructured}
         & \UA & \si{112}{Mib}& Unstructured Adaptive mesh \\
@@ -146,11 +133,9 @@ between \Moca and these other memory profiling tools.
         \bottomrule
     \end{tabular}
     \caption{Description of the \NPB.\\
-        *\emph{Footprints: maximum memory used, measure with Valgrind}.}
+        *\emph{maximum memory used, measured with Valgrind}.}
     \label{tab:NPB}
 \end{table}
-
-\DB{Finish valgrind runs}
 
 In the following sections, all the tools are
 evaluated on each of the 10 \NPB~\cite{Jin1999}, these benchmarks are
@@ -165,8 +150,8 @@ experiment, \Moca has been run with it's default parameters: a wakeup interval o
 \SI{0.5}{s} for the logging process and \SI{50}{ms} for the monitoring thread.
 
 We consider experimental reproducibility as an important matter, therefore we
-distribute\footnote{The three distribution are available on github:\\
-    \url{https://github.com/dbeniamine/Moca_expe}}
+distribute\footnote{See our experiment repository:
+    \href{https://github.com/dbeniamine/Moca_expe}{github.com/dbeniamine/Moca\_expe}}
 all the files needed to reproduce our experiments at three different levels:
 
 \begin{enumerate}
@@ -200,12 +185,12 @@ run on a machine from the \Edel cluster.
 
 \begin{figure}[htb]
     \centering
-    \begin{subfigure}{\linewidth}
+    \begin{subfigure}{.9\linewidth}
         \includegraphics[width=\linewidth]{moca_param.pdf}
         \caption{Execution time.}
         \label{fig:param_time}
     \end{subfigure}
-    \begin{subfigure}{\linewidth}
+    \begin{subfigure}{.9\linewidth}
         \includegraphics[width=\linewidth]{moca_param_events.pdf}
         \caption{Number of captured events.}
         \label{fig:param_evts}
@@ -236,7 +221,8 @@ we call this version \MitosTun. Surprisingly, its behavior regarding this sampli
 is not monotonous, we had to try many different periods to find the proper one.
 
 The default \MemProf distribution did not work with our experimental setup. With the help
-of their support team\footnote{see issue at\\\url{https://github.com/Memprof/scripts/issues/1}}, we managed to make it work with the library used to retrieve
+of their support team\footnote{see issue at
+    \href{https://github.com/Memprof/scripts/issues/1}{github.com/Memprof/scripts/issues/1}}, we managed to make it work with the library used to retrieve
 data structures names disabled. For the same reason as in the case of \Mitos, our study includes
 two version of \MemProf: the default version and \MemProfTun for which we have
 increased the sampling rate to its maximum.
@@ -271,7 +257,7 @@ slowdown factor of the different tools.  All these experiments have been run on 
         \caption{Percentages of events captured (compared to \Moca).}
         \label{fig:addr}
     \end{subfigure}
-    \caption{Precision of the traces generated by the different tools on the \NPB.}
+    \caption{Precision of the traces generated by each tool.}
     \label{fig:pages-addr}
 \end{figure}
 
@@ -329,8 +315,8 @@ page but it is also significantly more precise than the other existing tools.
         \caption{Evaluation on \Stremi (AMD)}
         \label{fig:ovh-AMD}
     \end{subfigure}
-    \caption{Slowdown factor of \Moca on the \NPB compared to state of the art tools.
-    Y-axis is in log scale.}
+    \caption{Slowdown factor of each tool.
+    Y-axis in log scale.}
     \label{fig:ovh}
 \end{figure}
 
@@ -344,8 +330,6 @@ almost negligible which is not the case for \Moca and \TABARNAC, this
 difference is explained by the results of the previous experiment, as these
 tools usually collects less than \SI{10}{\%} of the accesses collected by \Moca and
 miss a significant part of the address space.
-
-\DB{Rewrite with ref to \tbl{NPB}}
 
 We can classify the benchmarks into three groups:
 for \BT, \CG, \DC,  \EP, \LU, \SP and \UA, \Moca is
@@ -372,8 +356,6 @@ experiment logs, we found that \MG generates a lot of conflicts in the hash map 
 this hash map, which is quite difficult as memory space in the kernel is
 limited. Another easier solution would consist in working on a smaller version
 of \MG and see if the trace is still useful.
-\DB{Experiment in progress: \MG smaller size, not to add a plot in the paper
-but to be more confident on what we are saying}
 
 \fig{ovh-AMD} shows the results of the evaluation on the AMD machine
 (\Stremi). On this machine, \Moca overhead is quite comparable to the results

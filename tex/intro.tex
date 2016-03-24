@@ -32,7 +32,6 @@ Indeed, to solve memory related issues, the developer needs a detailed trace of 
 accesses at a sufficiently fine \emph{granularity}.
 An ideal tool should provide enough data to recreate a cartography view
 of the memory accesses over the time.
-\DB{Add sketch of visu ?}
 Moreover, to ensure that a lack of precision
 does not compromise the analysis, such a trace should be \emph{complete}. We say that a trace is
 \emph{complete} at a certain granularity if and only if the events it contains along with their granularity
@@ -53,8 +52,8 @@ to provide a \emph{complete} trace, and efficient hardware sampling mechanisms a
 to provide all the information that constitute a \emph{complete} trace.
 
 In this study, we present \emph{Memory Organisation Cartography and Analysis}
-\footnote{\Moca is distributed under GPL licence:\\
-    \url{https://github.com/dbeniamine/MOCA}}
+\footnote{\Moca is distributed under GPL licence:
+    \href{https://github.com/dbeniamine/MOCA}{github.com/dbeniamine/MOCA}}
 an efficient memory trace collection system based on page fault interception
 and false page fault generation.
 This mechanism is able to provide a \emph{complete} sampled memory trace at

@@ -136,7 +136,7 @@ The advantage is that it reduces the volume of information stored for the access
 
 \begin{figure}[htb]
     \centering
-    \resizebox{\linewidth}{!}{
+    \resizebox{.9\linewidth}{!}{
         \Input{moca-tikz.tex}
     }
     \caption{Interactions betweens \Moca's main component and Linux}
@@ -154,100 +154,102 @@ logging process flush \emph{finished} chunks to the filesystem at a lower
 frequency, and recycle them as empty places for upcoming chunks.  \fig{moca} depicts the interaction between the
 different processes and threads of \Moca, its data structures and Linux.
 
-Eventually, \Moca generates one csv file, each line of this file
-describe one access giving its physical and virtual address, the number of
-read and writes captured, a bitmask indicating on which CPU the access
-occurred, the start and end timestamp of its chunk and the
-internal identifier of the task which triggered it. A set of access sharing the same
-timestamps and task identifier correspond to a chunk. The order of accesses inside a
-chunk is preserved.
+%Eventually, \Moca generates one csv file, each line of this file
+%describe one access giving its physical and virtual address, the number of
+%read and writes captured, a bitmask indicating on which CPU the access
+%occurred, the start and end timestamp of its chunk and the
+%internal identifier of the task which triggered it. A set of access sharing the same
+%timestamps and task identifier correspond to a chunk. The order of accesses inside a
+%chunk is preserved.
 
-\begin{algorithm}[htb]
-    \caption{Monitoring thread algorithm}
-    \label{algo:monTh}
-    \begin{algorithmic}[1]
-        \While{\Callp{NotFinished}{}}
-            \ForAll{t in \Callp{MonitoredTasks}{}}
-                \State \Callp{EndCurrentChunk}{t}
-                    \ForAll{Addr in \Callp{PreviousChunk}{t}}
-                        \State \Callp{WriteLockPF}{}
-                        \State \Callp{AddFalsePF}{Addr}
-                        \State \Callp{WriteUnlockPF}{}
-                    \EndFor
-                \State \Callp{MarkPreviousChunkFinished}{t}
-            \EndFor
-            \State \Callp{sleep}{MonitorThreadWakeUpInterval}
-        \EndWhile
-    \end{algorithmic}
-\end{algorithm}
+%\begin{algorithm}[htb]
+%    \caption{Monitoring thread algorithm}
+%    \label{algo:monTh}
+%    \begin{algorithmic}[1]
+%        \While{\Callp{NotFinished}{}}
+%            \ForAll{t in \Callp{MonitoredTasks}{}}
+%                \State \Callp{EndCurrentChunk}{t}
+%                    \ForAll{Addr in \Callp{PreviousChunk}{t}}
+%                        \State \Callp{WriteLockPF}{}
+%                        \State \Callp{AddFalsePF}{Addr}
+%                        \State \Callp{WriteUnlockPF}{}
+%                    \EndFor
+%                \State \Callp{MarkPreviousChunkFinished}{t}
+%            \EndFor
+%            \State \Callp{sleep}{MonitorThreadWakeUpInterval}
+%        \EndWhile
+%    \end{algorithmic}
+%\end{algorithm}
 
-The monitoring thread, which is a kernel thread that uses the algorithm~\ref{algo:monTh}, is
-in charge of enabling false page faults destined for \Moca. It performs its task by
-removing the \texttt{PRESENT} flags from the \texttt{Page Table Entry}
-(\texttt{PTE}) that corresponds to each recently
-accessed addresses. Of course, the 
-shorter is the period between two wakeups, the more
-precise the trace is.
-This period is called \emph{monitor thread wakeup interval} (or \emph{monitor
-interval}).
-But invalidating all the recently accessed pages takes time as it requires
-to take a write lock on the page faults hashmap. This write lock
-delays any pending false page fault in the monitored application. Thus the wakeup frequency of the
-monitoring thread cannot be too high, otherwise its action becomes too intrusive.
-The \texttt{MonitorThreadWakeUpInterval} \Moca parameter lets the user change the default setting
-that we have empirically chosen after a few experiments.
+%The monitoring thread is a kernel thread %that uses the algorithm~\ref{algo:monTh}, is
+%in charge of enabling false page faults destined for \Moca. It performs its task by
+%removing the \texttt{PRESENT} flags from the \texttt{Page Table Entry}
+%(\texttt{PTE}) that corresponds to each recently
+%accessed addresses. Of course, the 
+%shorter is the period between two wakeups, the more
+%precise the trace is.
+%This period is called \emph{monitor thread wakeup interval} (or \emph{monitor
+%interval}).
+%But invalidating all the recently accessed pages takes time as it requires
+%to take a write lock on the page faults hashmap. This write lock
+%delays any pending false page fault in the monitored application. Thus the wakeup frequency of the
+%monitoring thread cannot be too high, otherwise its action becomes too intrusive.
+%The \texttt{MonitorThreadWakeUpInterval} \Moca parameter lets the user change the default setting
+%that we have empirically chosen after a few experiments.
 
-\begin{algorithm}[htb]
-    \caption{Logging daemon algorithm. Note that no locks are required to
-    work on finished chunks.}
-    \label{algo:flushTh}
-    \begin{algorithmic}[1]
-        \While{\Callp{NotFinished}{}}
-        \ForAll{t in \Callp{MonitoredTasks}{}}
-                \ForAll{c in \Callp{FinishedChunks}{t}}
-                \State \Callp{WriteTraceToDisk}{c}
-                \State \Callp{ReinitChunk}{c}
-                \EndFor
-            \EndFor
-            \State \Callp{sleep}{LoggingDaemonWakeupInterval}
-        \EndWhile
-    \end{algorithmic}
-\end{algorithm}
+%\begin{algorithm}[htb]
+%    \caption{Logging daemon algorithm. Note that no locks are required to
+%    work on finished chunks.}
+%    \label{algo:flushTh}
+%    \begin{algorithmic}[1]
+%        \While{\Callp{NotFinished}{}}
+%        \ForAll{t in \Callp{MonitoredTasks}{}}
+%                \ForAll{c in \Callp{FinishedChunks}{t}}
+%                \State \Callp{WriteTraceToDisk}{c}
+%                \State \Callp{ReinitChunk}{c}
+%                \EndFor
+%            \EndFor
+%            \State \Callp{sleep}{LoggingDaemonWakeupInterval}
+%        \EndWhile
+%    \end{algorithmic}
+%\end{algorithm}
 
-The logging daemon, that uses algorithm~\ref{algo:flushTh}, is a userspace process
-which periodically reads \texttt{/proc} pseudo files used by \Moca kernel module to export
-its data to userspace. Those reads trigger a
-callback method in our tool which flush finished chunks from memory to
-disc. As it works on finished chunks, it does not directly interfere with the
-normal application execution. Especially, no lock is required to access to these finished chunks,
-and, as it mostly generates disc I/O, it does not compete much for CPU.
-\Moca has just to wake him up sufficiently often so that the kernel module does not run out
-of free space to store upcoming chunks.
+%The logging daemon %that uses algorithm~\ref{algo:flushTh},
+%is a userspace process
+%which periodically reads \texttt{/proc} pseudo files used by \Moca kernel module to export
+%its data to userspace. Those reads trigger a
+%callback method in our tool which flush finished chunks from memory to
+%disc. As it works on finished chunks, it does not directly interfere with the
+%normal application execution. Especially, no lock is required to access to these finished chunks,
+%and, as it mostly generates disc I/O, it does not compete much for CPU.
+%\Moca has just to wake him up sufficiently often so that the kernel module does not run out
+%of free space to store upcoming chunks.
 
-\begin{algorithm}[htb]
-    \caption{Page fault handler}
-    \label{algo:PageFault}
-    \begin{algorithmic}[1]
-        \Function{HandleFault}{task t,void *addr, int type}
-            \If {\Callp{IsNotMonitoredTask}{t}}
-                \If {!\Callp{AddToMonitoredIfNeeded}{t}}
-                    \State \Return \Comment{Resume page fault}
-                \EndIf
-            \EndIf
-            \State \Callp{AddToChunk}{t,addr, type}
-            \Comment{Trace the access}
-            \State \Callp{ReadLockPF}{}
-            \State \Callp{TryFixFalsePageFault}{addr}
-            \State \Callp{ReadUnlockPF}{}
-            \State \Callp{UpdateClock}{}
-            \State \Comment{Resume page fault. If a fix occurred, Linux will
-                silently abort the page fault}
-        \EndFunction
-    \end{algorithmic}
-\end{algorithm}
+%\begin{algorithm}[htb]
+%    \caption{Page fault handler}
+%    \label{algo:PageFault}
+%    \begin{algorithmic}[1]
+%        \Function{HandleFault}{task t,void *addr, int type}
+%            \If {\Callp{IsNotMonitoredTask}{t}}
+%                \If {!\Callp{AddToMonitoredIfNeeded}{t}}
+%                    \State \Return \Comment{Resume page fault}
+%                \EndIf
+%            \EndIf
+%            \State \Callp{AddToChunk}{t,addr, type}
+%            \Comment{Trace the access}
+%            \State \Callp{ReadLockPF}{}
+%            \State \Callp{TryFixFalsePageFault}{addr}
+%            \State \Callp{ReadUnlockPF}{}
+%            \State \Callp{UpdateClock}{}
+%            \State \Comment{Resume page fault. If a fix occurred, Linux will
+%                silently abort the page fault}
+%        \EndFunction
+%    \end{algorithmic}
+%\end{algorithm}
 
 Each time a page fault occurs, it is trapped by the \Moca handler that uses
-algorithm~\ref{algo:PageFault}. This algorithm first finds out if the task
+%algorithm~\ref{algo:PageFault}.
+This handler first finds out if the task
 (thread or process) responsible for the page fault is
 monitored or not. If not, it has to check if the task is a child of a monitored
 task and in this case, start monitoring it. We only need a read lock
@@ -267,7 +269,8 @@ or write) and the CPU on which the fault occurred.  Then, it checks if the page
 fault was triggered by \Moca or if this is a legitimate page fault.
 
 In the first
-case, \Moca \emph{fixes} it by setting the \texttt{PRESENT} flag on the \texttt{PTE}.
+case, \Moca \emph{fixes} it by setting the \texttt{PRESENT} flag on the
+\texttt{Page Table Entry}.
 The hashmap entry indicating that the fault was triggered by \Moca should then
 be removed, but this would required a write lock, so we only mark the hashmap
 entry as \texttt{BAD}. \texttt{BAD} entries are removed if required when the
@@ -278,9 +281,9 @@ If a fix occurred in the \Moca handler, Linux silently aborts the page fault
 when it resumes its execution. In the other case, it executes a normal page fault handling. Each page
 fault increases an atomic clock that is used to timestamp the beginning and end
 of the chunks.
-In this description, one can notice that a race might occur if the monitoring thread enables a false page fault between the
-end of our handler and the end of Linux page fault handler. To avoid that, \Moca stores
-for each CPU the last address that faulted, and does not clear it.
+%In this description, one can notice that a race might occur if the monitoring thread enables a false page fault between the
+%end of our handler and the end of Linux page fault handler. To avoid that, \Moca stores
+%for each CPU the last address that faulted, and does not clear it.
 
 All the settings that can influence either the accuracy of the trace or the
 overhead of the tools (such as the number and size of chunks, wakeup intervals
