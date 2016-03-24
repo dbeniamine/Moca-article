@@ -62,11 +62,15 @@ enough.
 
 Binary instrumentation can provide accurate information about memory accesses.
 This method is portable and  more precise than the aforementioned ones,
-but it comes at the cost of performances. Fast
-instrumentations usually either rely on a simulator~\cite{DeRose02SIGMA} which is not as realistic as an actual execution
-\GH{simulation ou emulation ? Pas réaliste ? il faut un peu argumenter..}
-or collect data at a coarser granularity and gives up temporal
-data~\cite{Beniamine15TABARNAC}.
+but it comes at the cost of performances. 
+% Référence supprimée: trop expeditive, SIGMA mélange une vrai instrumentation
+% avec des simulation a partir de la trace pour extrapoler le comportement sur
+% d'autres architectures, c'est un peu trop loin je pense
+% Fast
+% instrumentations usually either rely on a simulator~\cite{DeRose02SIGMA} which is not as realistic as an actual execution
+% \GH{simulation ou emulation ? Pas réaliste ? il faut un peu argumenter..}
+Tools that relies on instrumentation usually collect data at a coarser granularity and gives up temporal
+data~\cite{Beniamine15TABARNAC} to reduce their overhead.
 
 
 Page fault interception can provide useful online information about memory usage,
