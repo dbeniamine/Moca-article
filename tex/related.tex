@@ -54,11 +54,10 @@ memory analysis tool.
 
 Some other studies make use of hardware modification, either actual or
 simulated~\cite{Bao08HMTT,Martonosi92MemSpy}.  Although they are eventually able to collect
-more precise traces efficiently, they are even less usable than sampling technique: to use
-these techniques, one has to have access either to exotic hardware prototypes
-(or even build them) or rely on a simulator which might not be realistic
-enough.
-\GH{Il faut un peu dégrossir cet argument de simulation pas réaliste. La simulation réaliste existe mais est lente.}
+more precise traces efficiently,these techniques are limited to hardware
+developers. Indeed to use these hardware one has either to obtain (or build) a
+prototype or to use a suitable simulator. Such configuration is not realistic
+for general purpose memory analysis.
 
 Binary instrumentation can provide accurate information about memory accesses.
 This method is portable and  more precise than the aforementioned ones,
