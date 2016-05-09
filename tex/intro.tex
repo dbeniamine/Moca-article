@@ -12,58 +12,59 @@ Most efforts about memory performance optimizations at software level consists
 on tools such as NUMA Balancing~\cite{Corbet2012}.
 These tools automatically moves pages of data in the physical memory, trying
 to keep them as close as possible from the threads that use them. Such
-optimizations can improve significantly the memory performances as it reduces
-the number of remote accesses. Still this cannot address all the memory related issues. For instance, if all the
+optimizations can improve significantly the memory performances as they reduce
+the number of remote accesses. Still this cannot fix the application when its algorithms and data structures do not make a proper use of memory resources.
+For instance, if all the
 threads of an application access to the same memory page, whatever the page mapping is,
 this will result in remote accesses from all NUMA nodes but one. The only way to fix
 this kind of issues is to rewrite a part of the application code in order to take into account these
-unbalanced memory accesses. This is why tools that can help the developer to understand the memory accesses patterns
-of its application are of utter importance for performances optimizations.
+unbalanced memory accesses. This is why tools that can help the developer understand the memory access patterns
+performed by his application are of utter importance for performance optimizations.
 
 Analysis tools such as Vtune~\cite{Reinders05VTune} and
 HPCToolkit~\cite{Adhianto10HPCTOOLKIT} have been developed to help the programmer
 understand and correct performance issues in a multithreaded application. However, these tools
-focus on the CPU and can only provides a indirect and incomplete view of events related to the memory: the location of accesses,
+focus on the CPU and can only trace an indirect and incomplete view of events related to the memory: the location of accesses,
 their time or both are usually lost in the process. Thus, they are not able to provide the developer with
 a clear view of memory accesses patterns occurring during the execution. In such situation, fixing
 memory related issues is a matter of trial and error and the eventual code is often suboptimal.
 
-Indeed, to solve memory related issues, the developer needs a detailed trace of memory
+To solve memory related issues, the developer needs a detailed trace of memory
 accesses at a sufficiently fine \emph{granularity}.
-An ideal tool should provide enough data to recreate a cartography view
-of the memory accesses over the time.
+An ideal tool should provide enough data to build a map of the memory accesses locations over the time.
 Moreover, to ensure that a lack of precision
 does not compromise the analysis, such a trace should be \emph{complete}. We say that a trace is
-\emph{complete} at a certain granularity if and only if the events it contains along with their granularity
-form a superset of the actual accesses. Furthermore, memory events in a \emph{complete} trace should
+\emph{complete} at a certain granularity if and only if the events it contains
+form a superset of the actual accesses. To build a useful map of memory accesses performed by a parallel application, 
+events in a memory trace should also
 include information about time, space (at which address the event occurs),
 location (on which CPU it occurs) and nature of access (is this
 a read, a write, by which thread).
+Furthermore, the trace has to be sufficiently precise, that is include a sufficient number of events, in order to enable a sound analysis.
 At the time of this writing, existing memory analysis tools are not able to provide such traces.
-Either they rely on \emph{incomplete} sampling~\cite{Liu14Tool,Lachaize12MemProf}
-mechanisms and, thus, only provide a very small subset of the trace, or they
-ignore temporal information to reduce their
+Some of them rely on instructions sampling~\cite{Liu14Tool,Lachaize12MemProf}
+mechanisms, which produce incomplete traces at a precision limited by hardware capabilities. Other ones ignore temporal information to reduce their
 overhead~\cite{Beniamine15TABARNACRR}.
 
-Generating such traces is a challenge: there is no hardware mechanism
+Indeed, generating such traces is a challenge: there is no hardware mechanism
 comparable to CPU performance counters to collect a detailed trace of memory accesses, and the volume
-of data to collect is huge. Instrumentation based methods are too slow
+of data to collect is huge. Methods based on binary instrumentation are too slow
 to provide a \emph{complete} trace, and efficient hardware sampling mechanisms are not designed
 to provide all the information that constitute a \emph{complete} trace.
 
 In this study, we present \emph{Memory Organisation Cartography and Analysis}
 \footnote{\Moca is distributed under GPL licence:
     \href{https://github.com/dbeniamine/MOCA}{github.com/dbeniamine/MOCA}}
-an efficient memory trace collection system based on page fault interception
-and false page fault generation.
-This mechanism is able to provide a \emph{complete} sampled memory trace at
+an efficient memory trace collection system based on two existing techniques:
+page fault interception and false page fault generation.
+This tool is able to collect a \emph{complete} sampled memory trace at
 the spatial granularity of the page along with a parametrized temporal granularity.
 It also collects detailed information about sampled accesses, including their address and
-precise timestamp. Finally \Moca is able to retrieve data structures
-information (address, size and name) using a binary instrumentation.
+precise timestamp. Furthermore, \Moca is able to retrieve data structures
+information (address, size and name) using the informations contained in the application binary.
 
-The remaining of this paper is organised as follow: section~\ref{sec:related}
-discuss related works, section~\ref{sec:design} present \Moca design, then we
-evaluate \Moca by comparing it to existing tools on section~\ref{sec:expe}.
-Finally we present our conclusions and some possible future work on
+The remaining of this paper is organised as follows: in section~\ref{sec:related}
+we discuss about related works, in section~\ref{sec:design} we present \Moca design, then,
+we evaluate \Moca by comparing it to existing tools in section~\ref{sec:expe}.
+Finally, we present our conclusions and some possible future work in
 section~\ref{sec:cncl}.
