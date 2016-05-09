@@ -215,17 +215,25 @@ Inria\\
 \begin{abstract}
 
     In modern \emph{High Performance Computing} architectures, the memory subsystem
-    is a common performance bottleneck. To take advantage from the cache or from hardware optimization mechanisms
-    such as the memory prefetcher, the developer has to study the memory accesses
-    patterns of his application and optimize it for locality and linearity.
-    Still most profiling tools focus on CPU metrics and none of them is able to
-    provide an overview of the memory patterns involved by the execution.
+    is a common performance bottleneck. When optimizing an application, the developer has to
+    study its memory access patterns and adapt accordingly the algorithms and data structures it uses.
+    The objective is twofold: on one hand, it is necessary to avoid missuses of the memory hierarchy such as false sharing of cache lines or contention in a NUMA
+    interconnect. On the other hand, it is essential to take advantage of the various cache levels and the memory hardware prefetcher. 
+    %To take advantage from the cache, % or from hardware optimization mechanisms such as
+    %the memory prefetcher or the NUMA interconnect, the developer has to study the memory accesses
+    %patterns of his application and optimize it for locality and linearity.
 
-    In this study we present \Moca an efficient tool for spatiotemporal memory traces collection.
-    It is based on a Linux kernel module and provides a complete coarse grained overview
-    of memory accesses performed by an application over its addressing space and the time of its execution. While the
-    overhead of \Moca is smaller than the one of comparable tools, it is able to provide
-    more precise and complete traces.
+    Still, most profiling tools focus on CPU metrics. The few of them able to
+    provide an overview of the memory patterns involved by the execution rely on hardware instrumentation mechanisms and have two drawbacks.
+    The first one is that they are based on sampling which precision is limited by hardware capabilities. The second one is that they trace 
+    a subset of all the memory accesses, usually the most frequent, without information about the other ones.
+
+    In this study we present \Moca an efficient tool for the collection of \emph{complete} spatiotemporal memory traces.
+    It is based on a Linux kernel module and provides a coarse grained trace of a superset of all the
+    memory accesses performed by an application over its addressing space during the time of its execution. The
+    overhead of \Moca is reasonable when taking into account the fact that
+    it is able to collect \emph{complete} traces which are also more precise
+    than the ones collected by comparable tools.
 
 \end{abstract}
 
