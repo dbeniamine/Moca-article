@@ -52,7 +52,9 @@ to realistic ones. Our evaluation has exposed the fact that the tools
 relying on hardware sampling miss a significant part of the address space. It
 has also shown that \Moca is able to provide both a complete trace at the page
 granularity and a sampling at the byte granularity significantly more precise than the
-other tools. Finally, \Moca overhead appears to be more important than the overhead of sampling
+other tools. While generating comparable traces using \MemProf or \Mitos would
+require to sample all the memory instructions, which is not possible.
+Finally, \Moca overhead appears to be more important than the overhead of sampling
 based tools but usually lower than the one induced by binary instrumentation.
 % Déjà dit plus haut
 %Moreover, adding the Pin instrumentation to retrieve date structures
