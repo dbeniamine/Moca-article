@@ -6,9 +6,9 @@ in charge of both loading this module with the proper parameters and launching t
 monitored application on the user behalf
 and an optional Pintool (c++ library based on Intel Pin) to retrieve data
 structure informations.
-It relies neither on architecture specific
+It neither relies on architecture specific
 technologies such as AMD IBS or Intel PEBS, nor on architecture dependent kernel
-code, nor on kernel patch or modifications.
+code, kernel patch or kernel modifications.
 Therefore it is highly portable and can be run on any recent Linux kernel
 from the $3.0$.
 
@@ -30,15 +30,15 @@ instrumentation. When enabled \Moca runs the application twice with \texttt{virt
 address space randomization} disabled. The first time the application runs only
 under Pin instrumentation and the second time \Moca module is loaded but the
 instrumentation is disabled. This instrumentation reads static data
-structures of every executed binary files and store all structure bigger than
-one page. It also intercept every calls to \texttt{malloc} family functions
+structures information in each executed binary file and stores data about structures larger than
+one page. It also intercepts all calls to \texttt{malloc} family functions
 and names malloced structures according to their call path.
-\Moca and Pin are run separately as preliminary experiments show that combining both
-tools resulted on a degradation of the trace quality. Furthermore our
-instrumentation is lightweight and only  adds a (small) constant overhead when
-Pin opens a binary and on every allocations which usually occurs at
-initialization. Thus the overhead of using \Moca and the Pin instrumentation
-is basically \Moca overhead plus one time the normal execution time.
+\Moca and Pin are run separately because preliminary experiments showed us that combining both
+tools resulted in a degradation of the trace quality. Our instrumentation remains lightweight, the
+added cost of the Pin instrumentation is the cost of a regular execution 
+added to a small constant overhead for each binary opened and each allocation performed.
+%initialization. Thus the overhead of using \Moca and the Pin instrumentation
+%is basically \Moca overhead plus one time the normal execution time.
 
 \subsection{Collecting memory accesses}
 
@@ -64,8 +64,8 @@ and will be traced. Thus, at the end of each monitoring interval, we know the ex
 of accessed pages from which we deduce a superset of actual memory accesses.
 This comes in addition to the fact that each false page fault generated provides \Moca with
 exact information about one memory access. This means that \Moca also performs a sampling
-of all the memory accesses and, because it is designed to manage large chunks of trace data
-within the kernel space, it stores all the details about these samples in the collected trace.
+of all the memory accesses. Because it is designed to manage large chunks of trace data
+within the kernel space, it also stores all the details about these samples in the collected trace.
 
 \Moca differs from instruction sampling because it is not necessary to increase the monitoring
 frequency of \Moca to collect a \emph{complete} trace. On the contrary, when using instruction sampling,
@@ -73,20 +73,21 @@ if the pages of the application are accessed in an unbalanced manner, it is nece
 the sampling frequency to get a precise picture of the memory working set of the application.
 Nevertheless, there can be no guarantee that a chosen sampling frequency will result in a trace
 that contains all the pages on which the application works.
+
 \Moca also differs from instrumentation based tools because, just as in the case of sampling,
-memory accesses that are not collected in the trace are not trapped at all. Furthermore, the
+memory accesses that are not collected in the trace are not trapped at all by a false page fault. Furthermore, the
 remaining memory accesses, those which are collected, are trapped using a hardware mechanism and
 Linux kernel probes. Both are lightweight mechanisms, this means that
 the overall instrumentation overhead of \Moca is likely to be much lower.
 Indeed, instrumentation based methods often work at a high granularity, collecting few information,
 in order to restrain their naturally high overhead.
 
-In short, \Moca collects complete traces at the granularity of the page, whereas instruction
-sampling cannot guarantee any completeness of the collected trace. And \Moca is 
-more efficient than binary instrumentation (such as Pin) as it relies on hardware mechanisms
-to intercept page faults and does not have to trap all the memory instructions.
-Furthermore \Moca traces provides information on time, thread sharing and CPU
-location of each captured accesses.
+%In short, \Moca collects complete traces at the granularity of the page, whereas instruction
+%sampling cannot guarantee any completeness of the collected trace. And \Moca is 
+%more efficient than binary instrumentation (such as Pin) as it relies on hardware mechanisms
+%to intercept page faults and does not have to trap all the memory instructions.
+%Furthermore \Moca traces provides information on time, thread sharing and CPU
+%location of each captured accesses.
 
 %Intercepting page faults instead of doing hardware sampling, guaranty that
 %every page of the analyzed application will be intercepted. Therefore \Moca
