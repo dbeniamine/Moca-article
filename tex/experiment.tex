@@ -123,7 +123,7 @@ between \Moca and these other memory profiling tools.
         \midrule
         \multirow{2}{1.5cm}{Unstructured}
         & \UA & \si{112}{Mib}& Unstructured Adaptive mesh \\
-        & \DC & \si{1.46}{Gib}& Data Cube \\
+        & \DC & $1.46$Gib & Data Cube \\
         \midrule
         \multirow{3}{1.5cm}{Pseudo Applications (solvers)}
         & \BT & \si{120}{Mib}& Block Tri-diagonal \\
@@ -209,6 +209,13 @@ interval of \SI{0.5}{s} seems to provide a good trade-off  between
 execution time and precision.\GH{Comment changer l'intervalle de logging peut-il avoir un impact sur le nombre d'évènements capturés ? Autre question un peu en
 	lien : on a l'impression que les figures \fig{param_time} et \fig{param_evts} sont exactement les même à un niveau de zoom près. C'est possible mais un
 peu étonnant si on tient compte de la question précédente}
+\DB{Les courbes sont bien sortie sur des jeux de données différents. Je
+    suppose que le temps d'execution et le nombre d'evenements sont très liés.
+    Vu la taille des intervalles de conficance le “logging interval” n'influe
+    pas beaucoup.
+    Quoiqu'il en soit le fait de flusher la trace sur le disque déclenche pas
+    mal d'I/O ce qui peut interferer avec l'appli observée et donc coup influer
+    sur la qualité du sampling.}
 These two values have been chosen as default values in \Moca.
 
 
@@ -267,7 +274,7 @@ slowdown factor of the different tools.  All these experiments have been run on 
 
 \fig{pages-addr} presents the results of the precision evaluation of the
 different tools. The values used for \Mitos, \MitosTun, \Moca and
-\TABARNAC result from runs on \Edel machines, while \MemProf values result from runs on
+\TABARNAC result from runs on \Edel machines, while \MemProf and \MemProfTun values result from runs on
 \Stremi.
 
 We can see on \fig{pages} that \Moca captures almost as many pages as \TABARNAC.
@@ -298,8 +305,9 @@ sparse accesses during the rest of the execution.
 For almost
 every other benchmarks both \Mitos (with or without tunning) and \MemProf
 hardly reach \SI{10}{\%} of the accesses collected by \Moca, the only exception is
-\CG for which \MemProf captures from \SI{25}{\%} to \SI{50}{\%} of the accesses
-collected by \Moca\GH{Je ne vois pas ça sur la figure, erreur ?}.
+\DC for which \MemProf captures from \SI{25}{\%} to \SI{50}{\%} of the accesses
+collected by \Moca.
+%\GH{Je ne vois pas ça sur la figure, erreur ?} Erreur CG au lieu de DC
 
 These results prove that most existing tools can miss a considerable part of
 the address-space while \Moca guarantee that it provides a superset of the accessed
@@ -341,24 +349,36 @@ for \BT, \CG, \DC,  \EP, \LU, \SP and \UA, \Moca is
 significantly faster than \TABARNAC. This set of benchmarks is interesting as
 it is made of varied application profiles as we can see in \tbl{NPB}.
 Indeed, if \EP is mostly doing parallel computation with only a few number of
-memory accesses, \CG is memory intensive,
-\BT, \LU as well as \SP are pseudo applications doing a significant usage of memory,
+memory accesses, \CG is described as memory intensive,
+\BT, \LU as well as \SP are pseudo applications,
 and both \UA and \DC contain \emph{unstructured computation,
-parallel I/O and data movement} and have a considerable memory usage as
-described in \tbl{NPB}.\GH{Ce n'est pas ce que je vois dans la table : UA semble comme les autres et le chiffre pour DC, 146Gib me paraît énorme, erreur ?}
+parallel I/O and data movement} and \DC have a considerable memory usage as
+described in \tbl{NPB}.
+%\GH{Ce n'est pas ce que je vois dans la table : UA semble comme les autres et le chiffre pour DC, 146Gib me paraît énorme, erreur ?}
+% Le 146 etait du a \SI qui mangait le '.' \ldots
+% UA et DC sont unstructured, effectivement UA n'a pas une grosse emprunt
+% mémoire \ldots
 
-The second group only contains memory oriented benchmarks (\FT and
+The second group only contains memory intensive benchmarks (\FT and
 \IS). For this group, \Moca is as good as \TABARNAC or a bit faster, probably
 because the balance between computations and memory accesses hides the
 overhead of the instrumentation.
 \GH{Dans les deux paragraphes précédents il y a les termes memory intensive, significant usage of memory et memory oriented. Les perfs sont différentes mais ces
 trois termes semblent dire la même chose, ... on se demande du coup... }
+\DB{J'ai reformulé un peu, mais ces courbes montrent que mêmes des bench dites
+memory intensive peuvent avoir des performances correctes avec Moca}
 
 For the last benchmark: \MG, \Moca is significantly slower than \TABARNAC. This benchmark
 seems to be a pathological case. It is important to note that \MG is not the
 benchmark using the largest set of addresses, therefore, the poor performance likely comes from a
-thread scheduling issue\GH{Ca, pour moi, ça sort du chapeau. Tu as un argument ? Moi je dirais plutôt qu'il balai largement son espace mémoire (même petit)
-durant toute son exécution} rather than from the size of the benchmark. By looking at our
+thread scheduling issue
+\GH{Ca, pour moi, ça sort du chapeau. Tu as un argument ? Moi je dirais plutôt qu'il balai largement son espace mémoire (même petit)
+durant toute son exécution}
+\DB{J'ai mal exprimé mon idée, en gros je pensait a un ordo bien pourrit du
+    point de vu de Moca (en gros qui déclenche plein de prise de verrous),
+    mais ça semble effectivement capilotracté.
+Ton argument est plus raisonnable}
+rather than from the size of the benchmark. By looking at our
 experiment logs, we found that \MG generates a lot of conflicts in the hash map used by
 \Moca to store false page fault. A solution could be to increase the size of
 this hash map, which is quite difficult as memory space in the kernel is
