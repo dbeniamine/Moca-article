@@ -149,7 +149,12 @@ monitoring kernel thread, manages the progress of this logical time. It periodic
 \emph{ending} and invalidates all the pages they reference. Once all pages of the \emph{ending}
 chunks have been invalidated, it marks these chunks as \emph{completed}. Finally, the
 logging process flushes \emph{completed} chunks to the filesystem at a lower
-rate\GH{Pourquoi à un rythme moins élevé ??? En théorie des files d'attentes ce genre de choses = débordement...}, and recycle them as empty places for upcoming chunks.  \fig{moca} depicts the interaction between the
+rate
+\GH{Pourquoi à un rythme moins élevé ??? En théorie des files d'attentes ce genre de choses = débordement...}
+\DB{L'idée était de limiter la bande passante disque, et croiser les doigt
+pour que les files soient assez grosses \ldots Il faudrait essayer un logging
+interval très petit sur MG.}
+, and recycle them as empty places for upcoming chunks.  \fig{moca} depicts the interaction between the
 different processes and threads of \Moca, its data structures and Linux.
 
 %Eventually, \Moca generates one csv file, each line of this file
