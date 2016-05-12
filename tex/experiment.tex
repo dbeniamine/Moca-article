@@ -1,7 +1,7 @@
 \section{Experiments}
 \label{sec:expe}
 
-In this part, we compare \Moca to the other existing tools for memory analysis. In a first time, we present their main differences in terms of portability
+In this part, we compare \Moca to other existing tools for memory analysis. In a first time, we present their main differences in terms of portability
 and capabilities. Then, we present two sequences of quantitative experiments, one that outlines the importance of the default parameters chosen for our tool
 and the other that compares the precision and performance of all the tools.
 
@@ -15,14 +15,14 @@ and the other that compares the precision and performance of all the tools.
 
 Our main experiments were run on  machines from Grid5000 \Edel
 cluster.
-    As some state of the art tools can only run on AMD machines, we also run
+    As some state of the art tools can only run on AMD machines, we also ran
     some of the experiment presented in section~\ref{sec:expe-ovh} on
-    \Stremi machine from grid5000 grenoble.
-    These machines hardware specification
+    \Stremi machine from Grid5000 grenoble.
+    These machines hardware specifications
    \footnote{Grid5000 provides an online hardware description:\\
        \url{https://www.grid5000.fr/mediawiki/index.php/Grenoble:Hardware\#Edel}
        \\\url{https://www.grid5000.fr/mediawiki/index.php/Reims:Hardware\#Stremi}}
-    is summarized in \tbl{hw}.
+    are summarized in \tbl{hw}.
 
 \begin{table}[t]
     \centering
@@ -54,12 +54,13 @@ cluster.
     \label{tab:hw}
 \end{table}
 
-For every experiment, we deployed the same \emph{Debian} \emph{Jessie}
-environment running a \texttt{Linux 3.16.0-4} with hyper threading was
-disabled. We disabled address space randomization to produce memory trace as
-comparable as possible.  As our two evaluation machines are not equivalent in
-terms of hardware, we limited the number of threads used by openMP to $8$
-which is the number of threads available on \Edel machines.
+For each experiment, we deployed the same \emph{Debian} \emph{Jessie}
+environment running a \texttt{Linux 3.16.0-4} on a machine with hyper threading
+disabled. We disabled address space randomization to make the comparison between different
+traces more practical. 
+As our two evaluation machines do not have the same hardware,
+we limited the number of threads used by openMP to $8$
+that is the largest number of hardware threads available on both machines.
 
 \begin{table}[htb]
     \centering
@@ -199,13 +200,15 @@ run on a machine from the \Edel cluster.
     \label{fig:param}
 \end{figure}
 
-We can see on the \fig{param_time} that the execution time decreases when we
+We can see on the \fig{param_time} that the execution time increases when we
 reduce the monitoring wakeup interval, at \SI{40}{ms}
 it seems to reach its worst level, thus we should keep it larger. At \SI{50}{ms}, the
 \fig{param_evts} shows that we obtain more than two thirds of the events captured
 at smaller intervals, which seems quite reasonable. Finally for this value, a logging
 interval of \SI{0.5}{s} seems to provide a good trade-off  between
-execution time and precision.
+execution time and precision.\GH{Comment changer l'intervalle de logging peut-il avoir un impact sur le nombre d'évènements capturés ? Autre question un peu en
+	lien : on a l'impression que les figures \fig{param_time} et \fig{param_evts} sont exactement les même à un niveau de zoom près. C'est possible mais un
+peu étonnant si on tient compte de la question précédente}
 These two values have been chosen as default values in \Moca.
 
 
@@ -217,28 +220,29 @@ These two values have been chosen as default values in \Moca.
 Preliminary experiments showed us that \Mitos capture by
 default way less distinct pages than \TABARNAC and \Moca. Thus, we tried to change \Mitos
 sampling period in order to make it capture at most pages as possible, 
-we call this version \MitosTun. Surprisingly, its behavior regarding this sampling period
+we name this version \MitosTun. Surprisingly, its behavior regarding this sampling period
 is not monotonous, we had to try many different periods to find the proper one.
 
 The default \MemProf distribution did not work with our experimental setup. With the help
 of their support team\footnote{see issue at
-    \href{https://github.com/Memprof/scripts/issues/1}{github.com/Memprof/scripts/issues/1}}, we managed to make it work with the library used to retrieve
-data structures names disabled. For the same reason as in the case of \Mitos, our study includes
+    \href{https://github.com/Memprof/scripts/issues/1}{github.com/Memprof/scripts/issues/1}}, we managed to make it work by disabling the library used to retrieve
+data structures names. For the same reason as in the case of \Mitos, our study includes
 two version of \MemProf: the default version and \MemProfTun for which we have
 increased the sampling rate to its maximum.
 
 Finally our evaluation also differentiate \Moca (kernel module only) from
 \MocaPin which also retrieve the data structure information using a Pin
-instrumentation, we do this differentiation to evaluate the impact of Pin on
+instrumentation, we make this distinction to evaluate the impact of Pin on
 \Moca performances.
 
-We compare the different tools on two aspect: trace precision and induced slowdown. The first experiment compares the tools regarding two criteria:  the
-percentage of pages and the number of events captured during the analysis.  We use \TABARNAC as a reference to compute the percentage of captured pages,
-because, by design, it computes the number of accesses to all the pages used by the studied application. This metric is representative of coverage of a
-monitoring tool, its capacity to outline the whole memory area accesses by the application. Then we compare the tools in terms of number of
-captured events.  We show the percentage relative to \Moca, as it is the tool that usually provides the more precise traces. We define one event as one
+We compare the different tools on two aspects: trace precision and induced slowdown. Regarding the trace precision, the first experiment compares the tools
+using two criteria:  the
+percentage of captured pages and the number of captured events.  We use \TABARNAC as a reference to compute the total number of pages accessed by the
+application because, by design, it traps all the memory accesses to compute the number performed in each page. This metric is representative of coverage of the
+memory space: the capacity of the tool to outline the whole memory area accessed by the application. Regarding the number of captured events, we present the percentage
+relative to \Moca, as it is the tool that usually provides the more precise traces. We define one event as one
 timestamped access found in the trace file outputted by a tool. According to this definition, \TABARNAC does not capture any events as it only keep one
-counter per page and per thread without any temporal informations. Thus, \TABARNAC is excluded from this comparison. The number of events is representative
+counter per page and per thread without any temporal informations. Thus, \TABARNAC is excluded from this comparison. The number of captured events is representative
 of the precision of a monitoring tool, its capacity to keep track of all the evolutions of the access patterns during the course of the execution. The idea is
 that, the more the tool captures events, the less it misses changes in the access patterns.
 
@@ -263,25 +267,26 @@ slowdown factor of the different tools.  All these experiments have been run on 
 
 \fig{pages-addr} presents the results of the precision evaluation of the
 different tools. The values used for \Mitos, \MitosTun, \Moca and
-\TABARNAC comes from runs on \Edel machines, while \MemProf results comes from
+\TABARNAC result from runs on \Edel machines, while \MemProf values result from runs on
 \Stremi.
 
 We can see on \fig{pages} that \Moca captures almost as many pages as \TABARNAC.
 Regarding their design they should capture as many pages. Nevertheless, there is a slight
 bump in the number of pages used by applications monitored by \TABARNAC due to the Pin instrumentation.
 Indeed, its JIT instrumentation recompiles the executable on the fly and changes the memory footprint
-(of the stack, mainly). Thus, we can safely ignore these differences and take \Moca as reference.
+(of the stack, mainly). Thus, we can safely ignore these differences.
+%and take \Moca as reference. \GH{Incohérent avec le choix précédent de prendre tabarnac comme référence}
 
 \Mitos usually collect less than \SI{12.5}{\%} of the pages, adding some fine tunning
 can almost double this number but it still misses most of the address space.
 
 Concerning \MemProf, changing the default sampling rate does not seems to
 have any noticeable impact on the end result. Both \MemProf and \MemProfTun captures significantly more pages than
-\Mitos and \MitosTun. For half of the studied applications it does
+\Mitos and \MitosTun. Nevertheless, for half of the studied applications it does
 not see more than \SI{50}{\%} of the addresses space. Only for, \BT, \LU, \SP and \UA,
-\MemProf manage capture around \SI{75}{\%} of the accessed pages. This is explained by the fact that all these
-benchmarks are using uniformly most of their address space. Thus
-we can conclude that \MemProf only sees the most accesses pages.
+\MemProf manages to capture around \SI{75}{\%} of the accessed pages. This is explained by the fact that all these
+benchmarks are using uniformly most of their address space, and that many pages are frequently accessed.
+This is coherent with the fact that \MemProf is solely based on instructions sampling and only sees the most accesses pages.
 
 From \fig{addr} we can see that, as expected, for almost every benchmarks,
 \Moca collects significantly more events than the other tools.  The only
@@ -294,13 +299,13 @@ For almost
 every other benchmarks both \Mitos (with or without tunning) and \MemProf
 hardly reach \SI{10}{\%} of the accesses collected by \Moca, the only exception is
 \CG for which \MemProf captures from \SI{25}{\%} to \SI{50}{\%} of the accesses
-collected by \Moca.
+collected by \Moca\GH{Je ne vois pas ça sur la figure, erreur ?}.
 
 These results prove that most existing tools can miss a considerable part of
 the address-space while \Moca guarantee that it provides a superset of the accessed
 pages. Furthermore they show that \Moca is the only existing tool able to provide a
-trace precise enough to give an overview of the memory behavior of an application. In
-summary, not only our tool provides a complete trace at the granularity of the
+trace that is precise enough to give an good overview of the memory behavior of an application. In
+short, not only our tool provides a complete trace at the granularity of the
 page but it is also significantly more precise than the other existing tools.
 
 \begin{figure}[htb]
@@ -322,7 +327,7 @@ page but it is also significantly more precise than the other existing tools.
 
 \fig{ovh} shows for each of the \NPB, the slowdown factor when
 instrumented by \Moca and the other existing tools on Intel
-(\fig{ovh-Intel}) and AMD (\fig{ovh-AMD}) Machines the Y-axis is in
+(\fig{ovh-Intel}) and AMD (\fig{ovh-AMD}) Machines. Notice that the Y-axis is in
 log scale.
 
 From \fig{ovh-Intel}, we can see that \Mitos, \MitosTun overhead is
@@ -336,21 +341,24 @@ for \BT, \CG, \DC,  \EP, \LU, \SP and \UA, \Moca is
 significantly faster than \TABARNAC. This set of benchmarks is interesting as
 it is made of varied application profiles as we can see in \tbl{NPB}.
 Indeed, if \EP is mostly doing parallel computation with only a few number of
-memory accesses, \CG is memory intensive and
-\BT, \LU as well as \SP are pseudo applications doing a significant usage of memory.
-And while \UA and \DC are contains \emph{unstructured computation,
+memory accesses, \CG is memory intensive,
+\BT, \LU as well as \SP are pseudo applications doing a significant usage of memory,
+and both \UA and \DC contain \emph{unstructured computation,
 parallel I/O and data movement} and have a considerable memory usage as
-described in \tbl{NPB}.
+described in \tbl{NPB}.\GH{Ce n'est pas ce que je vois dans la table : UA semble comme les autres et le chiffre pour DC, 146Gib me paraît énorme, erreur ?}
 
 The second group only contains memory oriented benchmarks (\FT and
 \IS). For this group, \Moca is as good as \TABARNAC or a bit faster, probably
 because the balance between computations and memory accesses hides the
 overhead of the instrumentation.
+\GH{Dans les deux paragraphes précédents il y a les termes memory intensive, significant usage of memory et memory oriented. Les perfs sont différentes mais ces
+trois termes semblent dire la même chose, ... on se demande du coup... }
 
 For the last benchmark: \MG, \Moca is significantly slower than \TABARNAC. This benchmark
 seems to be a pathological case. It is important to note that \MG is not the
 benchmark using the largest set of addresses, therefore, the poor performance likely comes from a
-thread scheduling issue rather than from the size of the benchmark. By looking at our
+thread scheduling issue\GH{Ca, pour moi, ça sort du chapeau. Tu as un argument ? Moi je dirais plutôt qu'il balai largement son espace mémoire (même petit)
+durant toute son exécution} rather than from the size of the benchmark. By looking at our
 experiment logs, we found that \MG generates a lot of conflicts in the hash map used by
 \Moca to store false page fault. A solution could be to increase the size of
 this hash map, which is quite difficult as memory space in the kernel is
@@ -358,9 +366,9 @@ limited. Another easier solution would consist in working on a smaller version
 of \MG and see if the trace is still useful.
 
 \fig{ovh-AMD} shows the results of the evaluation on the AMD machine
-(\Stremi). On this machine, \Moca overhead is quite comparable to the results
+(\Stremi). On this machine, \Moca overhead is quite similar to the one
 obtained on \Edel.
-For its part \MemProf exhibit a slowdown factor comparable to \Mitos while
+\MemProf exhibits a slowdown factor comparable to \Mitos while
 providing traces a little more precise. Nevertheless, they are still \emph{incomplete} and
 way less precise than \Moca traces. Obviously \MemProfTun has the same
 overhead than \MemProf as it capture the same amount of data.
