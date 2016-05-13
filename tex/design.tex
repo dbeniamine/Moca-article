@@ -1,12 +1,6 @@
 \section{Design}
 \label{sec:design}
 
-\Moca collects \emph{complete} traces in the sense that the exact set
-of pages accessed by the application is deduced from the collected events
-at all times during the execution. Thus, it is \emph{complete} at the page granularity.
-Other information such as exact addresses and access times are a sample of
-the set of all the accesses.
-
 \Moca consist of a Linux kernel module that can be loaded at runtime,  a script
 in charge of both loading this module with the proper parameters and launching the
 monitored application on the user behalf
@@ -39,6 +33,12 @@ added to a small constant overhead for each binary opened and each allocation pe
 %is basically \Moca overhead plus one time the normal execution time.
 
 \subsection{Collecting memory accesses}
+
+\Moca collects \emph{complete} traces in the sense that the exact set
+of pages accessed by the application is deduced from the collected events
+at all times during the execution. Thus, it is \emph{complete} at the page granularity.
+Other information such as exact addresses and access times are a sample of
+the set of all the accesses.
 
 In recent Linux kernel, physical memory pages are lazily allocated to page frames during
 the execution. The first access to a page in the virtual address space triggers a page fault.
@@ -256,14 +256,14 @@ Each time a page fault occurs, it is trapped by the handler registered by
 % algorithm~\ref{algo:PageFault}.
 first finds out if the task
 (thread or process) responsible for the page fault is
-monitored or not.If not, it has to check if the task is a child of a monitored
-task and, in this case, it starts monitoring it. Those can be done with only a
+monitored or not. If not, it has to check if the task is a child of a monitored
+task and, in this case, it starts monitoring it. This can be done with just a
 read lock on the hashmap containing the monitored tasks. The write lock is
 only taken if the task must be added.
 This case occurs only at the first page fault of a new monitored
 process or thread which is quite rare and usually occurs only at the
 initialization time. For instance, in the benchmarks used for
-the evaluation it happens $8$ times for $5\times10^6$ accesses.
+the evaluation it happens $8$ times out of $5\times10^6$ accesses.
 At the end of this phase, if the task is still not monitored, we let Linux handle the page fault as usual.
 
 When a monitored task triggers a page fault, the access is first added
