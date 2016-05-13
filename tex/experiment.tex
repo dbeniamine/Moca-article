@@ -100,10 +100,11 @@ PEBS technology.
 The second one, \TABARNAC~\cite{Beniamine15TABARNACRR}, is one of our previous contribution.
 It is based on a Pin instrumentation, which traps all the memory accesses but 
 only counts the number of time each thread accesses to each page.
-\DB{Is the following sentence useful ?}
-Although this is less precise than the information collected by \Moca, it does not require
-the management of large and complex data
-structures.
+%\DB{Is the following sentence useful ?}
+%\GH{Pas vraiment}
+%Although this is less precise than the information collected by \Moca, it does not require
+%the management of large and complex data
+%structures.
 The third one, \MemProf~\cite{Lachaize12MemProf}, is designed to analyze NUMA
 performance issues and relies on AMD IBS.
 \tbl{tools-comp} summarizes the main differences
@@ -201,12 +202,16 @@ run on a machine from the \Edel cluster.
 \end{figure}
 
 We can see on the \fig{param_time} that the execution time increases when we
-reduce the monitoring wakeup interval, at \SI{40}{ms}
-it seems to reach its worst level, thus we should keep it larger. At \SI{50}{ms}, the
+reduce the monitoring wakeup interval. At \SI{40}{ms}
+it seems to reach its worst level, thus we should keep it larger. At \SI{50}{ms}, the default value we have chosen, the
 \fig{param_evts} shows that we obtain more than two thirds of the events captured
-at smaller intervals, which seems quite reasonable. Finally for this value, a logging
-interval of \SI{0.5}{s} seems to provide a good trade-off  between
-execution time and precision.\GH{Comment changer l'intervalle de logging peut-il avoir un impact sur le nombre d'évènements capturés ? Autre question un peu en
+at smaller intervals, which seems quite reasonable.
+Regarding the logging interval, our experiments do not exhibit a clear trend. Changing it seems to interfere with the system I/Os scheduler resulting in chaotic
+variations both in the execution time and the number of captured events. The fact that variations in execution time result in matching variations in the number
+of captured events is due to the fixed length of monitoring intervals : the longer the execution, the more monitoring intervals there are and the more events
+the trace contains. Overall these variations are not significant as all the confidence intervals intersect. 
+Finally we have chosen a logging interval of \SI{0.5}{s}, the median value, in order to avoid unnoticed effect caused by extremum values.
+\GH{Comment changer l'intervalle de logging peut-il avoir un impact sur le nombre d'évènements capturés ? Autre question un peu en
 	lien : on a l'impression que les figures \fig{param_time} et \fig{param_evts} sont exactement les même à un niveau de zoom près. C'est possible mais un
 peu étonnant si on tient compte de la question précédente}
 \DB{Les courbes sont bien sortie sur des jeux de données différents. Je
@@ -216,7 +221,9 @@ peu étonnant si on tient compte de la question précédente}
     Quoiqu'il en soit le fait de flusher la trace sur le disque déclenche pas
     mal d'I/O ce qui peut interferer avec l'appli observée et donc coup influer
     sur la qualité du sampling.}
-These two values have been chosen as default values in \Moca.
+\GH{Ok, ta dernière explication est plausible, mais ce qui est perturbant c'est qu'on ne voit pas de tendance : des fois on a plus d'évènement avec un petit
+logging interval, d'autres fois non. Je rajoute une explication qui me paraît plausible et je te laisse voir}
+%These two values have been chosen as default values in \Moca.
 
 
 % \newpage
@@ -350,9 +357,9 @@ significantly faster than \TABARNAC. This set of benchmarks is interesting as
 it is made of varied application profiles as we can see in \tbl{NPB}.
 Indeed, if \EP is mostly doing parallel computation with only a few number of
 memory accesses, \CG is described as memory intensive,
-\BT, \LU as well as \SP are pseudo applications,
+\BT, \LU as well as \SP are linear algebra solvers with regular memory access patterns,
 and both \UA and \DC contain \emph{unstructured computation,
-parallel I/O and data movement} and \DC have a considerable memory usage as
+parallel I/O and data movement}. Furthermore, \DC has a considerable memory footprint as
 described in \tbl{NPB}.
 %\GH{Ce n'est pas ce que je vois dans la table : UA semble comme les autres et le chiffre pour DC, 146Gib me paraît énorme, erreur ?}
 % Le 146 etait du a \SI qui mangait le '.' \ldots
@@ -363,27 +370,32 @@ The second group only contains memory intensive benchmarks (\FT and
 \IS). For this group, \Moca is as good as \TABARNAC or a bit faster, probably
 because the balance between computations and memory accesses hides the
 overhead of the instrumentation.
-\GH{Dans les deux paragraphes précédents il y a les termes memory intensive, significant usage of memory et memory oriented. Les perfs sont différentes mais ces
-trois termes semblent dire la même chose, ... on se demande du coup... }
-\DB{J'ai reformulé un peu, mais ces courbes montrent que mêmes des bench dites
-memory intensive peuvent avoir des performances correctes avec Moca}
+%\GH{Dans les deux paragraphes précédents il y a les termes memory intensive, significant usage of memory et memory oriented. Les perfs sont différentes mais ces
+%trois termes semblent dire la même chose, ... on se demande du coup... }
+%\DB{J'ai reformulé un peu, mais ces courbes montrent que mêmes des bench dites
+%memory intensive peuvent avoir des performances correctes avec Moca}
 
-For the last benchmark: \MG, \Moca is significantly slower than \TABARNAC. This benchmark
-seems to be a pathological case. It is important to note that \MG is not the
-benchmark using the largest set of addresses, therefore, the poor performance likely comes from a
-thread scheduling issue
+For the last benchmark: \MG, \Moca is significantly slower than \TABARNAC.
+%It is important to note that \MG is not the benchmark using the largest set of addresses, 
+%therefore, the poor performance likely comes from a thread scheduling issue rather than from the size of the benchmark.
 \GH{Ca, pour moi, ça sort du chapeau. Tu as un argument ? Moi je dirais plutôt qu'il balai largement son espace mémoire (même petit)
 durant toute son exécution}
 \DB{J'ai mal exprimé mon idée, en gros je pensait a un ordo bien pourrit du
     point de vu de Moca (en gros qui déclenche plein de prise de verrous),
     mais ça semble effectivement capilotracté.
 Ton argument est plus raisonnable}
-rather than from the size of the benchmark. By looking at our
+\GH{J'ai réécrit, je te laisse voir.}
+By looking at our
 experiment logs, we found that \MG generates a lot of conflicts in the hash map used by
-\Moca to store false page fault. A solution could be to increase the size of
-this hash map, which is quite difficult as memory space in the kernel is
-limited. Another easier solution would consist in working on a smaller version
+\Moca to store false page faults. This issue is caused by applications that perform a very large number of sparse accesses to a large working set.
+This is not usual as parallel applications are often optimized to make memory accesses as local as possible in order to take advantage of all the levels of the
+memory hierarchy.
+Thus, we consider this benchmark as a pathological case.
+A solution could be to increase the size of
+this hash map, which is not always possible as memory space in the kernel is
+limited (and these experiments have been run with the largest hash map we could use). Another easier solution would consist in working on a smaller version
 of \MG and see if the trace is still useful.
+\GH{On a des résultats avec MG plus petit ?}
 
 \fig{ovh-AMD} shows the results of the evaluation on the AMD machine
 (\Stremi). On this machine, \Moca overhead is quite similar to the one

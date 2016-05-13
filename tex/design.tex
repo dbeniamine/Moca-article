@@ -123,7 +123,8 @@ runtime overhead of their management.  These hashmaps are read at each page faul
 written, only when a new task of the monitored application triggers its first page
 fault or when \Moca creates some false page faults. We can protect
 them with Linux kernel built-in \emph{rwlocks}.
-\GH{Un peu contradictoire si on sait que les rwlocks favorisent les lecteurs\ldots}
+% La question ne se pose plus, la phrase a été retournée depuis, à l'époque elle parlait de priorité entre lecteurs et rédacteurs
+%\GH{Un peu contradictoire si on sait que les rwlocks favorisent les lecteurs\ldots}
 The third type of information is the actual
 trace, divided, for each task, in a private set of \emph{chunks}. A chunk is the set of
 accesses that have been collected during the monitoring time interval. Chunks provide a discretization
@@ -149,12 +150,14 @@ monitoring kernel thread, manages the progress of this logical time. It periodic
 \emph{ending} and invalidates all the pages they reference. Once all pages of the \emph{ending}
 chunks have been invalidated, it marks these chunks as \emph{completed}. Finally, the
 logging process flushes \emph{completed} chunks to the filesystem at a lower
-rate
+rate, in order to reduce the overhead of I/Os requests,
 \GH{Pourquoi à un rythme moins élevé ??? En théorie des files d'attentes ce genre de choses = débordement...}
 \DB{L'idée était de limiter la bande passante disque, et croiser les doigt
 pour que les files soient assez grosses \ldots Il faudrait essayer un logging
 interval très petit sur MG.}
-, and recycle them as empty places for upcoming chunks.  \fig{moca} depicts the interaction between the
+\GH{On peut aussi éventuellement rajouter les trois mots précédents, histoire de dire que le but
+est de factoriser les requêtes, pas de remplir la mémoire}
+and recycle them as empty places for upcoming chunks.  \fig{moca} depicts the interaction between the
 different processes and threads of \Moca, its data structures and Linux.
 
 %Eventually, \Moca generates one csv file, each line of this file
