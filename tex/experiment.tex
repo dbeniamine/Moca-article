@@ -393,8 +393,9 @@ memory hierarchy.
 Thus, we consider this benchmark as a pathological case.
 A solution could be to increase the size of
 this hash map, which is not always possible as memory space in the kernel is
-limited (and these experiments have been run with the largest hash map we could use). Another easier solution would consist in working on a smaller version
-of \MG and see if the trace is still useful.
+limited (and these experiments have been run with the largest hash map we could use). Another easier solution would consist in working on a smaller instance
+of \MG and see if the trace is still useful. Although the results are not presented here, we have run \Moca on \MG with a smaller size (W) and we have been able
+to confirm that the performance becomes comparable to \TABARNAC in this case.
 \GH{On a des résultats avec MG plus petit ?}
 
 \fig{ovh-AMD} shows the results of the evaluation on the AMD machine
