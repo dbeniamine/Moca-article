@@ -1,10 +1,16 @@
 \section{Design}
 \label{sec:design}
 
+\Moca collects \emph{complete} traces in the sense that the exact set
+of pages accessed by the application is deduced from the collected events
+at all times during the execution. Thus, it is \emph{complete} at the page granularity.
+Other information such as exact addresses and access times are a sample of
+the set of all the accesses.
+
 \Moca consist of a Linux kernel module that can be loaded at runtime,  a script
 in charge of both loading this module with the proper parameters and launching the
 monitored application on the user behalf
-and an optional Pintool (c++ library based on Intel Pin) to retrieve data
+and an optional \emph{Pintool}~\cite{Luk05Pin} (c++ library based on Intel Pin) to retrieve data
 structure informations.
 It neither relies on architecture specific
 technologies such as AMD IBS or Intel PEBS, nor on architecture dependent kernel
@@ -12,21 +18,13 @@ code, kernel patch or kernel modifications.
 Therefore it is highly portable and can be run on any recent Linux kernel
 from the $3.0$.
 
-\Moca collects \emph{complete} traces in the sense that the exact set
-of pages accessed by the application is deduced from the collected events
-at all times during the execution. Thus, it is \emph{complete} at the page granularity.
-Other information such as exact addresses and access times are a sample of
-the set of all the accesses.
-
 Two tasks are addressed by the kernel module included in \Moca. The first one is
 keeping track of the set of pages accessed by the application during an elementary monitoring
 interval. The second one is managing somehow the huge quantity of data produced
 by the trace collection within the kernel space in-between regular flushes toward
 the user space. Of course, these two tasks should be as slightly intrusive as possible.
 
-To make the trace more readable, \Moca can also retrieve data structure
-names, addresses and size using a Pin~\cite{Luk05Pin}
-instrumentation. When enabled \Moca runs the application twice with \texttt{virtual
+When the Pintool is enabled \Moca runs the application twice with \texttt{virtual
 address space randomization} disabled. The first time the application runs only
 under Pin instrumentation and the second time \Moca module is loaded but the
 instrumentation is disabled. This instrumentation reads static data
@@ -138,7 +136,7 @@ The advantage is that it reduces the volume of information stored for the access
     \resizebox{.9\linewidth}{!}{
         \Input{moca-tikz.tex}
     }
-    \caption{Interactions betweens \Moca's main component and Linux}
+    \caption{Interactions betweens \Moca and Linux}
     \label{fig:moca}
 \end{figure}
 
@@ -253,16 +251,15 @@ different processes and threads of \Moca, its data structures and Linux.
 %    \end{algorithmic}
 %\end{algorithm}
 
-Each time a page fault occurs, it is trapped by the handler registered by \Moca.
-%algorithm~\ref{algo:PageFault}.
-This handler first finds out if the task
+Each time a page fault occurs, it is trapped by the handler registered by
+\Moca, which
+% algorithm~\ref{algo:PageFault}.
+first finds out if the task
 (thread or process) responsible for the page fault is
-monitored or not. If not, it has to check if the task is a child of a monitored
-task and, in this case, it starts monitoring it. We only need a read lock
-to access to the hashmap containing the monitored tasks in order to answer to these
-two questions.
-If and only if the second answer is yes, it is necessary to take
-a write lock to add the task to the monitored ones.
+monitored or not.If not, it has to check if the task is a child of a monitored
+task and, in this case, it starts monitoring it. Those can be done with only a
+read lock on the hashmap containing the monitored tasks. The write lock is
+only taken if the task must be added.
 This case occurs only at the first page fault of a new monitored
 process or thread which is quite rare and usually occurs only at the
 initialization time. For instance, in the benchmarks used for
@@ -273,7 +270,6 @@ When a monitored task triggers a page fault, the access is first added
 to its current chunk. For each access, \Moca stores the exact address, it's type (read
 or write) and the CPU on which the fault occurred.  Then, it checks if the page
 fault has been injected by \Moca or if this is a legitimate page fault.
-
 In the first
 case, \Moca \emph{fixes} it by setting the \texttt{PRESENT} flag on the
 \texttt{Page Table Entry}.
@@ -282,7 +278,6 @@ be removed, but this would required a write lock, so we only mark the hashmap
 entry as \texttt{BAD}. \texttt{BAD} entries are removed, if needed, when the
 monitoring thread injects false page faults as this injection already requires to hold the
 write lock.
-
 If a fix occurred in the \Moca handler, Linux silently aborts the page fault
 when it resumes its execution. In the other case, it executes a normal page fault handling. Each page
 fault increases an atomic clock that is used to timestamp the beginning and end
@@ -291,8 +286,8 @@ of the chunks.
 %end of our handler and the end of Linux page fault handler. To avoid that, \Moca stores
 %for each CPU the last address that faulted, and does not clear it.
 
-All default values for the parameters that can influence either the accuracy of the trace or the
-overhead of the tool (such as the number and size of chunks, wakeup intervals
-for the monitoring thread and the logging process \ldots) can be overridden by the
-user. Nevertheless, reasonable defaults have been defined from the experimental study
-detailed in section~\ref{sec:expe-param}.
+%All default values for the parameters that can influence either the accuracy of the trace or the
+%overhead of the tool (such as the number and size of chunks, wakeup intervals
+%for the monitoring thread and the logging process \ldots) can be overridden by the
+%user. Nevertheless, reasonable defaults have been defined from the experimental study
+%detailed in section~\ref{sec:expe-param}.

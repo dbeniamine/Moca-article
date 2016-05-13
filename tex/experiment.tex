@@ -29,11 +29,11 @@ cluster.
     \begin{tabular}{lp{1.1cm}rrp{1.35cm}p{1.1cm}}
         \toprule
         \multirow{3}{.8cm}{CPU}
-        &  & \multicolumn{2}{c}{Vendor} & \multicolumn{2}{c}{Model} \\
-        \cmidrule(lr){3-6}
-        & \Edel  & \multicolumn{2}{c}{Intel} & \multicolumn{2}{c}{Xeon E5520} \\
+        %&  & \multicolumn{2}{c}{Vendor} & \multicolumn{2}{c}{Model} \\
+        %\cmidrule(lr){3-6}
+        & \Edel  & \multicolumn{4}{c}{Intel Xeon E5520} \\
         % & \Idfreeze & \multicolumn{2}{c}{AMD} & \multicolumn{2}{c}{Opteron 6174} \\
-        & \Stremi & \multicolumn{2}{c}{AMD} & \multicolumn{2}{c}{Opteron 6164 HE} \\
+        & \Stremi & \multicolumn{4}{c}{AMD Opteron 6164 HE} \\
         \midrule
         \multirow{3}{.8cm}{System totals}
         & & Nodes & Threads & Freq & Memory \\
@@ -54,20 +54,13 @@ cluster.
     \label{tab:hw}
 \end{table}
 
-For each experiment, we deployed the same \emph{Debian} \emph{Jessie}
-environment running a \texttt{Linux 3.16.0-4} on a machine with hyper threading
-disabled. We disabled address space randomization to make the comparison between different
-traces more practical. 
-As our two evaluation machines do not have the same hardware,
-we limited the number of threads used by openMP to $8$
-that is the largest number of hardware threads available on both machines.
 
 \begin{table}[htb]
     \centering
     \begin{tabular}{lccccc}
         \toprule
-        & \multicolumn{5}{c}{Design} \\
-        \cmidrule{2-6}
+        %& \multicolumn{5}{c}{Design} \\
+        %\cmidrule{2-6}
         & \multicolumn{3}{c}{Mechanisms} & \multicolumn{2}{c}{Architecture} \\
         \cmidrule{2-6}
         \TABARNAC   & \multicolumn{3}{c}{Instrumentation}
@@ -79,8 +72,8 @@ that is the largest number of hardware threads available on both machines.
         \Moca       & \multicolumn{3}{c}{Page faults (+Instrumentation)}
         & \multicolumn{2}{c}{\textbf{Any}}\\
         \midrule
-        & \multicolumn{5}{c}{Trace precision} \\
-        \cmidrule{2-6}
+        %& \multicolumn{5}{c}{Trace precision} \\
+        %\cmidrule{2-6}
         & Granularity & Superset & Time &
         Thread sharing & CPU\\
         \cmidrule{2-6}
@@ -94,21 +87,31 @@ that is the largest number of hardware threads available on both machines.
         \label{tab:tools-comp}
 \end{table}
 
+For each experiment, we deployed the same \emph{Debian} \emph{Jessie}
+environment running a \texttt{Linux 3.16.0-4} on a machine with hyper threading
+disabled. We disabled address space randomization to make the comparison between different
+traces more practical. 
+As our two evaluation machines do not have the same hardware,
+we limited the number of threads used by openMP to $8$
+that is the largest number of hardware threads available on both machines.
+
+
 We evaluate \Moca by comparing it to the following state of the art tools. The first one,
-\Mitos, is the tracing tool from MemAxes~\cite{Gimenez14Dissecting} and relies on Intel
-PEBS technology.
-The second one, \TABARNAC~\cite{Beniamine15TABARNACRR}, is one of our previous contribution.
-It is based on a Pin instrumentation, which traps all the memory accesses but 
-only counts the number of time each thread accesses to each page.
+\Mitos, is the tracing tool from MemAxes~\cite{Gimenez14Dissecting}.
+%and relies on Intel PEBS technology.
+The second one, \TABARNAC~\cite{Beniamine15TABARNACRR}, is one of our previous
+contribution,
+%It is based on a Pin instrumentation, which traps all the memory accesses but 
+which only counts the number of time each thread accesses to each page.
 %\DB{Is the following sentence useful ?}
 %\GH{Pas vraiment}
 %Although this is less precise than the information collected by \Moca, it does not require
 %the management of large and complex data
 %structures.
 The third one, \MemProf~\cite{Lachaize12MemProf}, is designed to analyze NUMA
-performance issues and relies on AMD IBS.
-\tbl{tools-comp} summarizes the main differences
-between \Moca and these other memory profiling tools.
+performance issues. %and relies on AMD IBS.
+The main differences between \Moca and these other memory profiling tools are
+summarized in \tbl{tools-comp}.
 
 \begin{table}[htb]
     \centering
@@ -140,36 +143,31 @@ between \Moca and these other memory profiling tools.
 \end{table}
 
 In the following sections, all the tools are
-evaluated on each of the 10 \NPB~\cite{Jin1999}, these benchmarks are
+evaluated on each of the 10 \NPB~\cite{Jin1999}, which are
 presented in \tbl{NPB}, according to the information available on the nasa
 website\footnote{\url{http://www.nas.nasa.gov/publications/npb.html}}.
-
-Each point in each plot is the average of at least $30$ executions. Along with each point,
-the error bars represent the standard error.
 
 Except for the experiment about the influence of \Moca's parameters, on each
 experiment, \Moca has been run with it's default parameters: a wakeup interval of
 \SI{0.5}{s} for the logging process and \SI{50}{ms} for the monitoring thread.
+Each point in each plot is the average of at least $30$ executions. Along with each point,
+the error bars represent the standard error.
 
 We consider experimental reproducibility as an important matter, therefore we
 distribute\footnote{See our experiment repository:
     \href{https://github.com/dbeniamine/Moca_expe}{github.com/dbeniamine/Moca\_expe}}
 all the files needed to reproduce our experiments at three different levels:
-
-\begin{enumerate}
-    \item \textbf{Statistic analysis:} To reproduce our statistic analysis we provide
-        the filtered results (csv files) from the experiments along with the
-        \texttt{R-markdown} scripts that generated the plots presented in this
-        article.
-    \item \textbf{Raw traces analysis:} At this level, we provide the full raw traces
-        generated by our experiments along with the scripts used to extract the
-        filtered traces (csv files from the previous level) and the scripts used
-	at the previous level to perform the analysis.
-    \item \textbf{Complete experiment:} At the most comprehensive level, we provide a git
-        repository that includes our deployment environment, dependencies to all the
-        tools and files required and instructions that explain how
-        to reproduce the experiment with or without access to grid5000.
-\end{enumerate}
+The first level constains the filtered results (csv files) from the
+experiments along with the \texttt{R-markdown} scripts that generated the
+plots presented in this article allowing to reproduce our statistic analysis.
+The second consists of the full raw traces generate by our experiments along
+with the scripts used to extract the filtered traces (csv files from the
+previous level) and the scripts used at the previous level to perform the
+analysis.
+Finally, at the most comprehensive level, we provide a git repository that
+includes our deployment environment, dependencies to all the tools and files
+required and instructions that explain how to reproduce the experiment with or
+without access to grid5000.
 
 
 %\subsection{Experiments}
