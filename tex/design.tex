@@ -267,7 +267,7 @@ the evaluation it happens $8$ times out of $5\times10^6$ accesses.
 At the end of this phase, if the task is still not monitored, we let Linux handle the page fault as usual.
 
 When a monitored task triggers a page fault, the access is first added
-to its current chunk. For each access, \Moca stores the exact address, it's type (read
+to its current chunk. For each access, \Moca stores the exact address, its type (read
 or write) and the CPU on which the fault occurred.  Then, it checks if the page
 fault has been injected by \Moca or if this is a legitimate page fault.
 In the first

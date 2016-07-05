@@ -1,0 +1,16 @@
+TODO:
+
++ HPCToolkit Memory fine grain sampling ?
++ Avoid words like "Reasonable" (Figure 2, 50ms)
++ Caption in subfigures to close (figs 2,3,4)
++ Fig1 unreadable
++ Section III unclear => fig ?
++ Table II heades unclear
++ B/W colors Fig 3 and 4 ?
++ Notion of complete coverage unclear
+
+DONE:
++ Fig4: Pin => Tabarnac
++ Grammar:
+    + P4 it's type => its type
+    + P8 the sam overhead then => the same overhead as
