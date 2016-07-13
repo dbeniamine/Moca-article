@@ -70,8 +70,10 @@ but it comes at the cost of performances.
 % Fast
 % instrumentations usually either rely on a simulator~\cite{DeRose02SIGMA} which is not as realistic as an actual execution
 % \GH{simulation ou emulation ? Pas réaliste ? il faut un peu argumenter..}
-Tools that rely on binary instrumentation usually collect data at a coarser granularity and give up temporal
-data~\cite{Beniamine15TABARNAC} to reduce their overhead.
+Tools that rely on binary instrumentation either collect data at a coarser
+granularity and give up temporal data~\cite{Beniamine15TABARNAC} or merge
+accesses into higher level representation and do online compression of the
+trace~\cite{Budanur11Memory} to limit their overhead.
 
 
 Page faults interception can provide useful online information about memory usage,
