@@ -1,15 +1,28 @@
 TODO:
 
-+ HPCToolkit Memory fine grain sampling ?
-+ Avoid words like "Reasonable" (Figure 2, 50ms)
-+ Caption in subfigures to close (figs 2,3,4)
-+ Fig1 unreadable
-+ Section III unclear => fig ?
-+ Table II heades unclear
-+ B/W colors Fig 3 and 4 ?
++ Check template
 + Notion of complete coverage unclear
++ Avoid words like "Reasonable" (Figure 2, 50ms)
++ Section III unclear => fig ?
++ Table II header unclear
+Impression verifier:
+    + B/W colors Fig 3 and 4 ?
+    + Caption in subfigures to close (figs 2,3,4)
+
+Related work (Guillaume):
+
++ Intro Collecte trace mémoire
++ Perfcounter based => mem entité globale
++ Memoire ensemble pages: Tabarnac
++ Mémoire pages, adresse, temps:
+    + Binary instrumentation: facteur 50 sur micro exemple (MM 48*48)
+    + Sampling: Mitos, MemProf
+    + HW / Simu ...
+    + Pagefault interception + generation
+
 
 DONE:
++ Fig1 unreadable
 + Fig4: Pin => Tabarnac
 + Grammar:
     + P4 it's type => its type
