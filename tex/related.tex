@@ -3,103 +3,98 @@
 \section{Related Works}
 \label{sec:related}
 
-two words, perfct likwid papi
-
-
-
-Several generic tools have been designed to analyze and improve parallel
-applications performances, such as Intel's VTune~\cite{Reinders05VTune},
-Performance Counter Monitor~(PCM)~\cite{Intel2012b}, the
-HPCToolkit~\cite{Adhianto10HPCTOOLKIT}, and AMD's
-CodeAnalyst~\cite{Drongowski2008}. All of these tools use performance
-counters and execution traces to show
-
-globbal info from HW counters
-
-memory seen as one resource, global bandwith / cache misses but no insight
-about memory location.
-
-%highlight potential places for improvements.
-%But they mostly focus on CPU related information and provide only
-%indirect data about memory performances, ones that can be computed from the performance counters values.
-
-\DB{re-order}
-
-%As performances counters are architecture dependent and are not always easily
-%understandable, higher level libraries such as \emph{PAPI}~\cite{Weaver13PAPI} and
-%\emph{Likwid}~\cite{Treibig10LIKWID} have been developed to ease their analysis. These
-%libraries are able to derive more abstract and understandable metrics from raw hardware counters.
-%For instance Likwid provides several groups of metrics related to memory
-%providing the user with computed bandwidth in each cache level and between each CPU core
-%and the main memory.
-Overall, a lot of studies provide a memory analysis solely based
-on information collected through these hardware performance counters~\cite{Majo13(Mis)understanding,
+Most performance analysis are based on performance counters which are CPU
+register, initially designed by CPU vendors to debug their prototypes, that
+allow to count specific events such as branch miss prediction or cache misses.
+Theses counters are accessible directly  through the \texttt{Perf} driver
+since Linux kernel $2.6.31$ yet they are CPU and vendor dependent, thus higher
+level libraries such as \emph{PAPI}~\cite{Weaver13PAPI} and
+\emph{Likwid}~\cite{Treibig10LIKWID} were developed to ease their usage.
+Moreover these libraries are able to derivate metrics. A lot of provide a
+memory analysis solely based on information collected through these
+libraries~\cite{Majo13(Mis)understanding,
 Jiang14Understanding,Bosch00Rivet,Weyers14Visualization,Tao01Visualizing,DeRose01Hardware}.
-Despite providing a good global summary about memory performance figures, these counters only provide a partial view of the execution. They
-account for memory related events from the point of view of one processor, but
-do not give a precise insight about the place and the cause of these events.
+%
+Furthermore several generic tools have been designed on top of these counters
+to analyze and improve parallel applications performances, such as Intel's
+VTune~\cite{Reinders05VTune}, Performance Counter
+Monitor~(PCM)~\cite{Intel2012b}, the HPCToolkit~\cite{Adhianto10HPCTOOLKIT},
+and AMD's CodeAnalyst~\cite{Drongowski2008}.
+%
+Although performance counters provide information on the memory usage
+(bandwith, volume of data transferred \ldots),  they consider the memory as
+one huge entity and does not differentiate addresses or at least
+pages, thus these methods are not able to localise issue in the memory.
 
-Another approach used by several
+Some tools sees the memory as a set of page loosing information at a finer
+granularity. This abstraction allows to trace memory accesses at a reduced
+cost. For instance \TABARNAC~\cite{Beniamine15TABARNAC} uses a binary
+instrumentation (based on Intel's Pin~\cite{Luk05Pin}) and traps on every
+memory accesses, yet it only keeps one counter per page and per threads to
+reduce its overhead. While this approach provides a deeper insight of the
+memory usage, it looses temporal informations.
+
+Tracing every memory accesses without information loss is nearly impossible as
+almost each instruction can trigger a memory access, yet several methods
+allow to record a memory trace with fine grain and temporal information.
+%
+Budanur et al.~\cite{Budanur11Memory} uses an instrumentation based tool to
+collect every memory accesses, they do online compression and merge accesses
+into a higher level model to reduce both the trace size and their overhead.
+Yet on a small matrix multiplication ($48*48$, 4 threads OpenMP) they already
+slow the exeuction down by a factor of $50$.
+% sampling:
+Another method, used by several
 tools~\cite{Lachaize12MemProf,McCurdy10Memphis,Liu14Tool,Gimenez14Dissecting}
-consists in using instructions sampling mechanisms such as AMD's Instruction Based Sampling
+is to rely on hardware sampling such as AMD's Instruction Based Sampling
 (IBS)~\cite{Drongowski07Instructionbased} or Intel Precise Event Based
-Sampling (PEBS)~\cite{Levinthal2009} to trace the application execution. These methods
-provide \emph{incomplete} sampling: some parts of the memory can be accessed without
-being noticed by the tool if none of the associated instructions are part of the sampled
-instructions.
-Thus, it is possible that they ignore some parts of the memory less frequently accessed but in which
-optimization could take place.
-Despite their low frequency, application sensitive to spurious performance degradation, such as interactive applications, could be hindered by these unnoticed
-accesses.
-
-To make things practical, these sampling mechanisms monitor what they name an events set given by an instruction type along with some predicates.
-They can monitor several events sets at the same time but the number of monitored sets is limited by the hardware capabilities (number of available
-registers). Unfortunately, the number of existing events sets that relate to the memory hierarchy is large, because of its complexity.
-This makes difficult the task of tracing all the relevant memory accesses with just a single analysis.
-One way to lessen the impact of this limitation is to run several times the
-instrumentation and use advanced methods such as
-folding~\cite{Servat15Towards} to generate a more accurate summary trace.
-Nevertheless, this makes the instrumentation cost grow accordingly.
-Moreover, writing (and sometimes) using tools that relies on hardware mechanisms
-requires a deep knowledge of the processor. As processors evolve,
-such tools are hard to maintain and can quickly become outdated.
-We regard all these limitations as too constraining for a general purpose
-memory analysis tool.
-
-Some other studies make use of hardware modification, either actual or
-simulated~\cite{Bao08HMTT,Martonosi92MemSpy}.  Although they are eventually able to collect
-more precise traces efficiently, these techniques are limited to hardware
-developers. Indeed, to use these hardware extensions one has either to obtain (or build) a
-prototype or to use a suitable simulator. Such configuration is not realistic
-for general purpose memory analysis.
-
-Binary instrumentation can provide accurate information about memory accesses.
-This method is portable and  more precise than the aforementioned ones,
-but it comes at the cost of performances. 
-% Référence supprimée: trop expeditive, SIGMA mélange une vrai instrumentation
-% avec des simulation a partir de la trace pour extrapoler le comportement sur
-% d'autres architectures, c'est un peu trop loin je pense
-% Fast
-% instrumentations usually either rely on a simulator~\cite{DeRose02SIGMA} which is not as realistic as an actual execution
-% \GH{simulation ou emulation ? Pas réaliste ? il faut un peu argumenter..}
-Tools that rely on binary instrumentation either collect data at a coarser
-granularity and give up temporal data~\cite{Beniamine15TABARNAC} or merge
-accesses into higher level representation and do online compression of the
-trace~\cite{Budanur11Memory} to limit their overhead.
-
-
-Page faults interception can provide useful online information about memory usage,
-such a mechanism has been used in several existing works : in parallel
-garbage collectors~\cite{Boehm91Mostly}, in memory
+Sampling (PEBS)~\cite{Levinthal2009}.  These methods provide \emph{incomplete}
+sampling: some parts of the memory can be accessed without being noticed by
+the tool if none of the associated instructions are part of the sampled
+instructions.  Thus, it is possible that they ignore some parts of the memory
+less frequently accessed but in which optimization could take place.  Despite
+their low frequency, application sensitive to spurious performance
+degradation, such as interactive applications, could be hindered by these
+unnoticed accesses.
+%
+% Folding mechanisms: offtopic
+%
+% To make things practical, these sampling mechanisms monitor what they name an events set given by an instruction type along with some predicates.
+% They can monitor several events sets at the same time but the number of monitored sets is limited by the hardware capabilities (number of available
+% registers). Unfortunately, the number of existing events sets that relate to the memory hierarchy is large, because of its complexity.
+% This makes difficult the task of tracing all the relevant memory accesses with just a single analysis.
+% One way to lessen the impact of this limitation is to run several times the
+% instrumentation and use advanced methods such as
+% folding~\cite{Servat15Towards} to generate a more accurate summary trace.
+% Nevertheless, this makes the instrumentation cost grow accordingly.
+% Moreover, writing (and sometimes) using tools that relies on hardware mechanisms
+% requires a deep knowledge of the processor. As processors evolve,
+% such tools are hard to maintain and can quickly become outdated.
+% We regard all these limitations as too constraining for a general purpose
+% memory analysis tool.
+Other studies relies on hardware modification, either actual or
+simulated~\cite{Bao08HMTT,Martonosi92MemSpy}.  Although they are eventually
+able to collect more precise traces efficiently, these techniques are limited
+to hardware developers. Indeed, to use these hardware extensions one has
+either to obtain (or build) a prototype or to use a suitable simulator. Such
+configuration is not realistic for general purpose memory analysis.
+%
+Finally  page faults interception can provide useful online information about
+memory usage, such a mechanism has been used in several existing works : in
+parallel garbage collectors~\cite{Boehm91Mostly}, in memory
 checkpointing~\cite{Heo05Spaceefficient} or in the domain of virtualization to
 provide the hypervisor with information about the memory usage of the guest
-OS~\cite{Jones06Geiger}. Nevertheless, page faults only occur when caused by predetermined
-events in the system. Thus, just intercepting existing page faults only provide a broad view of the
-memory behavior. To reach a deeper understanding of this memory behavior,
-it is also possible to fake invalid pages at regular intervals in order to generate false faults~\cite{Bae12Dynamic,Diener13CommunicationBased}.
-These false page faults are just triggered during regular memory accesses that would not have 
-caused a page fault if the page were not faked as invalid. The advantage is that they create additional
-events for the monitoring tool to collect, thus more precision, but the set of faked invalid pages has to be known and maintained by the monitoring tool.
+OS~\cite{Jones06Geiger}. Nevertheless, page faults only occur when caused by
+predetermined events in the system. Thus, just intercepting existing page
+faults only provide a broad view of the memory behavior. To reach a deeper
+understanding of this memory behavior, it is also possible to fake invalid
+pages at regular intervals in order to generate false
+faults~\cite{Bae12Dynamic,Diener13CommunicationBased}.  These false page
+faults are just triggered during regular memory accesses that would not have
+caused a page fault if the page were not faked as invalid. The advantage is
+that they create additional events for the monitoring tool to collect, thus
+more precision, but the set of faked invalid pages has to be known and
+maintained by the monitoring tool.
 
 As a final note, most tools close to our proposal do not use false page faults injection and only need to store the location of memory pages and the threads that access them.
 As a consequence, they require a relatively small data structure in memory for their own usage.
