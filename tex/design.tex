@@ -5,28 +5,28 @@
 in charge of both loading this module with the proper parameters and launching the
 monitored application on the user behalf
 and an optional \emph{Pintool}~\cite{Luk05Pin} (c++ library based on Intel Pin) to retrieve data
-structure informations.
+structures information.
 It neither relies on architecture specific
 technologies such as AMD IBS or Intel PEBS, nor on architecture dependent kernel
 code, kernel patch or kernel modifications.
-Therefore it is highly portable and can be run on any recent Linux kernel
+Therefore it is portable and can be run on any Linux kernel
 from the $3.0$.
 
 Two tasks are addressed by the kernel module included in \Moca. The first one is
-keeping track of the set of pages accessed by the application during an elementary monitoring
-interval. The second one is managing somehow the huge quantity of data produced
+to keep track of the set of pages accessed by the application during an elementary monitoring
+interval. The second one is to manage the huge quantity of data produced
 by the trace collection within the kernel space in-between regular flushes toward
 the user space. Of course, these two tasks should be as slightly intrusive as possible.
 
-When the Pintool is enabled \Moca runs the application twice with \texttt{virtual
-address space randomization} disabled. The first time the application runs only
-under Pin instrumentation and the second time \Moca module is loaded but the
-instrumentation is disabled. This instrumentation reads static data
+When the Pintool is enabled, \Moca runs the application twice with virtual
+address space randomization disabled. The first time, the application runs only
+on top of our Pin instrumentation, the second time, the \Moca module is loaded but the
+Pin instrumentation is disabled. This instrumentation only reads static data
 structures information in each executed binary file and stores data about structures larger than
 one page. It also intercepts all calls to \texttt{malloc} family functions
-and names malloced structures according to their call path.
+and names these calls according to their stack trace.
 \Moca and Pin are run separately because preliminary experiments showed us that combining both
-tools resulted in a degradation of the trace quality. Our instrumentation remains lightweight, the
+tools resulted in a degradation of the trace quality. Our instrumentation is still lightweight, the
 added cost of the Pin instrumentation is the cost of a regular execution 
 added to a small constant overhead for each binary opened and each allocation performed.
 %initialization. Thus the overhead of using \Moca and the Pin instrumentation
@@ -44,20 +44,19 @@ In recent Linux kernel, physical memory pages are lazily allocated to page frame
 the execution. The first access to a page in the virtual address space triggers a page fault.
 To handle this page fault, Linux allocates a physical page to the requested page frame.
 Such a page fault can also be triggered when a thread access a shared page modified by
-another thread. \Moca is built upon the possibility to monitor memory accesses by registering
-a callback on Linux page faults.
+another thread. \Moca is built upon the possibility to register an additional callback on Linux page faults.
 
 Nevertheless, a page fault does not occur at each memory access. To monitor memory accesses during
 the course of the execution, we need to reenable a page fault similar to the first access, but
 performed on a regular basis and on behalf of \Moca.
-In other words, we need to generate false page fault by periodically marking as \emph{not present}
+In other words, we need to inject false page fault by periodically marking as \emph{not present}
 the pages accesses by the application.
 In Linux terminology, this means that any access to the page will trigger a page fault which
 will have to be handled, in this case, by a handler contained in \Moca.
 
 This method has several advantages over hardware sampling or
-instrumentation. First it provides a superset of all the memory accesses, because it
-guarantee that each page accessed by the monitored application will at least fault once
+instrumentation. First, it provides a superset of all the memory accesses, because it
+guarantees that each page accessed by the monitored application will fault once
 and will be traced. Thus, at the end of each monitoring interval, we know the exact set
 of accessed pages from which we deduce a superset of actual memory accesses.
 This comes in addition to the fact that each false page fault generated provides \Moca with
@@ -74,11 +73,11 @@ that contains all the pages on which the application works.
 
 \Moca also differs from instrumentation based tools because, just as in the case of sampling,
 memory accesses that are not collected in the trace are not trapped at all by a false page fault. Furthermore, the
-remaining memory accesses, those which are collected, are trapped using a hardware mechanism and
-Linux kernel probes. Both are lightweight mechanisms, this means that
-the overall instrumentation overhead of \Moca is likely to be much lower.
+remaining memory accesses, which are collected, are trapped using a hardware mechanism and
+Linux kernel probes. Both are lightweight mechanisms, which means that
+the overall instrumentation overhead of \Moca is likely to be low.
 Indeed, instrumentation based methods often work at a high granularity, collecting few information,
-in order to restrain their naturally high overhead.
+in order to keep their naturally high overhead in control.
 
 %In short, \Moca collects complete traces at the granularity of the page, whereas instruction
 %sampling cannot guarantee any completeness of the collected trace. And \Moca is 
@@ -119,17 +118,16 @@ the monitored application.
 The first two types of information are stored in preallocated hashmaps in order to reduce the
 runtime overhead of their management.  These hashmaps are read at each page fault but rarely
 written, only when a new task of the monitored application triggers its first page
-fault or when \Moca creates some false page faults. We can protect
+fault or when \Moca creates new false page faults. We can protect
 them with Linux kernel built-in \emph{rwlocks}.
 % La question ne se pose plus, la phrase a été retournée depuis, à l'époque elle parlait de priorité entre lecteurs et rédacteurs
 %\GH{Un peu contradictoire si on sait que les rwlocks favorisent les lecteurs\ldots}
 The third type of information is the actual
 trace, divided, for each task, in a private set of \emph{chunks}. A chunk is the set of
 accesses that have been collected during the monitoring time interval. Chunks provide a discretization
-of the time, each chunk embed two timestamp to delimit its temporal bounds.
-The accesses are not timestamped but their order in the trace file is their
+of time, each chunk embed two timestamp to delimit its temporal bounds.
+To reduce the volume of information stored, the accesses are not timestamped. However, their order in the trace file is their
 order of arrival in the chunk.
-The advantage is that it reduces the volume of information stored for the accesses.
 
 \begin{figure}[htb]
     \centering
@@ -138,9 +136,9 @@ The advantage is that it reduces the volume of information stored for the access
     \label{fig:moca}
 \end{figure}
 
-This discretization of the time, materialized as a sequence of chunks, is useful as it let the
-different components of \Moca work concurrently on different chunks.  Indeed the traced
-program will always work on \emph{current} chunks, one for each core, while the logging daemon,
+The discretization of time, materialized as a sequence of chunks, is useful as it let the
+different components of \Moca work concurrently on different chunks.  Indeed, the traced
+program always works on \emph{current} chunks, one for each core, while the logging daemon,
 which flushes the trace from memory to permanent storage works on \emph{completed} chunks. A
 monitoring kernel thread, manages the progress of this logical time. It periodically wakes up, marks the current chunks as
 \emph{ending} and invalidates all the pages they reference. Once all pages of the \emph{ending}
@@ -253,13 +251,13 @@ Each time a page fault occurs, it is trapped by the handler registered by
 \Moca, which
 % algorithm~\ref{algo:PageFault}.
 first finds out if the task
-(thread or process) responsible for the page fault is
+(thread or process) involved by the page fault is
 monitored or not. If not, it has to check if the task is a child of a monitored
-task and, in this case, it starts monitoring it. This can be done with just a
-read lock on the hashmap containing the monitored tasks. The write lock is
+task and, in this case, it starts monitoring it. The check be done with a simple
+read lock on the hashmap containing the monitored tasks, and the write lock is
 only taken if the task must be added.
-This case occurs only at the first page fault of a new monitored
-process or thread which is quite rare and usually occurs only at the
+This last case occurs only at the first page fault from a new monitored
+process or thread which is quite rare and usually occurs only at
 initialization time. For instance, in the benchmarks used for
 the evaluation it happens $8$ times out of $5\times10^6$ accesses.
 At the end of this phase, if the task is still not monitored, we let Linux handle the page fault as usual.
@@ -270,12 +268,12 @@ or write) and the CPU on which the fault occurred.  Then, it checks if the page
 fault has been injected by \Moca or if this is a legitimate page fault.
 In the first
 case, \Moca \emph{fixes} it by setting the \texttt{PRESENT} flag on the
-\texttt{Page Table Entry}.
+%\texttt
+{Page Table Entry}.
 The hashmap entry indicating that the fault was triggered by \Moca should then
 be removed, but this would required a write lock, so we only mark the hashmap
 entry as \texttt{BAD}. \texttt{BAD} entries are removed, if needed, when the
-monitoring thread injects false page faults as this injection already requires to hold the
-write lock.
+monitoring thread, which holds a write lock on this hashmap, injects false page faults.
 If a fix occurred in the \Moca handler, Linux silently aborts the page fault
 when it resumes its execution. In the other case, it executes a normal page fault handling. Each page
 fault increases an atomic clock that is used to timestamp the beginning and end
