@@ -14,11 +14,11 @@ and the other that compares the precision and performance of all the tools.
 %\Moca.
 
 Our main experiments were run on  machines from Grid5000 \Edel
-cluster.
+cluster (Intel machines).
     As some state of the art tools can only run on AMD machines, we also ran
-    some of the experiment presented in section~\ref{sec:expe-ovh} on
+    some of the experiments presented in section~\ref{sec:expe-ovh} on
     \Stremi machine from Grid5000 grenoble.
-    These machines hardware specifications
+    These machines hardware specifications%
    \footnote{Grid5000 provides an online hardware description:\\
        \url{https://www.grid5000.fr/mediawiki/index.php/Grenoble:Hardware\#Edel}
        \\\url{https://www.grid5000.fr/mediawiki/index.php/Reims:Hardware\#Stremi}}
@@ -96,7 +96,7 @@ environment running a \texttt{Linux 3.16.0-4} on a machine with hyper threading
 disabled. We disabled address space randomization to make the comparison between different
 traces more practical. 
 As our two evaluation machines do not have the same hardware,
-we limited the number of threads used by openMP to $8$
+we limited the number of threads used by openMP to $8$,
 that is the largest number of hardware threads available on both machines.
 
 
@@ -104,9 +104,9 @@ We evaluate \Moca by comparing it to the following state of the art tools. The f
 \Mitos, is the tracing tool from MemAxes~\cite{Gimenez14Dissecting}.
 %and relies on Intel PEBS technology.
 The second one, \TABARNAC~\cite{Beniamine15TABARNACRR}, is one of our previous
-contribution,
+contribution.
 %It is based on a Pin instrumentation, which traps all the memory accesses but 
-which only counts the number of time each thread accesses to each page.
+%which only counts the number of time each thread accesses to each page.
 %\DB{Is the following sentence useful ?}
 %\GH{Pas vraiment}
 %Although this is less precise than the information collected by \Moca, it does not require
@@ -121,7 +121,7 @@ summarized in \tbl{tools-comp}.
     \centering
     \begin{tabular}{p{1.5cm}lcp{3.3cm}}
         \toprule
-        Group & Name & Footprints* & Description \\
+        Group & Name & Footprint & Description \\
         \midrule
         \multirow{4}{1.5cm}{Memory Intensive}
         & \IS & \SI{132}{Mib} & Integer Sort \\
@@ -141,18 +141,21 @@ summarized in \tbl{tools-comp}.
         CPU bound & \EP & \si{78}{Mib}& Embarrassingly parallel \\
         \bottomrule
     \end{tabular}
-    \caption{Description of the \NPB.\\
-        *\emph{maximum memory used, measured with Valgrind}.}
+    \caption{Description of the \NPB.}
+    %\\ *\emph{maximum memory used, measured with Valgrind}.}
     \label{tab:NPB}
 \end{table}
 
 In the following sections, all the tools are
 evaluated on each of the 10 \NPB~\cite{Jin1999}, which are
 presented in \tbl{NPB}, according to the information available on the nasa
-website\footnote{\url{http://www.nas.nasa.gov/publications/npb.html}}.
+website\footnote{\url{http://www.nas.nasa.gov/publications/npb.html}}. In this table, we included the footprint of each benchmark, that is the maximum memory
+used, as reported by Valgrind.
 
-Except for the experiment about the influence of \Moca's parameters, on each
-experiment, \Moca has been run with it's default parameters: a wakeup interval of
+In each experiment,
+\Moca has been run with its default parameters,
+except for the experiment about the influence of these parameters.
+Their default values are: a wakeup interval of
 \SI{0.5}{s} for the logging process and \SI{50}{ms} for the monitoring thread.
 Each point in each plot is the average of at least $30$ executions. Along with each point,
 the error bars represent the standard error.
@@ -180,12 +183,12 @@ without access to grid5000.
 \label{sec:expe-param}
 
 Before comparing \Moca to existing tools, we need to evaluate the impact of
-the wakeup intervals (logging daemon and monitor thread) on the trace
-precision and on the overhead. To do so, we run the \IS benchmark instrumented by \Moca with
+the wakeup intervals (logging daemon and monitoring thread) on the trace
+\emph{precision} and on the overhead. To do so, we run the \IS benchmark instrumented by \Moca with
 a wakeup interval ranging from \SI{0.1}{s} to  \SI{0.9}{s} for the logging daemon and from \SI{20}{ms} to
 \SI{100}{ms} for the monitoring thread. For each run, we measure \IS execution time and the number of
-accesses captured. We have chosen \IS for this evaluation as it is one of the memory intensive \NPB,
-quick experiments with other ones confirmed these results. This experiment was
+accesses captured. We have chosen \IS for this evaluation as it is one of the memory intensive out of the \NPB
+and quick experiments with other ones confirmed these results. This experiment was
 run on a machine from the \Edel cluster.
 
 \begin{figure}[htb]
@@ -208,7 +211,7 @@ We can see on the \fig{param_time} that the execution time increases when we
 reduce the monitoring wakeup interval. At \SI{40}{ms}
 it seems to reach its worst level, thus we should keep it larger. At \SI{50}{ms}, the default value we have chosen, the
 \fig{param_evts} shows that we obtain more than two thirds of the events captured
-at smaller intervals, which seems quite reasonable.
+at smaller intervals, which seems sufficient to us.
 Regarding the logging interval, our experiments do not exhibit a clear trend. Changing it seems to interfere with the system I/Os scheduler resulting in chaotic
 variations both in the execution time and the number of captured events. The fact that variations in execution time result in matching variations in the number
 of captured events is due to the fixed length of monitoring intervals : the longer the execution, the more monitoring intervals there are and the more events
@@ -236,31 +239,31 @@ logging interval, d'autres fois non. Je rajoute une explication qui me paraît p
 
 Preliminary experiments showed us that \Mitos capture by
 default way less distinct pages than \TABARNAC and \Moca. Thus, we tried to change \Mitos
-sampling period in order to make it capture at most pages as possible, 
-we name this version \MitosTun. Surprisingly, its behavior regarding this sampling period
+sampling period in order to make it capture as many pages as possible, 
+we name this version \MitosTun. Surprisingly, \Mitos behavior regarding this sampling period
 is not monotonous, we had to try many different periods to find the proper one.
 
 The default \MemProf distribution did not work with our experimental setup. With the help
 of their support team\footnote{see issue at
     \href{https://github.com/Memprof/scripts/issues/1}{github.com/Memprof/scripts/issues/1}}, we managed to make it work by disabling the library used to retrieve
 data structures names. For the same reason as in the case of \Mitos, our study includes
-two version of \MemProf: the default version and \MemProfTun for which we have
+two versions of \MemProf: the default version and \MemProfTun for which we have
 increased the sampling rate to its maximum.
 
-Finally our evaluation also differentiate \Moca (kernel module only) from
-\MocaPin which also retrieve the data structure information using a Pin
-instrumentation, we make this distinction to evaluate the impact of Pin on
+Finally our evaluation also distinguishes \Moca (kernel module only) from
+\MocaPin, which also retrieve the data structure information using a Pin
+instrumentation. We make this distinction to evaluate the impact of Pin on
 \Moca performances.
 
-We compare the different tools on two aspects: trace precision and induced slowdown. Regarding the trace precision, the first experiment compares the tools
-using two criteria:  the
+We compare the different tools regarding two metrics, trace \emph{precision} and induced slowdown. Regarding the trace \emph{precision}, the first experiment compares the tools
+using two criteria, the
 percentage of captured pages and the number of captured events.  We use \TABARNAC as a reference to compute the total number of pages accessed by the
-application because, by design, it traps all the memory accesses to compute the number performed in each page. This metric is representative of coverage of the
-memory space: the capacity of the tool to outline the whole memory area accessed by the application. Regarding the number of captured events, we present the percentage
-relative to \Moca, as it is the tool that usually provides the more precise traces. We define one event as one
-timestamped access found in the trace file outputted by a tool. According to this definition, \TABARNAC does not capture any events as it only keep one
-counter per page and per thread without any temporal informations. Thus, \TABARNAC is excluded from this comparison. The number of captured events is representative
-of the precision of a monitoring tool, its capacity to keep track of all the evolutions of the access patterns during the course of the execution. The idea is
+application because, by design, it traps all the memory accesses to compute the number performed in each page. This metric is representative of the coverage of the
+memory space, that is the capacity of the tool to outline the whole memory area accessed by the application. Regarding the number of captured events, we present the percentage
+relative to \Moca, as it is the tool that usually provides the more \emph{precise} traces. We define one event as one
+timestamped access found in the trace file outputted by a tool. According to this definition, \TABARNAC does not capture any event as it only keeps one
+counter per page and per thread without any temporal information. Thus, \TABARNAC is excluded from this comparison. The number of captured events is representative
+of the \emph{precision} of a monitoring tool, its capacity to keep track of all the evolutions of the access patterns during the course of the execution. The idea is
 that, the more the tool captures events, the less it misses changes in the access patterns.
 
 The second experiment compares the
@@ -282,11 +285,10 @@ slowdown factor of the different tools.  All these experiments have been run on 
     \label{fig:pages-addr}
 \end{figure}
 
-\fig{pages-addr} presents the results of the precision evaluation of the
+\fig{pages-addr} presents the results of the precision evaluation for the
 different tools. The values used for \Mitos, \MitosTun, \Moca and
 \TABARNAC result from runs on \Edel machines, while \MemProf and \MemProfTun values result from runs on
 \Stremi.
-
 We can see on \fig{pages} that \Moca captures almost as many pages as \TABARNAC.
 Regarding their design they should capture as many pages. Nevertheless, there is a slight
 bump in the number of pages used by applications monitored by \TABARNAC due to the Pin instrumentation.
@@ -294,11 +296,10 @@ Indeed, its JIT instrumentation recompiles the executable on the fly and changes
 (of the stack, mainly). Thus, we can safely ignore these differences.
 %and take \Moca as reference. \GH{Incohérent avec le choix précédent de prendre tabarnac comme référence}
 
-\Mitos usually collect less than \SI{12.5}{\%} of the pages, adding some fine tunning
+\Mitos usually collect less than \SI{12.5}{\%} of the pages, adding some fine tuning
 can almost double this number but it still misses most of the address space.
-
-Concerning \MemProf, changing the default sampling rate does not seems to
-have any noticeable impact on the end result. Both \MemProf and \MemProfTun captures significantly more pages than
+Regarding \MemProf, changing the default sampling rate does not seem to
+have any noticeable impact on the end result. Both \MemProf and \MemProfTun capture significantly more pages than
 \Mitos and \MitosTun. Nevertheless, for half of the studied applications it does
 not see more than \SI{50}{\%} of the addresses space. Only for, \BT, \LU, \SP and \UA,
 \MemProf manages to capture around \SI{75}{\%} of the accessed pages. This is explained by the fact that all these
@@ -322,7 +323,7 @@ collected by \Moca.
 These results prove that most existing tools can miss a considerable part of
 the address-space while \Moca guarantee that it provides a superset of the accessed
 pages. Furthermore they show that \Moca is the only existing tool able to provide a
-trace that is precise enough to give an good overview of the memory behavior of an application. In
+trace that is precise enough to give an good overview of the memory use of an application. In
 short, not only our tool provides a complete trace at the granularity of the
 page but it is also significantly more precise than the other existing tools.
 
