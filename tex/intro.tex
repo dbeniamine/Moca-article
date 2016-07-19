@@ -9,62 +9,61 @@ hardware mechanisms such as the memory prefetcher. It gets even more complex wit
 physical memory impacts the accesses latency and contention issues arise~\cite{Drepper07What}.
 
 Most efforts about memory performance optimizations at software level consists
-on tools such as NUMA Balancing~\cite{Corbet2012}.
-These tools automatically moves pages of data in the physical memory, trying
+in tools such as NUMA Balancing~\cite{Corbet2012}.
+These tools automatically moves pages in the physical memory, trying
 to keep them as close as possible from the threads that use them. Such
 optimizations can improve significantly the memory performances as they reduce
-the number of remote accesses. Still this cannot fix the application when its algorithms and data structures do not make a proper use of memory resources.
+the number of remote accesses. Still they cannot fix improper algorithms and data structures that do not make an efficient use of memory resources.
 For instance, if all the
 threads of an application access to the same memory page, whatever the page mapping is,
 this will result in remote accesses from all NUMA nodes but one. The only way to fix
 this kind of issues is to rewrite a part of the application code in order to take into account these
-unbalanced memory accesses. This is why tools that can help the developer understand the memory access patterns
+unbalanced memory accesses. This is why tools that can help the developer understand the memory accesses patterns
 performed by his application are of utter importance for performance optimizations.
 
 Analysis tools such as Vtune~\cite{Reinders05VTune} and
 HPCToolkit~\cite{Adhianto10HPCTOOLKIT} have been developed to help the programmer
-understand and correct performance issues in a multithreaded application. However, these tools
-focus on the CPU and can only trace an indirect and incomplete view of events related to the memory: the location of accesses,
+understand and correct performance issues in a multithreaded application. These tools
+mostly rely on hardware performance counters of the CPU and, as such, can only trace an indirect and incomplete view of events related to the memory:
+the location of accesses,
 their time or both are usually lost in the process. Thus, they are not able to provide the developer with
 a clear view of memory accesses patterns occurring during the execution. In such situation, fixing
 memory related issues is a matter of trial and error and the eventual code is often suboptimal.
 
-To solve memory related issues, the developer needs a detailed trace of memory
-accesses at a sufficiently fine \emph{granularity}.
-An ideal tool should provide enough data to build a map of the memory accesses locations over the time.
+To help the developer solve memory related issues, an ideal tool should provide enough data to build a map of the memory accesses locations over the time.
+Therefore, events in a memory trace should include information about time, space (at which address the event occurs),
+location (on which CPU it occurs) and nature of access (is this
+a read, a write, by which thread), we name such trace a \emph{detailed} trace.
+The trace has to be \emph{precise} enough, it should include a sufficiently large number of events in order to enable a sound analysis.
 Moreover, to ensure that a lack of precision
 does not compromise the analysis, such a trace should be \emph{complete}. We say that a trace is
-\emph{complete} at a certain granularity if and only if the events it contains
-form a superset of the actual accesses. To build a useful map of memory accesses performed by a parallel application, 
-events in a memory trace should also
-include information about time, space (at which address the event occurs),
-location (on which CPU it occurs) and nature of access (is this
-a read, a write, by which thread).
-Furthermore, the trace has to be sufficiently precise, that is include a sufficient number of events, in order to enable a sound analysis.
-At the time of this writing, existing memory analysis tools are not able to provide such traces.
+\emph{complete} at a given granularity if and only if the events it contains
+form a superset of the actual accesses.
+For instance, \Moca, the tool we present in this article, collects \emph{complete} traces at the page granularity.
+At the time of this writing, existing memory analysis tools are not able to provide \emph{detailed} traces that are \emph{complete} and sufficiently \emph{precise}.
 Some of them rely on instructions sampling~\cite{Liu14Tool,Lachaize12MemProf}
-mechanisms, which produce incomplete traces at a precision limited by hardware capabilities. Other ones ignore temporal information to reduce their
-overhead~\cite{Beniamine15TABARNACRR}.
+mechanisms, which produce \emph{incomplete} \emph{detailed} traces at a precision limited by hardware capabilities. Other ones ignore temporal information to reduce their
+overhead and collect non \emph{detailed} traces~\cite{Beniamine15TABARNACRR}.
 
 Indeed, generating such traces is a challenge: there is no hardware mechanism
-comparable to CPU performance counters to collect a detailed trace of memory accesses, and the volume
+comparable to CPU performance counters to collect a \emph{detailed} trace of memory accesses, and the volume
 of data to collect is huge. Methods based on binary instrumentation are too slow
-to provide a \emph{complete} trace, and efficient hardware sampling mechanisms are not designed
-to provide all the information that constitute a \emph{complete} trace.
+to provide a \emph{complete} \emph{detailed} trace, and efficient hardware sampling mechanisms are not designed
+to collect all the events required to constitute a \emph{complete} trace and do not collect at an arbitrary \emph{precision}.
 
-In this study, we present \emph{Memory Organisation Cartography and Analysis}
+In this study, we present \emph{Memory Organisation Cartography and Analysis}%
 \footnote{\Moca is distributed under GPL licence:
-    \href{https://github.com/dbeniamine/MOCA}{github.com/dbeniamine/MOCA}}
+    \href{https://github.com/dbeniamine/MOCA}{github.com/dbeniamine/MOCA}},
 an efficient memory trace collection system based on two existing techniques:
-page fault interception and false page fault injection.
-This tool is able to collect a \emph{complete} sampled memory trace at
-the spatial granularity of the page along with a parametrized temporal granularity.
-It also collects detailed information about sampled accesses, including their address and
-precise timestamp. Furthermore, \Moca is able to retrieve data structures
-information (address, size and name) using the informations contained in the application binary.
+page faults interception and false page faults injection.
+This tool is able to collect a \emph{complete} \emph{detailed} memory trace at
+the spatial granularity of the page and at a parametrized temporal granularity.
+It collects \emph{detailed} information about a particular sample of all the accesses, including the addresses and
+timestamp of these accesses. Furthermore, \Moca is able to retrieve associated data structures
+information (address, size and name) using the data contained in the application binary.
 
-The remaining of this paper is organised as follows: in section~\ref{sec:related}
-we discuss about related works, in section~\ref{sec:design} we present \Moca design, then,
+The rest of this paper is organised as follows: in section~\ref{sec:related}
+we discuss about related works, in section~\ref{sec:design} we present the \Moca design, then,
 we evaluate \Moca by comparing it to existing tools in section~\ref{sec:expe}.
 Finally, we present our conclusions and some possible future work in
 section~\ref{sec:cncl}.
