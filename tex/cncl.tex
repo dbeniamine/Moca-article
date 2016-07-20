@@ -6,55 +6,55 @@ multithreaded applications. This is a key challenge in high performance
 computing as memory is often a performance
 bottleneck. Memory traces can be used at runtime to improve data locality or
 offline by developers to understand and improve the memory
-behavior of their applications and, therefore, their performances. For online analysis the trace precision
-is limited by the number of data that can be analyzed in real time, but for
+behavior of their applications and, therefore, their performances. For online analysis the trace \emph{precision}
+is limited by the volume of data that can be analyzed in real time, but for
 offline usage, highly accurate traces can provides a better understanding of
 the application memory behavior.
 
-To address this challenge, we have proposed \Moca an efficient tool for precise
-and complete memory trace collection. While other existing tools
+To address this challenge, we propose \Moca an efficient tool for the collection of \emph{precise},
+\emph{complete} and \emph{detailed} memory traces. While existing tools
 rely on \emph{incomplete} hardware sampling to
 provide such traces at an acceptable cost, \Moca provides a \emph{complete}
 trace, that contains all the accessed areas, at the granularity of the page.
 Moreover, \Moca traces not only
-contain all pages that are accessed during the execution, but also, 
-for each access, they contain temporal, spacial and sharing
-information: which thread, accessed what addresses on which CPU and when.
+contain all the pages that are accessed during the execution, but also, 
+for each trapped access, temporal, spatial and sharing
+information: accesses are timestamped and recorded along with their thread number, CPU number, and kind.
 While \Moca works at the page granularity, it stores the exact
-address of each intercepted accesses. Therefore, it also provide an
+address of each intercepted accesses. Therefore, it also provides an
 \emph{incomplete} trace at the granularity of the byte, similar to
-traces collected by instructions sampling. Furthermore \Moca can also relate accesses to
+traces collected by instructions sampling. Furthermore, \Moca is also able to relate accesses to
 data structures of the application by combining this efficient trace collection system with an examination
 of the application binary.
 
 Most state of the art tools are relying on hardware technologies such as Intel PEBS
 or AMD IBS, and embed vendor (or processor) dependent code making them hard
 to maintain and not portable. On the contrary, \Moca is based on page
-fault interception as well as false page faults injection mechanisms and does not use any architecture dependent code.
+faults interception as well as false page faults injection mechanisms and does not use any architecture dependent code.
 It can work on any Linux kernel from $3.0$ only by loading a module and
 without any kernel modification.
 
-Several tools uses page fault interception to retrieve information about the memory
-behavior. As the information provided by only intercepting regular page fault
-is not always precise enough, a few tools also inject false page fault
-on a regular basis to increase the trace precision. To our knowledge, all the
-existing tools relying on these mechanisms uses the collected data online and
-thus does not have to manage and store a large amount of data. \Moca is the
-first tool capable of generating and storing \emph{complete} and precise memory traces for offline
+Several tools uses page faults interception to retrieve information about the memory
+use. As information provided by only intercepting regular page faults
+is not always \emph{precise} enough, a few tools also inject false page faults
+on a regular basis to increase the trace \emph{precision}. To our knowledge, all the
+existing tools relying on these mechanisms uses the collected data online and,
+thus, do not have to manage and store a large volume of data. \Moca is the
+first tool able to generate and store \emph{complete} and \emph{precise} memory traces for offline
 analysis.
 
 We evaluated \Moca by comparing it to two state of the art tools: \Mitos and
-\MemProf (with their default parameters and with some fine tunning) and one
-tool from a previous contribution \TABARNAC. For this comparison, we evaluated
-two criteria: the precision of the trace and the overhead. We ran our
-evaluation on the \NPB which is representative of multiple kinds of applications from simple kernels
+\MemProf (both with their default parameters and with some fine tunning of our own). We also compared it to a
+tool from our previous contribution, \TABARNAC. For this comparison, we evaluated
+two criteria: the \emph{precision} of the trace and the runtime overhead. We ran our
+evaluation on the \NPB which are representative of multiple kinds of applications from simple kernels
 to realistic ones. Our evaluation has exposed the fact that the tools
-relying on hardware sampling miss a significant part of the address space. It
-has also shown that \Moca is able to provide both a complete trace at the page
-granularity and a sampling at the byte granularity significantly more precise than the
-other tools. While generating comparable traces using \MemProf or \Mitos would
-require to sample all the memory instructions, which is not possible.
-Finally, \Moca overhead appears to be more important than the overhead of sampling
+relying on hardware sampling miss a large part of the address space. It
+has also shown that \Moca is able to provide both a \emph{complete} trace at the page
+granularity and a sampling at the byte granularity significantly more \emph{precise} than the
+other tools. Generating comparable traces using \MemProf or \Mitos would
+require to sample more memory instructions than the hardware can.
+Finally, \Moca overhead is more important than the overhead of sampling
 based tools but usually lower than the one induced by binary instrumentation.
 % Déjà dit plus haut
 %Moreover, adding the Pin instrumentation to retrieve date structures
