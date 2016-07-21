@@ -24,44 +24,44 @@ cluster (Intel machines).
        \\\url{https://www.grid5000.fr/mediawiki/index.php/Reims:Hardware\#Stremi}}
     are summarized in \tbl{hw}.
 
-\begin{table}[t]
+\begin{table*}[t]
     \centering
-    \begin{tabular}{lp{1.1cm}rrp{1.35cm}p{1.1cm}}
+    \begin{tabular}{lllllllllll}
         \toprule
-        \multirow{3}{.8cm}{CPU}
-        %&  & \multicolumn{2}{c}{Vendor} & \multicolumn{2}{c}{Model} \\
-        %\cmidrule(lr){3-6}
-        & \Edel  & \multicolumn{4}{c}{Intel Xeon E5520} \\
-        % & \Idfreeze & \multicolumn{2}{c}{AMD} & \multicolumn{2}{c}{Opteron 6174} \\
-        & \Stremi & \multicolumn{4}{c}{AMD Opteron 6164 HE} \\
-        \midrule
-        \multirow{3}{.8cm}{System totals}
-        & & Nodes & Threads & Freq & Memory \\
-        \cmidrule(lr){3-6}
-        & \Edel   & $2$ & $8$ & \SI{2.27}{Ghz} & \SI{24}{Gib} \\
-        %& \Idfreeze & $8$ & $48$ & \SI{2.20}{Ghz} & \SI{256}{Gib}\\
-        & \Stremi & $2$ & $24$ & \SI{1.7}{Ghz} & \SI{48}{Gib}\\
-        \midrule
-        \multirow{3}{.8cm}{Per node}
-        & & Cores & Threads & L3 Cache & Memory \\
-        \cmidrule(lr){3-6}
-        & \Edel   & $4$ & $4$ & \SI{8}{Mib} & \SI{12}{Gib} \\
-        %& \Idfreeze & $6$ & $6$  & \SI{12}{Mib} & \SI{32}{Gib} \\
-        & \Stremi & $12$ & $12$  & \SI{12}{Mib} & \SI{24}{Gib} \\
+        & \multicolumn{2}{c}{CPU} &
+            \multicolumn{4}{c}{System totals} &
+            \multicolumn{4}{c}{Per node} \\
+        \cmidrule(l){2-3}
+        \cmidrule(l){4-7}
+        \cmidrule(l){8-11}
+        & Vendor & Model &
+            Nodes & Threads & Frequency & Memory &
+            Cores & Threads & L3 Cache & Memory \\
+        \cmidrule(l){2-3}
+        \cmidrule(l){4-7}
+        \cmidrule(l){8-11}
+        \Edel &
+            Intel & Xeon E5520 &
+            $2$ & $8$ & \SI{2.27}{Ghz} & \SI{24}{Gib} &
+            $4$ & $4$ & \SI{8}{Mib} & \SI{12}{Gib} \\
+        \Stremi &
+            AMD & Opteron 6164 HE &
+            $2$ & $24$ & \SI{1.7}{Ghz} & \SI{48}{Gib} &
+            $12$ & $12$  & \SI{12}{Mib} & \SI{24}{Gib} \\
         \bottomrule
     \end{tabular}
     \caption{Hardware configuration of our evaluation system.}
     \label{tab:hw}
-\end{table}
+\end{table*}
 
 \begin{table*}[htb]
     \centering
     \begin{tabular}{llllllll}
         \toprule
         & \multicolumn{2}{c}{Design} & \multicolumn{2}{c}{\emph{Completeness}} & \multicolumn{3}{c}{\emph{Detail}} \\
-        %\cmidrule(l){2-3}
-        %\cmidrule(l){4-5}
-        %\cmidrule(l){6-8}
+        \cmidrule(l){2-3}
+        \cmidrule(l){4-5}
+        \cmidrule(l){6-8}
         & Mechanisms &
           Architectures &
           Trace Granularity &
