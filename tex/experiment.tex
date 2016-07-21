@@ -308,7 +308,7 @@ This is coherent with the fact that \MemProf is solely based on instructions sam
 
 From \fig{addr} we can see that, as expected, for almost every benchmarks,
 \Moca collects significantly more events than the other tools.  The only
-benchmark for which \Moca is not the more precise tool is \EP which is an
+benchmark for which \Moca is not the more \emph{precise} tool is \EP which is an
 Embarrassingly Parallel application with very few memory accesses.
 This outlines the fact that \Moca captures events in an uniform way, timed by the monitoring interval.
 On the contrary, the other tools might capture more events in a few hotspots presents in the application but miss
@@ -323,9 +323,9 @@ collected by \Moca.
 These results prove that most existing tools can miss a considerable part of
 the address-space while \Moca guarantee that it provides a superset of the accessed
 pages. Furthermore they show that \Moca is the only existing tool able to provide a
-trace that is precise enough to give an good overview of the memory use of an application. In
-short, not only our tool provides a complete trace at the granularity of the
-page but it is also significantly more precise than the other existing tools.
+trace that is \emph{precise} enough to give an good overview of the memory use of an application. In
+short, not only our tool provides a \emph{complete} trace at the granularity of the
+page but it is also significantly more \emph{precise} than the other existing tools.
 
 \begin{figure}[htb]
     \centering
@@ -406,8 +406,8 @@ to confirm that the performance becomes comparable to \TABARNAC in this case.
 (\Stremi). On this machine, \Moca overhead is quite similar to the one
 obtained on \Edel.
 \MemProf exhibits a slowdown factor comparable to \Mitos while
-providing traces a little more precise. Nevertheless, they are still \emph{incomplete} and
-way less precise than \Moca traces. Obviously \MemProfTun has the same
+providing traces a little more \emph{precise}. Nevertheless, they are still \emph{incomplete} and
+way less \emph{precise} than \Moca traces. Obviously \MemProfTun has the same
 overhead as \MemProf as it capture the same amount of data.
 
 Finally, we can see, as expected, that adding one execution with a Pin
