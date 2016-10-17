@@ -22,7 +22,7 @@ for each trapped access, temporal, spatial and sharing
 information: accesses are timestamped and recorded along with their thread number, CPU number, and kind.
 While \Moca works at the page granularity, it stores the exact
 address of each intercepted accesses. Therefore, it also provides an
-\emph{incomplete} trace at the granularity of the byte, similar to
+\emph{incomplete} trace at the granularity of the Byte, similar to
 traces collected by instructions sampling. Furthermore, \Moca is also able to relate accesses to
 data structures of the application by combining this efficient trace collection system with an examination
 of the application binary.
@@ -51,7 +51,7 @@ evaluation on the \NPB which are representative of multiple kinds of application
 to realistic ones. Our evaluation has exposed the fact that the tools
 relying on hardware sampling miss a large part of the address space. It
 has also shown that \Moca is able to provide both a \emph{complete} trace at the page
-granularity and a sampling at the byte granularity significantly more \emph{precise} than the
+granularity and a sampling at the Byte granularity significantly more \emph{precise} than the
 other tools. Generating comparable traces using \MemProf or \Mitos would
 require to sample more memory instructions than the hardware can.
 Finally, \Moca overhead is more important than the overhead of sampling
