@@ -303,7 +303,7 @@ From \fig{addr} we can see that, as expected, for almost every benchmarks,
 \Moca collects significantly more events than the other tools.  The only
 benchmark for which \Moca is not the more \emph{precise} tool is \EP which is an
 Embarrassingly Parallel application with very few memory accesses.
-This outlines the fact that \Moca captures events in an uniform way, timed by the monitoring interval.
+This outlines the fact that \Moca captures events in a uniform way, timed by the monitoring interval.
 On the contrary, the other tools might capture more events in a few hotspots presents in the application but miss
 sparse accesses during the rest of the execution.
 For almost
@@ -316,7 +316,7 @@ collected by \Moca.
 These results prove that most existing tools can miss a considerable part of
 the address-space while \Moca guarantee that it provides a superset of the accessed
 pages. Furthermore they show that \Moca is the only existing tool able to provide a
-trace that is \emph{precise} enough to give an good overview of the memory use of an application. In
+trace that is \emph{precise} enough to give a good overview of the memory use of an application. In
 short, not only our tool provides a \emph{complete} trace at the granularity of the
 page but it is also significantly more \emph{precise} than the other existing tools.
 

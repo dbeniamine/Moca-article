@@ -18,13 +18,16 @@ Jiang14Understanding,Bosch00Rivet,Weyers14Visualization,Tao01Visualizing,DeRose0
 Several generic tools have been designed on top of hardware performance counters
 to analyze and improve parallel applications performances, such as Intel's
 VTune~\cite{Reinders05VTune}, Performance Counter
-Monitor~(PCM)~\cite{Intel2012b}, the HPCToolkit~\cite{Adhianto10HPCTOOLKIT},
-and AMD's CodeAnalyst~\cite{Drongowski2008}.
+Monitor~(PCM)~\cite{Intel2012b}, AMD's CodeAnalyst~\cite{Drongowski2008},
+and the HPCToolkit~\cite{Adhianto10HPCTOOLKIT}.
 %
 Although performance counters provide information about the memory use
 (bandwith, volume of data transferred \ldots),  they consider the memory as
 one huge entity and do not differentiate distinct addresses or at least
 distinct pages. Thus, these methods are not able to locate issues in the memory.
+To cope with these limitations, Liu et al. recently extended HPCToolkit to collect memory
+traces~\cite{Liu14Tool}, using a method that will be discussed later in this section.
+
 
 Some tools see the memory as a set of pages, loosing information at a finer
 granularity. This approximation enable to trace memory accesses at a reduced
@@ -45,7 +48,7 @@ Still, on a small matrix multiplication ($48*48$, 4 threads OpenMP) they already
 slow the execution down by a factor of $50$.
 % sampling:
 Other methods, implemented by several
-tools~\cite{Lachaize12MemProf,McCurdy10Memphis,Liu14Tool,Gimenez14Dissecting},
+tools, such as Memprof~\cite{Lachaize12MemProf}, MemPhis~\cite{McCurdy10Memphis}, Mitos~\cite{Gimenez14Dissecting} and HPCToolkit~\cite{Liu14Tool},
 rely on hardware sampling such as AMD's Instruction Based Sampling
 (IBS)~\cite{Drongowski07Instructionbased} or Intel Precise Event Based
 Sampling (PEBS)~\cite{Levinthal2009}.  These methods provide \emph{incomplete}
